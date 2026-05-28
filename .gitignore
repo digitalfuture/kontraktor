@@ -1,6 +1,5 @@
 node_modules/
 dist/
-*.db
 .env
 .env.*
 .hermes/
@@ -9,3 +8,15 @@ pm2-*.json
 *.log
 .DS_Store
 Thumbs.db
+
+# Database files
+data/
+*.db
+*.db-shm
+*.db-wal
+backups/
+
+# Scratch / temp
+scratch_*.js
+scratch_*.py
+*.corrupted
