@@ -1,0 +1,7 @@
+{
+  "watch": ["src/"],
+  "ext": "ts,ejs,json,js",
+  "exec": "npx ts-node src/index.ts",
+  "delay": "1000",
+  "restartTimeout": 1000
+}

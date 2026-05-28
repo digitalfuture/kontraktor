@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="<%= typeof locale !== 'undefined' ? locale : 'en' %>">
+  <%- include('partials/_head') %>
+<body class="bg-gray-200 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+  <%- include('partials/_anti-flash') %>
+  <%- include('partials/header') %>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold"><%= t('contractors.title') %></h1>
+        <p class="text-gray-600 dark:text-gray-300 mt-1"><%= contractors.length %> <%= t('contractors.subtitle') %></p>
+      </div>
+      <a href="/contractors/register" class="bg-orange-700 text-white px-5 py-2 rounded-lg hover:bg-orange-800 transition font-medium text-sm">
+        <%= t('contractors.join') %>
+      </a>
+    </div>
+
+    <!-- Search & Filters -->
+    <form method="GET" action="/contractors" class="flex flex-col sm:flex-row gap-3 mb-8">
+      <div class="flex-1">
+        <input type="text" name="search" value="<%= search %>" placeholder="<%= t('contractors.searchPlaceholder') %>"
+          class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 outline-none">
+      </div>
+      <div class="sm:w-48">
+        <select name="specialty" onchange="this.form.submit()"
+          class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 outline-none">
+          <option value=""><%= t('contractors.allSpecialties') %></option>
+          <% if (typeof specialties !== 'undefined') { specialties.forEach(function(s) { %>
+          <option value="<%= s.specialty %>" <%= specialty === s.specialty ? 'selected' : '' %>><%= s.specialty %></option>
+          <% }); } %>
+        </select>
+      </div>
+      <button type="submit" class="bg-orange-700 text-white px-6 py-2.5 rounded-lg hover:bg-orange-800 transition font-medium text-sm whitespace-nowrap">
+        <%= t('contractors.search') %>
+      </button>
+      <% if (search || specialty) { %>
+      <a href="/contractors" class="text-sm text-gray-500 dark:text-gray-300 hover:text-orange-600 px-3 py-2.5"><%= t('contractors.clear') %></a>
+      <% } %>
+    </form>
+
+    <% if (contractors.length === 0) { %>
+    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+      <p class="text-gray-500 dark:text-gray-300 text-lg mb-4"><%= t('contractors.noContractors') %></p>
+      <% if (search || specialty) { %>
+      <a href="/contractors" class="text-orange-700 hover:underline"><%= t('projects.clearFilters') %></a>
+      <% } else { %>
+      <a href="/contractors/register" class="inline-block bg-orange-700 text-white px-6 py-2 rounded-lg hover:bg-orange-800 transition font-medium">
+        <%= t('contractors.beFirst') %>
+      </a>
+      <% } %>
+    </div>
+    <% } else { %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% contractors.forEach(function(c) { %>
+      <a href="/contractors/<%= c.id %>" class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition block group">
+        <div class="flex items-center gap-4 mb-4">
+          <% if (c.avatar_url) { %>
+          <img src="<%= c.avatar_url %>" alt="<%= c.name %>" class="w-14 h-14 rounded-full object-cover border-2 border-orange-200 dark:border-orange-800" loading="lazy" width="56" height="56">
+          <% } else { %>
+          <div class="w-14 h-14 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-xl font-bold text-orange-700 group-hover:bg-orange-200 dark:group-hover:bg-orange-900/50 transition">
+            <%= c.name.charAt(0).toUpperCase() %>
+          </div>
+          <% } %>
+          <div>
+            <h3 class="font-semibold text-lg group-hover:text-orange-600 transition"><%= c.name %></h3>
+            <p class="text-sm text-gray-500 dark:text-gray-300"><%= c.specialty || t('contractors.general') %></p>
+            <% if (c.is_verified) { %>
+            <span class="text-xs text-green-600 dark:text-green-400">✓ <%= t('contractors.verified') %></span>
+            <% } %>
+          </div>
+        </div>
+        <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
+          <% var avg = parseFloat(c.avg_rating || 0); %>
+          <% if (avg > 0) { %>
+          <span>⭐ <%= avg.toFixed(1) %> (<%= c.review_count %>)</span>
+          <% } else { %>
+          <span class="text-gray-400"><%= t('contractors.noReviews') %></span>
+          <% } %>
+        </div>
+        <% if (c.bio) { %>
+        <p class="text-sm text-gray-500 dark:text-gray-300 mt-3 line-clamp-2"><%= c.bio %></p>
+        <% } %>
+      </a>
+      <% }); %>
+    </div>
+    <% } %>
+
+    <!-- Pagination -->
+    <%- include('partials/pagination') %>
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

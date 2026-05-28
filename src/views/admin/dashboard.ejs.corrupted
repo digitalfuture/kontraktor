@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="<%= typeof locale !== 'undefined' ? locale : 'en' %>">
+  <%- include('../partials/_head') %>
+<body class="bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+  <%- include('../partials/_anti-flash') %>
+  <div class="flex h-screen overflow-hidden">
+    <%- include('_sidebar', { activePage: 'dashboard', t: t, locale: locale }) %>
+    <main class="flex-1 overflow-y-auto">
+      <div class="p-4 sm:p-6 lg:p-8">
+        <!-- Top Row (Header) -->
+        <div class="flex items-center justify-between min-[1600px]:justify-end mb-4 sm:mb-8">
+          <button onclick="const a=document.querySelector('aside');a.classList.toggle('-translate-x-full');a.classList.toggle('translate-x-0')" class="min-[1600px]:hidden p-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 active:bg-gray-100 dark:active:bg-gray-600 transition-colors cursor-pointer w-max focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div class="flex items-center">
+            <%- include('_controls', { locale: locale, locales: typeof locales !== 'undefined' ? locales : ['id', 'en'] }) %>
+          </div>
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        <!-- Bottom Row (Title & Actions) -->
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white leading-none"><%= t('admin.dashboard') %></h1>
+            <p class="text-gray-500 dark:text-gray-300 mt-2 text-sm sm:text-base leading-none"><%= t("admin.overview") %></p>
+          </div>
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          <a href="/admin/projects" class="block bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700 transition hover:scale-[1.02] hover:shadow-card-hover hover:border-blue-300 dark:hover:border-blue-900/50 group">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition"><%= t('admin.projects') %></h3>
+              <span class="bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs px-2 py-1 rounded-full font-medium"><%= stats.pendingProjects %> <%= t("admin.new") %></span>
+            </div>
+            <p class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"><%= stats.totalProjects %></p>
+            <p class="text-sm text-gray-500 dark:text-gray-300 mt-1"><%= t('admin.totalProjects') %></p>
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+          <a href="/admin/contractors" class="block bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700 transition hover:scale-[1.02] hover:shadow-card-hover hover:border-orange-300 dark:hover:border-orange-900/50 group">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition"><%= t('admin.contractors') %></h3>
+            </div>
+            <p class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"><%= stats.totalContractors %></p>
+            <p class="text-sm text-gray-500 dark:text-gray-300 mt-1"><%= t('admin.totalContractors') %></p>
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+          <a href="/admin/users" class="block bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700 transition hover:scale-[1.02] hover:shadow-card-hover hover:border-purple-300 dark:hover:border-purple-900/50 group">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition"><%= t('admin.clients') %></h3>
+            </div>
+            <p class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"><%= stats.totalClients %></p>
+            <p class="text-sm text-gray-500 dark:text-gray-300 mt-1"><%= t('admin.totalInSystem') %></p>
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+          <a href="/admin/reviews" class="block bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700 transition hover:scale-[1.02] hover:shadow-card-hover hover:border-yellow-300 dark:hover:border-yellow-900/50 group">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300 group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition"><%= t('admin.reviews') %></h3>
+              <span class="bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300 text-xs px-2 py-1 rounded-full font-medium"><%= stats.unmoderatedReviews %> <%= t('admin.pending') %></span>
+            </div>
+            <p class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"><%= stats.totalReviews %></p>
+            <p class="text-sm text-gray-500 dark:text-gray-300 mt-1"><%= t('admin.totalReviews') %></p>
+          </a>
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        <!-- === ANALYTICAL CHARTS === -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          <!-- Projects by Category Chart -->
+          <div class="bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700">
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+            <% 
+              var maxCount = 1;
+              categoryStats.forEach(function(c) {
+                if (c.count > maxCount) maxCount = c.count;
+              });
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+            <div class="space-y-4">
+              <% categoryStats.forEach(function(c) { %>
+              <% var pct = Math.round((c.count / maxCount) * 100); %>
+              <div>
+                <div class="flex items-center justify-between text-xs sm:text-sm mb-1.5">
+                  <span class="text-gray-700 dark:text-gray-300 font-medium"><%= c.name %></span>
+                  <span class="text-gray-900 dark:text-white font-bold"><%= c.count %></span>
+                </div>
+                <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-3.5 overflow-hidden">
+                  <div class="bg-gradient-to-r from-orange-600 to-orange-400 h-full rounded-full transition-all duration-500 ease-out" style="width: <%= Math.max(pct, 2) %>%"></div>
+                </div>
+              </div>
+              <% }); %>
+            </div>
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+          <!-- User Base Distribution Chart -->
+          <div class="bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700 flex flex-col justify-between">
+            <div>
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+              <%
+                var total = 0;
+                var roleMap = { client: 0, contractor: 0, admin: 0 };
+                roleStats.forEach(function(r) {
+                  roleMap[r.role] = r.count;
+                  total += r.count;
+                });
+                var clientPct = total > 0 ? Math.round((roleMap.client / total) * 100) : 0;
+                var contractorPct = total > 0 ? Math.round((roleMap.contractor / total) * 100) : 0;
+                var adminPct = total > 0 ? Math.round((roleMap.admin / total) * 100) : 0;
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+              <!-- Segmented Progress Bar -->
+              <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-6 flex overflow-hidden mb-8 shadow-inner">
+                <div class="bg-blue-500 h-full transition-all duration-500" style="width: <%= clientPct %>%" title="Clients: <%= clientPct %>%"></div>
+                <div class="bg-orange-500 h-full transition-all duration-500" style="width: <%= contractorPct %>%" title="Contractors: <%= contractorPct %>%"></div>
+                <div class="bg-red-500 h-full transition-all duration-500" style="width: <%= adminPct %>%" title="Admins: <%= adminPct %>%"></div>
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+              <!-- Legends & Counts -->
+              <div class="space-y-4">
+                <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-2.5">
+                  <div class="flex items-center gap-2">
+                    <span class="w-3.5 h-3.5 bg-blue-500 rounded-full"></span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300 font-medium"><%= t('admin.clients') %></span>
+                  </div>
+                  <div class="flex items-center gap-4">
+                    <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-md min-w-[48px] text-center"><%= clientPct %>%</span>
+                    <span class="text-sm font-bold text-gray-900 dark:text-white min-w-[20px] text-right"><%= roleMap.client %></span>
+                  </div>
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+                <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-2.5">
+                  <div class="flex items-center gap-2">
+                    <span class="w-3.5 h-3.5 bg-orange-500 rounded-full"></span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300 font-medium"><%= t('admin.contractorsLabel') %></span>
+                  </div>
+                  <div class="flex items-center gap-4">
+                    <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-md min-w-[48px] text-center"><%= contractorPct %>%</span>
+                    <span class="text-sm font-bold text-gray-900 dark:text-white min-w-[20px] text-right"><%= roleMap.contractor %></span>
+                  </div>
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="w-3.5 h-3.5 bg-red-500 rounded-full"></span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300 font-medium"><%= t('admin.administrators') %></span>
+                  </div>
+                  <div class="flex items-center gap-4">
+                    <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-md min-w-[48px] text-center"><%= adminPct %>%</span>
+                    <span class="text-sm font-bold text-gray-900 dark:text-white min-w-[20px] text-right"><%= roleMap.admin %></span>
+                  </div>
+                </div>
+              </div>
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+            <div class="mt-6 p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-gray-500 dark:text-gray-300 text-center">
+              Active database users: <span class="font-semibold text-gray-800 dark:text-gray-200"><%= total %></span>
+            </div>
+          </div>
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        <!-- === CHARTS: Sankey + Map (side by side on desktop) === -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          <!-- Sankey Diagram Card -->
+          <div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 overflow-hidden chart-card" id="sankey-card">
+            <div class="p-4 sm:p-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+              <div>
+                <h2 class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white"><%= t('admin.sankeyTitle') %></h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"><%= t('admin.sankeyDesc') %></p>
+              </div>
+              <button onclick="toggleExpand('sankey-card')" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer expand-btn" title="Expand">
+                <svg class="w-4 h-4 expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+              </button>
+            </div>
+            <div class="relative w-full h-[280px] sm:h-[400px] bg-slate-50 dark:bg-slate-900/50">
+              <div id="sankey-chart" class="w-full h-full overflow-hidden"></div>
+              <div id="sankey-loading" class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                <span class="text-gray-500 dark:text-gray-400 font-medium animate-pulse text-sm"><%= t('admin.loadingGraph') %></span>
+              </div>
+            </div>
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+          <!-- Indonesia Map Card -->
+          <div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 overflow-hidden chart-card" id="map-card">
+            <div class="p-4 sm:p-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+              <div>
+                <h2 class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white"><%= t('admin.mapTitle') || 'Project Map' %></h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"><%= t('admin.mapDesc') || 'Projects across Indonesia' %></p>
+              </div>
+              <button onclick="toggleExpand('map-card')" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer expand-btn" title="Expand">
+                <svg class="w-4 h-4 expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+              </button>
+            </div>
+            <div class="relative w-full h-[280px] sm:h-[400px] bg-slate-50 dark:bg-slate-900/50">
+              <div id="map-chart" class="w-full h-full overflow-hidden"></div>
+              <div id="map-loading" class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                <span class="text-gray-500 dark:text-gray-400 font-medium animate-pulse text-sm"><%= t('admin.loadingGraph') %></span>
+              </div>
+            </div>
+          </div>
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        <!-- Recent Projects Table -->
+        <div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 mb-6 sm:mb-8">
+          <div class="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+            <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white"><%= t('admin.projects') %></h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 dark:bg-gray-900/50">
+                <tr>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 w-10"></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-2 sm:px-3 lg:px-6 py-3 w-10">ID</th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3"><%= t("admin.title") %></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 hidden sm:table-cell"><%= t("admin.client") %></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 hidden lg:table-cell"><%= t("admin.category") %></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 hidden lg:table-cell"><%= t("admin.budget") %></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3"><%= t("projects.allStatuses") %></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 hidden lg:table-cell"><%= t("admin.date") %></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                <% if (recentProjects.length === 0) { %>
+                <tr><td colspan="8" class="px-4 sm:px-6 py-8 text-center text-gray-500 dark:text-gray-300"><%= t('admin.noProjects') %></td></tr>
+                <% } else { %>
+                <% recentProjects.forEach(function(order) { %>                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition expand-trigger" data-row-id="do<%= order.id %>">
+                  <td class="px-4 sm:px-6 py-4 text-gray-400 dark:text-gray-500">
+                    <svg class="w-4 h-4 expand-icon transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                  </td>
+                  <td class="px-2 sm:px-3 lg:px-6 py-4 text-sm text-gray-500 dark:text-gray-300">#<%= order.id %></td>
+                  <td class="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900 dark:text-white max-w-[200px] truncate"><%= order.title %></td>
+                  <td class="px-4 sm:px-6 py-4 text-sm text-gray-600 dark:text-gray-300 hidden sm:table-cell"><%= order.contact_name %></td>
+                  <td class="px-4 sm:px-6 py-4 text-sm text-gray-600 dark:text-gray-300 hidden lg:table-cell"><%= order.category_name || '—' %></td>
+                  <td class="px-4 sm:px-6 py-4 text-sm text-gray-900 dark:text-white font-medium hidden lg:table-cell"><%= formatBudget(order.budget, locale) %></td>
+                  <td class="px-4 sm:px-6 py-4">
+                    <%- include('../partials/_status-badge', { status: order.status, type: 'project' }) %>
+                  </td>
+                  <td class="px-4 sm:px-6 py-4 text-sm text-gray-500 dark:text-gray-300 hidden lg:table-cell"><%= order.created_at %></td>
+                </tr>
+                <tr class="expand-detail" id="detail-do<%= order.id %>" style="display:none;">
+                  <td colspan="8" class="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-orange-500">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-1"><%= t('admin.title') %></p>
+                        <p class="text-gray-900 dark:text-white"><%= order.title %></p>
+                      </div>
+                      <div>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-1"><%= t('admin.client') %></p>
+                        <p class="text-gray-900 dark:text-white"><%= order.contact_name %></p>
+                      </div>
+                      <div>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-1"><%= t('admin.phone') %></p>
+                        <p class="text-gray-900 dark:text-white"><%= order.contact_phone || '—' %></p>
+                      </div>
+                      <div class="sm:col-span-2 lg:col-span-3">
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-1"><%= t('admin.description') %></p>
+                        <p class="text-gray-900 dark:text-white"><%= order.description || '—' %></p>
+                      </div>
+                      <div>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-1"><%= t('admin.budget') %></p>
+                        <p class="text-gray-900 dark:text-white font-medium"><%= formatBudget(order.budget, locale) %></p>
+                      </div>
+                      <div>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-1"><%= t('admin.category') %></p>
+                        <p class="text-gray-900 dark:text-white"><%= order.category_name || '—' %></p>
+                      </div>
+                      <div>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-1"><%= t('admin.address') %></p>
+                        <p class="text-gray-900 dark:text-white"><%= order.district_display || '' %><% if (order.district_display && order.address) { %>, <% } %><%= order.address || '—' %></p>
+                      </div>
+                      <div>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-1"><%= t('admin.date') %></p>
+                        <p class="text-gray-900 dark:text-white"><%= order.created_at %></p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <% }); %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        <!-- Recent Users Table -->
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+            <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white"><%= t('admin.recentUsers') %></h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 dark:bg-gray-900/50">
+                <tr>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 w-10"></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-2 sm:px-3 lg:px-6 py-3 w-10">ID</th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3"><%= t("admin.email") %></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 hidden sm:table-cell"><%= t("admin.name") %></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3"><%= t("admin.role") %></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 hidden md:table-cell"><%= t("admin.date") %></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                <% if (recentUsers.length === 0) { %>
+                <tr><td colspan="6" class="px-4 sm:px-6 py-8 text-center text-gray-500 dark:text-gray-300"><%= t('admin.noUsers') %></td></tr>
+                <% } else { %>
+                <% recentUsers.forEach(function(u) { %>
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition expand-trigger" data-row-id="du<%= u.id %>">
+                  <td class="px-4 sm:px-6 py-4 text-gray-400 dark:text-gray-500">
+                    <svg class="w-4 h-4 expand-icon transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                  </td>
+                  <td class="px-2 sm:px-3 lg:px-6 py-4 text-sm text-gray-500 dark:text-gray-300">#<%= u.id %></td>
+                  <td class="px-4 sm:px-6 py-4 text-sm text-gray-900 dark:text-white max-w-[200px] truncate"><%= u.email %></td>
+                  <td class="px-4 sm:px-6 py-4 text-sm text-gray-600 dark:text-gray-300 hidden sm:table-cell"><%= u.name || '—' %></td>
+                  <td class="px-4 sm:px-6 py-4">
+                    <%- include('../partials/_status-badge', { status: u.role, type: 'user' }) %>
+                  </td>
+                  <td class="px-4 sm:px-6 py-4 text-sm text-gray-500 dark:text-gray-300 hidden md:table-cell"><%= u.created_at %></td>
+                </tr>
+                <tr class="expand-detail" id="detail-du<%= u.id %>" style="display:none;">
+                  <td colspan="6" class="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-orange-500">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-1"><%= t('admin.email') %></p>
+                        <p class="text-gray-900 dark:text-white"><%= u.email %></p>
+                      </div>
+                      <div>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-1"><%= t('admin.name') %></p>
+                        <p class="text-gray-900 dark:text-white"><%= u.name || '—' %></p>
+                      </div>
+                      <div>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-1"><%= t('admin.role') %></p>
+                        <div class="mt-1">
+                          <%- include('../partials/_status-badge', { status: u.role, type: 'user' }) %>
+                        </div>
+                      </div>
+                      <div>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-1"><%= t('admin.date') %></p>
+                        <p class="text-gray-900 dark:text-white"><%= u.created_at %></p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <% }); %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+  <!-- Sankey Diagram (D3) -->
+  <script src="/js/d3.min.js"></script>
+  <script src="/js/d3-sankey.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const container = document.getElementById('sankey-chart');
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+      try {
+        const response = await fetch('/admin/api/sankey');
+        const data = await response.json();
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        if (!data.nodes || data.nodes.length === 0) {
+          container.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400"><%= t("admin.noProjects") %></div>';
+          return;
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        function renderSankey() {
+          container.innerHTML = '';
+          const rect = container.getBoundingClientRect();
+        const W = rect.width, H = rect.height;
+        const isMobile = W < 500;
+        const margin = isMobile
+          ? { top: 20, right: 10, bottom: 20, left: 10 }
+          : { top: 20, right: 160, bottom: 35, left: 160 };
+        const innerW = W - margin.left - margin.right;
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        const COLORS = {
+          client: isDark ? '#60a5fa' : '#2563eb',
+          project: isDark ? '#a78bfa' : '#7c3aed',
+          contractor: isDark ? '#fb923c' : '#ea580c'
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        // Build sankey data
+        const sankeyNodes = data.nodes.map((n, i) => ({ ...n, index: i }));
+        const sankeyLinks = data.links.map(l => ({
+          source: l.source,
+          target: l.target,
+          value: Math.max(l.value, 1)
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        const sankey = d3.sankey()
+          .nodeId(d => d.index)
+          .nodeWidth(isMobile ? 10 : 16)
+          .nodePadding(isMobile ? 4 : 8)
+          .nodeAlign(d3.sankeyLeft)
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        const graph = sankey({
+          nodes: sankeyNodes.map(d => ({ ...d })),
+          links: sankeyLinks.map(d => ({ ...d }))
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        const svg = d3.select(container).append('svg')
+          .attr('width', '100%')
+          .attr('height', '100%')
+          .attr('viewBox', `0 0 ${W} ${H}`)
+          .attr('preserveAspectRatio', 'xMidYMid meet')
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        const g = svg.append('g')
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        // Gradient defs
+        const defs = svg.append('defs');
+        graph.links.forEach((link, i) => {
+          const gradient = defs.append('linearGradient')
+            .attr('id', `link-gradient-${i}`)
+            .attr('gradientUnits', 'userSpaceOnUse')
+            .attr('x1', link.source.x1).attr('x2', link.target.x0);
+          gradient.append('stop').attr('offset', '0%').attr('stop-color', COLORS[link.source.type]).attr('stop-opacity', 0.5);
+          gradient.append('stop').attr('offset', '100%').attr('stop-color', COLORS[link.target.type]).attr('stop-opacity', 0.5);
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        // Links
+        const link = g.append('g').selectAll('path').data(graph.links).join('path')
+          .attr('d', d3.sankeyLinkHorizontal())
+          .attr('fill', 'none')
+          .attr('stroke', (d, i) => `url(#link-gradient-${i})`)
+          .attr('stroke-width', d => Math.max(1, d.width))
+          .attr('stroke-opacity', 0.4)
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        // Tooltip
+        const tooltip = d3.select(container).append('div')
+          .style('position', 'absolute')
+          .style('pointer-events', 'none')
+          .style('background', isDark ? '#1f2937' : '#ffffff')
+          .style('border', `1px solid ${isDark ? '#4b5563' : '#e5e7eb'}`)
+          .style('border-radius', '8px')
+          .style('padding', '8px 12px')
+          .style('font-size', '12px')
+          .style('color', isDark ? '#f3f4f6' : '#111827')
+          .style('box-shadow', '0 4px 12px rgba(0,0,0,0.15)')
+          .style('opacity', 0)
+          .style('transition', 'opacity 0.15s')
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        // Link hover
+        link.on('mouseover', function(e, d) {
+          d3.select(this).attr('stroke-opacity', 0.8);
+          const budget = d.value > 1 ? ` — Rp ${d.value.toLocaleString('id-ID')}` : '';
+          tooltip.html(`<strong>${d.source.name}</strong> → <strong>${d.target.name}</strong>${budget}`)
+            .style('opacity', 1)
+            .style('left', (e.offsetX + 15) + 'px')
+            .style('top', (e.offsetY - 10) + 'px');
+        })
+        .on('mousemove', function(e) {
+          tooltip.style('left', (e.offsetX + 15) + 'px').style('top', (e.offsetY - 10) + 'px');
+        })
+        .on('mouseout', function() {
+          d3.select(this).attr('stroke-opacity', 0.4);
+          tooltip.style('opacity', 0);
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        // Nodes
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        node.append('rect')
+          .attr('x', d => d.x0).attr('y', d => d.y0)
+          .attr('width', d => d.x1 - d.x0)
+          .attr('height', d => Math.max(1, d.y1 - d.y0))
+          .attr('fill', d => COLORS[d.type])
+          .attr('stroke', d => d3.color(COLORS[d.type]).darker(0.5))
+          .attr('stroke-width', 1)
+          .attr('rx', 3)
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        // Node labels (hide on mobile)
+        if (!isMobile) {
+          node.append('text')
+            .attr('x', d => d.type === 'client' ? d.x0 - 8 : d.x1 + 8)
+            .attr('y', d => (d.y0 + d.y1) / 2)
+            .attr('dy', '0.35em')
+            .attr('text-anchor', d => d.type === 'client' ? 'end' : 'start')
+            .attr('fill', isDark ? '#d1d5db' : '#374151')
+            .attr('font-size', d => d.type === 'project' ? '9px' : '11px')
+            .attr('font-family', 'Inter, sans-serif')
+            .style('pointer-events', 'none')
+            .text(d => {
+              const name = d.name || d.id;
+              return name.length > 25 ? name.slice(0, 22) + '…' : name;
+            });
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        // Status badges for projects
+        node.filter(d => d.type === 'project').append('text')
+          .attr('x', d => (d.x0 + d.x1) / 2)
+          .attr('y', d => d.y0 - 4)
+          .attr('text-anchor', 'middle')
+          .attr('fill', d => d.status === 'completed' ? '#10b981' : d.status === 'in_progress' ? '#f59e0b' : '#6b7280')
+          .attr('font-size', '8px')
+          .attr('font-family', 'Inter, sans-serif')
+          .style('pointer-events', 'none')
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        // Column labels (hide on mobile)
+        if (!isMobile) {
+          const labelY = -8;
+          g.append('text').attr('x', 0).attr('y', labelY)
+            .attr('fill', isDark ? '#9ca3af' : '#6b7280')
+            .attr('font-size', '12px').attr('font-weight', '600')
+            .attr('font-family', 'Inter, sans-serif')
+            .text('<%= t("admin.clients") %>');
+          g.append('text').attr('x', innerW / 2).attr('y', labelY)
+            .attr('text-anchor', 'middle')
+            .attr('fill', isDark ? '#9ca3af' : '#6b7280')
+            .attr('font-size', '12px').attr('font-weight', '600')
+            .attr('font-family', 'Inter, sans-serif')
+            .text('<%= t("admin.projects") %>');
+          g.append('text').attr('x', innerW).attr('y', labelY)
+            .attr('text-anchor', 'end')
+            .attr('fill', isDark ? '#9ca3af' : '#6b7280')
+            .attr('font-size', '12px').attr('font-weight', '600')
+            .attr('font-family', 'Inter, sans-serif')
+            .text('<%= t("admin.contractorsLabel") %>');
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        // Legend (hide on mobile) — single row
+        if (!isMobile) {
+          const legendItems = [['client', '<%= t("admin.clients") %>'], ['project', '<%= t("admin.projects") %>'], ['contractor', '<%= t("admin.contractorsLabel") %>']];
+          const legend = svg.append('g').attr('transform', `translate(${margin.left + 5}, ${H - 20})`);
+          let lx = 0;
+          legendItems.forEach(([type, label]) => {
+            const g = legend.append('g').attr('transform', `translate(${lx}, 0)`);
+            g.append('rect').attr('width', 10).attr('height', 10).attr('y', -8).attr('rx', 2).attr('fill', COLORS[type]);
+            g.append('text').attr('x', 14).attr('y', 0).attr('fill', isDark ? '#d1d5db' : '#374151')
+              .attr('font-size', '10px').attr('font-family', 'Inter, sans-serif').text(label);
+            lx += label.length * 6.5 + 30;
+          });
+        } // end legend if
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        window._renderSankey = renderSankey;
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+      } catch (err) {
+        loading.style.display = 'none';
+        container.innerHTML = '<div class="flex items-center justify-center h-full text-red-400"><%= t("admin.loadingGraph") %> (error)</div>';
+        console.error('Sankey error:', err);
+      }
+    });
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+  <!-- Expand/Collapse Charts -->
+  <style>
+    .chart-card { transition: opacity 0.2s ease; }
+    .chart-card.expanded {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 9999 !important;
+      border-radius: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      display: flex !important;
+      flex-direction: column !important;
+      background: white !important;
+    }
+    .dark .chart-card.expanded {
+      background: rgb(30 41 59) !important;
+    }
+    .chart-card.expanded > div:first-child {
+      flex-shrink: 0 !important;
+    }
+    .chart-card.expanded > div:last-child {
+      flex: 1 1 0 !important;
+      min-height: 0 !important;
+    }
+  </style>
+  <script>
+    function toggleExpand(id) {
+      var card = document.getElementById(id);
+      if (!card) return;
+      var isExpanded = card.classList.toggle('expanded');
+      // Update expand button title
+      var btn = card.querySelector('.expand-btn');
+      if (btn) btn.setAttribute('title', isExpanded ? 'Collapse' : 'Expand');
+      // Re-render after layout
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          if (id === 'sankey-card' && window._renderSankey) window._renderSankey();
+          if (id === 'map-card' && window._renderMap) window._renderMap();
+        });
+      });
+    }
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+  <!-- Indonesia Map (D3) -->
+  <script>
+    (async function() {
+      var mapContainer = document.getElementById('map-chart');
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+      try {
+        var [geoResp, dataResp] = await Promise.all([
+          fetch('/js/indonesia.geojson'),
+          fetch('/admin/api/map')
+        ]);
+        var geoData = await geoResp.json();
+        var mapData = await dataResp.json();
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        window._renderMap = function() { renderMap(geoData, mapData); };
+        renderMap(geoData, mapData);
+      } catch (err) {
+        if (mapLoading) mapLoading.style.display = 'none';
+        mapContainer.innerHTML = '<div class="flex items-center justify-center h-full text-red-400 text-sm">Map error</div>';
+        console.error('Map error:', err);
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+      function renderMap(geoData, mapData) {
+        mapContainer.innerHTML = '';
+        var isDark = document.documentElement.classList.contains('dark');
+        var rect = mapContainer.getBoundingClientRect();
+        var W = rect.width, H = rect.height;
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        var svg = d3.select(mapContainer).append('svg')
+          .attr('width', '100%').attr('height', '100%')
+          .attr('viewBox', '0 0 ' + W + ' ' + H)
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        // Indonesia-focused projection — auto-fit to container
+        var padding = isMobile ? 10 : 20;
+        var projection = d3.geoMercator()
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        // Draw Indonesia outline
+        svg.append('g').selectAll('path')
+          .data(geoData.features)
+          .join('path')
+          .attr('d', path)
+          .attr('fill', isDark ? '#1e293b' : '#e2e8f0')
+          .attr('stroke', isDark ? '#334155' : '#94a3b8')
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        // Tooltip
+        var tooltip = d3.select(mapContainer).append('div')
+          .style('position', 'absolute')
+          .style('pointer-events', 'none')
+          .style('background', isDark ? '#1f2937' : '#ffffff')
+          .style('border', '1px solid ' + (isDark ? '#4b5563' : '#e5e7eb'))
+          .style('border-radius', '8px')
+          .style('padding', '8px 12px')
+          .style('font-size', '12px')
+          .style('color', isDark ? '#f3f4f6' : '#111827')
+          .style('box-shadow', '0 4px 12px rgba(0,0,0,0.15)')
+          .style('opacity', 0)
+          .style('z-index', '50')
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        if (!mapData.markers || mapData.markers.length === 0) {
+          svg.append('text')
+            .attr('x', W / 2).attr('y', H / 2)
+            .attr('text-anchor', 'middle')
+            .attr('fill', isDark ? '#9ca3af' : '#6b7280')
+            .attr('font-size', '13px')
+            .text('<%= t("admin.noProjects") %>');
+          return;
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        // Draw markers
+        var markers = svg.append('g').selectAll('g')
+          .data(mapData.markers)
+          .join('g')
+          .attr('transform', function(d) {
+            var c = projection([d.lng, d.lat]);
+            return 'translate(' + c[0] + ',' + c[1] + ')';
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        // Pending circles (red/orange)
+        markers.append('circle')
+          .attr('r', function(d) { return Math.max(4, Math.min(18, d.pending * 3 + 3)); })
+          .attr('fill', '#f59e0b')
+          .attr('fill-opacity', 0.6)
+          .attr('stroke', '#d97706')
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        // Accepted circles (green, offset slightly)
+        markers.append('circle')
+          .attr('cx', function(d) { return d.pending > 0 ? 6 : 0; })
+          .attr('r', function(d) { return Math.max(4, Math.min(18, d.accepted * 3 + 3)); })
+          .attr('fill', '#10b981')
+          .attr('fill-opacity', 0.6)
+          .attr('stroke', '#059669')
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        // Province label (hide on very small)
+        if (!isMobile || mapData.markers.length < 10) {
+          markers.append('text')
+            .attr('y', function(d) { return -Math.max(4, Math.min(18, Math.max(d.pending, d.accepted) * 3 + 3)) - 4; })
+            .attr('text-anchor', 'middle')
+            .attr('fill', isDark ? '#d1d5db' : '#374151')
+            .attr('font-size', isMobile ? '7px' : '9px')
+            .attr('font-family', 'Inter, sans-serif')
+            .text(function(d) { return d.province; });
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        // Hover
+        markers.style('cursor', 'pointer')
+          .on('mouseover', function(e, d) {
+            d3.select(this).selectAll('circle').attr('fill-opacity', 0.9);
+            var html = '<strong>' + d.province + '</strong><br>' +
+              '<span style="color:#f59e0b">●</span> Pending: ' + d.pending + '<br>' +
+              '<span style="color:#10b981">●</span> Accepted: ' + d.accepted + '<br>' +
+              'Total: ' + d.total;
+            tooltip.html(html).style('opacity', 1);
+          })
+          .on('mousemove', function(e) {
+            var r = mapContainer.getBoundingClientRect();
+            tooltip.style('left', (e.clientX - r.left + 12) + 'px')
+              .style('top', (e.clientY - r.top - 10) + 'px');
+          })
+          .on('mouseout', function() {
+            d3.select(this).selectAll('circle').attr('fill-opacity', 0.6);
+            tooltip.style('opacity', 0);
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700
+
+        // Legend — aligned with card padding
+        var padL = isMobile ? 12 : 24;
+        var legendY = H - (isMobile ? 30 : 40);
+        var legend = svg.append('g').attr('transform', 'translate(' + padL + ',' + legendY + ')');
+        [[0, '#f59e0b', 'Pending'], [1, '#10b981', 'Accepted']].forEach(function(item) {
+          var g = legend.append('g').attr('transform', 'translate(' + (item[0] * (isMobile ? 80 : 100)) + ',0)');
+          g.append('circle').attr('r', 5).attr('fill', item[1]).attr('fill-opacity', 0.7);
+          g.append('text').attr('x', 10).attr('y', 4).attr('fill', isDark ? '#d1d5db' : '#374151')
+            .attr('font-size', isMobile ? '9px' : '11px').text(item[2]);
+        });
+      }
+    })();
+  </script>
+</body>
+bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700

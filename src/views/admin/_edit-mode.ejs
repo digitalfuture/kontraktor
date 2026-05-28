@@ -1,0 +1,85 @@
+<!-- Edit Mode Toggle (Read-only / Read-Write) -->
+<div class="flex items-center gap-2 mr-4" id="edit-mode-wrap">
+  <span id="edit-mode-read-label" class="text-xs font-medium text-gray-500 dark:text-gray-400 select-none"><%= typeof t !== 'undefined' ? t('admin.readOnly') || 'Read' : 'Read' %></span>
+  <button type="button" id="edit-mode-toggle" role="switch" aria-checked="false"
+    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 cursor-pointer bg-gray-300 dark:bg-gray-600">
+    <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out translate-x-1"></span>
+  </button>
+</div>
+
+<script>
+(function() {
+  var MODE_KEY = 'admin_edit_mode';
+  var toggle = document.getElementById('edit-mode-toggle');
+  if (!toggle) return;
+
+  function getMode() {
+    try { return localStorage.getItem(MODE_KEY) || 'read'; } catch(e) { return 'read'; }
+  }
+
+  function setMode(mode) {
+    try { localStorage.setItem(MODE_KEY, mode); } catch(e) {}
+    applyMode(mode);
+  }
+
+  function applyMode(mode) {
+    var isEdit = mode === 'edit';
+    // Update toggle visual
+    toggle.setAttribute('aria-checked', isEdit ? 'true' : 'false');
+    if (isEdit) {
+      toggle.classList.remove('bg-gray-300', 'dark:bg-gray-600');
+      toggle.classList.add('bg-orange-600');
+      toggle.querySelector('span').classList.remove('translate-x-1');
+      toggle.querySelector('span').classList.add('translate-x-6');
+    } else {
+      toggle.classList.remove('bg-orange-600');
+      toggle.classList.add('bg-gray-300', 'dark:bg-gray-600');
+      toggle.querySelector('span').classList.remove('translate-x-6');
+      toggle.querySelector('span').classList.add('translate-x-1');
+    }
+
+    // Update left label
+    var readLabel = document.getElementById('edit-mode-read-label');
+    if (readLabel) readLabel.textContent = isEdit ? 'Write' : 'Read';
+
+    // Disable/enable all editing controls on the page
+    // 1. All POST form submit buttons and selects
+    document.querySelectorAll('form[method="POST"] button[type="submit"], form[method="POST"] select').forEach(function(el) {
+      el.disabled = !isEdit;
+      if (!isEdit) {
+        el.classList.add('opacity-40', 'cursor-default');
+        el.classList.remove('cursor-pointer');
+      } else {
+        el.classList.remove('opacity-40', 'cursor-default');
+        el.classList.add('cursor-pointer');
+      }
+    });
+
+    // 2. Standalone action buttons (delete, approve, etc.) that have data-requires-edit
+    document.querySelectorAll('[data-requires-edit]').forEach(function(el) {
+      el.disabled = !isEdit;
+      if (!isEdit) {
+        el.classList.add('opacity-40', 'cursor-default', 'pointer-events-none');
+      } else {
+        el.classList.remove('opacity-40', 'cursor-default', 'pointer-events-none');
+      }
+    });
+  }
+
+  // Init on DOM ready — buttons may not exist yet if script runs early in <head>
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      var currentMode = getMode();
+      applyMode(currentMode);
+    });
+  } else {
+    var currentMode = getMode();
+    applyMode(currentMode);
+  }
+
+  toggle.addEventListener('click', function() {
+    var next = getMode() === 'read' ? 'edit' : 'read';
+    setMode(next);
+  });
+})();
+</script>

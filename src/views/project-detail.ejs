@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="<%= typeof locale !== 'undefined' ? locale : 'en' %>">
+  <%- include('partials/_head') %>
+<body class="bg-gray-200 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+  <%- include('partials/_anti-flash') %>
+  <%- include('partials/header') %>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-gray-500 dark:text-gray-300 mb-6">
+      <a href="/" class="hover:text-orange-600"><%= t('projectDetail.home') %></a>
+      <span class="mx-2">/</span>
+      <a href="/services" class="hover:text-orange-600"><%= t('projectDetail.projects') %></a>
+      <span class="mx-2">/</span>
+      <span class="text-gray-900 dark:text-gray-100"><%= project.title %></span>
+    </nav>
+
+    <!-- Error flash -->
+    <% if (typeof query !== 'undefined' && query.error === 'no_credits') { %>
+    <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+      <p class="text-red-700 dark:text-red-300 font-medium"><%= t('projectDetail.noCredits') %></p>
+    </div>
+    <% } %>
+    <% if (typeof query !== 'undefined' && query.errors) { %>
+    <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+      <% query.errors.split('|').forEach(function(err) { %>
+      <p class="text-red-700 dark:text-red-300"><%= err %></p>
+      <% }); %>
+    </div>
+    <% } %>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Main content -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Project header -->
+<div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
+          <div class="flex items-start justify-between flex-wrap gap-4 mb-4">
+            <div>
+              <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"><%= project.title %></h1>
+              <div class="flex items-center gap-3 mt-2 text-sm text-gray-500 dark:text-gray-300">
+                <span>📁 <%= project.category_display %></span>
+                <% if (project.subcategory_display) { %>
+                <span>•</span>
+                <span><%= project.subcategory_display %></span>
+                <% } %>
+              </div>
+            </div>
+            <%- include('partials/_status-badge', { status: project.status, type: 'project' }) %>
+            <% if (typeof editable !== 'undefined' && editable) { %>
+              <a href="/post/<%= project.id %>/edit?lang=<%= locale %>" class="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-200 dark:hover:bg-orange-900/50 transition">
+                ✏️ <%= t('projects.edit') %>
+              </a>
+            <% } else if (typeof isOwner !== 'undefined' && isOwner && project.assigned_contractor_id) { %>
+              <span class="inline-flex items-center gap-1 text-sm bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-lg">
+                🔒 <%= t('projects.assignedLock') %>
+              </span>
+            <% } %>
+          </div>
+
+          <div class="prose dark:prose-invert max-w-none mt-6">
+            <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap"><%= project.description %></p>
+          </div>
+
+          <!-- Project details -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <% if (project.district_display) { %>
+            <div>
+              <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase"><%= t('projectDetail.location') %></p>
+              <p class="text-lg font-semibold text-gray-900 dark:text-white mt-1">📍 <%= project.district_display %></p>
+            </div>
+            <% } %>
+            <% 
+              var showContact = false;
+              if (typeof isOwner !== 'undefined' && isOwner) showContact = true;
+              else if (typeof hasBid !== 'undefined' && hasBid) showContact = true;
+              else if (project.status === 'in_progress' || project.status === 'completed' || project.status === 'active') showContact = true;
+            %>
+            <% if (showContact) { %>
+            <div>
+              <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase"><%= t('projectDetail.contact') %></p>
+              <p class="text-gray-900 dark:text-white mt-1"><%= project.contact_name %></p>
+              <% if (project.contact_phone) { %><p class="text-gray-500 dark:text-gray-300 text-sm"><%= project.contact_phone %></p><% } %>
+            </div>
+            <% } else { %>
+            <div>
+              <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase"><%= t('projectDetail.contact') %></p>
+              <p class="text-gray-400 dark:text-gray-500 text-sm italic"><%= t('projectDetail.contactHidden') %></p>
+            </div>
+            <% } %>
+            <div>
+              <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase"><%= t('projectDetail.posted') %></p>
+              <p class="text-gray-900 dark:text-white mt-1"><%= new Date(project.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- === BID FORM (contractors only, project not completed/cancelled) === -->
+        <% if (isContractor && !hasBid && project.status !== 'completed' && project.status !== 'cancelled') { %>
+<div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white"><%= t('projectDetail.submitBid') %></h2>
+            <% if (typeof user !== 'undefined' && user) { %>
+            <% 
+              var contractor = typeof db !== 'undefined' ? null : null; // placeholder
+              // We pass credits from route
+            %>
+            <% } %>
+          </div>
+          <p class="text-sm text-gray-500 dark:text-gray-300 mb-6"><%= t('projectDetail.bidHint') %></p>
+          <form action="/post/<%= project.id %>/bid" method="POST" class="space-y-4">
+          <%- include('partials/csrf-field') %>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium mb-2"><%= t('projectDetail.priceLabel') %></label>
+                <input type="text" name="price" placeholder="<%= t('projectDetail.pricePlaceholder') %>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 outline-none">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2"><%= t('projectDetail.daysLabel') %></label>
+                <input type="number" name="estimated_days" placeholder="<%= t('projectDetail.daysPlaceholder') %>" min="1" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 outline-none">
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2"><%= t('projectDetail.proposalLabel') %></label>
+              <textarea name="description" rows="4" required placeholder="<%= t('projectDetail.proposalPlaceholder') %>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 outline-none"></textarea>
+            </div>
+            <button type="submit" class="bg-orange-700 text-white px-6 py-2.5 rounded-lg hover:bg-orange-800 transition font-medium"><%= t('projectDetail.submitBidCost') %></button>
+          </form>
+        </div>
+        <% } %>
+
+        <!-- Already bid message -->
+        <% if (hasBid) { %>
+        <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-6">
+          <p class="text-green-700 dark:text-green-300 font-medium"><%= t('projectDetail.alreadyBid') %></p>
+        </div>
+        <% } %>
+
+        <!-- === BIDS LIST (project owner only) === -->
+        <% if (isOwner) { %>
+<div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
+             id="bids-list-container"
+             hx-get="/post/<%= project.id %>/bids-partial"
+             hx-trigger="every 5s"
+             hx-swap="innerHTML">
+          <% if (typeof bids !== 'undefined' && bids.length > 0) { %>
+            <%- include('partials/_bids-list', { bids: bids, project: project }) %>
+          <% } else { %>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2"><%= t('projectDetail.bidsTitle') %> (0)</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-300"><%= t('contractorDashboard.noBidsYet') || 'No bids submitted yet.' %></p>
+          <% } %>
+        </div>
+        <% } %>
+
+        <!-- Project status management (owner only) -->
+        <% if (isOwner && project.status === 'in_progress') { %>
+<div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2"><%= t('projectStatus.title') %></h2>
+          <p class="text-sm text-gray-500 dark:text-gray-300 mb-4"><%= t('projectStatus.inProgressDesc') %></p>
+          <div class="flex flex-wrap gap-3">
+            <form action="/post/<%= project.id %>/status" method="POST" onsubmit="return confirm('<%= t('projectStatus.completeConfirm') %>')">
+              <%- include('partials/csrf-field') %>
+              <input type="hidden" name="status" value="completed">
+              <button type="submit" class="bg-green-600 text-white px-5 py-2.5 rounded-lg hover:bg-green-700 transition font-medium">
+                <%= t('projectStatus.markComplete') %>
+              </button>
+            </form>
+            <form action="/post/<%= project.id %>/status" method="POST" onsubmit="return confirm('<%= t('projectStatus.cancelConfirm') %>')">
+              <%- include('partials/csrf-field') %>
+              <input type="hidden" name="status" value="cancelled">
+              <button type="submit" class="border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 px-5 py-2.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition font-medium">
+                <%= t('projectStatus.cancelProject') %>
+              </button>
+            </form>
+          </div>
+        </div>
+        <% } %>
+
+        <!-- Reviews section -->
+        <% if (project.contractor_id) { %>
+<div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4"><%= t('projectDetail.reviewsTitle') %></h2>
+          
+          <% if (reviews.length === 0) { %>
+          <p class="text-gray-500 dark:text-gray-300"><%= t('projectDetail.noReviews') %></p>
+          <% } else { %>
+          <div class="space-y-4">
+            <% reviews.forEach(function(review) { %>
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-0 last:pb-0">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-yellow-500"><%= '★'.repeat(review.rating) %><%= '☆'.repeat(5 - review.rating) %></span>
+                  <span class="text-sm text-gray-500 dark:text-gray-300"><%= review.author_email ? review.author_email.split('@')[0] : 'Anonymous' %></span>
+                </div>
+                <span class="text-xs text-gray-400 dark:text-gray-500"><%= new Date(review.created_at).toLocaleDateString('en-US') %></span>
+              </div>
+              <p class="text-gray-700 dark:text-gray-300 text-sm"><%= review.comment %></p>
+            </div>
+            <% }); %>
+          </div>
+          <% } %>
+
+          <!-- Leave a review -->
+          <% if (isOwner && project.status === 'completed' && !project.reviewed) { %>
+          <form action="/post/<%= project.id %>/review" method="POST" class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <%- include('partials/csrf-field') %>
+            <h3 class="font-semibold text-gray-900 dark:text-white mb-4"><%= t('review.title') %></h3>
+            <input type="hidden" name="contractor_id" value="<%= project.contractor_id %>">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium mb-2"><%= t('review.ratingLabel') %></label>
+                <div class="flex gap-2">
+                  <% for (var i = 1; i <= 5; i++) { %>
+                  <label class="cursor-pointer">
+                    <input type="radio" name="rating" value="<%= i %>" class="hidden peer" required>
+                    <span class="peer-checked:text-yellow-500 text-gray-300 dark:text-gray-600 text-2xl transition" aria-label="<%= t('review.stars', { count: i }) %>">★</span>
+                  </label>
+                  <% } %>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2"><%= t('review.reviewLabel') %></label>
+                <textarea name="comment" rows="3" required placeholder="<%= t('review.reviewPlaceholder') %>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"></textarea>
+              </div>
+              <button type="submit" class="bg-orange-700 text-white px-5 py-2 rounded-lg hover:bg-orange-800 transition font-medium"><%= t('review.submitReview') %></button>
+            </div>
+          </form>
+          <% } else if (isOwner && project.status === 'completed' && project.reviewed) { %>
+          <p class="text-sm text-green-600 dark:text-green-400 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700"><%= t('review.alreadyReviewed') %></p>
+          <% } else if (!user) { %>
+          <p class="text-sm text-gray-500 dark:text-gray-300 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700"><%= t('review.signInReview') %></p>
+          <% } %>
+        </div>
+        <% } %>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        <!-- Contractor card -->
+        <% if (project.contractor_name) { %>
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6" id="contractor-card">
+          <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300 uppercase mb-4"><%= t('projectDetail.assignedContractor') %></h3>
+          <a href="/contractors/<%= project.contractor_id %>" class="flex items-center gap-4 group mb-4">
+            <% if (project.contractor_avatar) { %>
+              <img src="<%= project.contractor_avatar %>" alt="<%= project.contractor_name %>" class="w-14 h-14 rounded-full object-cover">
+            <% } else { %>
+              <div class="w-14 h-14 rounded-full bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-orange-700 font-bold text-xl">
+                <%= project.contractor_name.charAt(0) %>
+              </div>
+            <% } %>
+            <div>
+              <p class="font-semibold text-gray-900 dark:text-white group-hover:text-orange-600 transition text-lg">
+                <%= project.contractor_name %>
+                <% if (project.contractor_verified) { %>
+                  <span class="text-blue-500 text-sm" title="Verified">✓</span>
+                <% } %>
+              </p>
+              <p class="text-sm text-gray-500 dark:text-gray-300">
+                <span class="text-yellow-500">★</span> <%= project.contractor_rating ? project.contractor_rating.toFixed(1) : t('projectDetail.newContractor') %>
+                <% if (project.contractor_reviews_count) { %>
+                  <span class="text-gray-400">(<%= project.contractor_reviews_count %>)</span>
+                <% } %>
+              </p>
+            </div>
+          </a>
+          <div class="space-y-2 text-sm border-t border-gray-100 dark:border-gray-800 pt-4">
+            <% if (project.contractor_specialty) { %>
+            <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+              <span>🔧</span> <span><%= project.contractor_specialty %></span>
+            </div>
+            <% } %>
+            <% if (project.contractor_completed) { %>
+            <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+              <span>✅</span> <span><%= project.contractor_completed %> <%= t('projectDetail.projectsCompleted') %></span>
+            </div>
+            <% } %>
+            <% if (project.contractor_phone) { %>
+            <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+              <span>📞</span> <span><%= project.contractor_phone %></span>
+            </div>
+            <% } %>
+          </div>
+        </div>
+        <% } %>
+
+        <!-- Contractor CTA -->
+        <% if (!isContractor) { %>
+<div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
+          <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300 uppercase mb-3"><%= t('projectDetail.contractorCTA') %></h3>
+          <p class="text-sm text-gray-600 dark:text-gray-300 mb-4"><%= t('projectDetail.contractorCTADesc') %></p>
+          <a href="/contractors/register" class="block w-full text-center bg-orange-700 text-white px-5 py-2 rounded-lg hover:bg-orange-800 transition font-medium"><%= t('projectDetail.joinContractor') %></a>
+        </div>
+        <% } else { %>
+        <!-- Credits display for contractors -->
+<div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
+          <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300 uppercase mb-3"><%= t('projectDetail.yourCredits') %></h3>
+          <p class="text-3xl font-bold text-orange-700"><%= userCredits || 0 %></p>
+          <p class="text-xs text-gray-500 dark:text-gray-300 mt-1"><%= t('projectDetail.freeBidsHint') %></p>
+        </div>
+        <% } %>
+      </div>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

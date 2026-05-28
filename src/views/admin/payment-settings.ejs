@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="<%= typeof locale !== 'undefined' ? locale : 'en' %>">
+  <%- include('../partials/_head') %>
+<body class="bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+  <%- include('../partials/_anti-flash') %>
+  <div class="flex h-screen overflow-hidden">
+    <%- include('_sidebar', { activePage: 'payments', locale: locale }) %>
+    <main class="flex-1 overflow-y-auto">
+      <div class="p-4 sm:p-6 lg:p-8">
+        <!-- Top Row (Header) -->
+        <div class="flex items-center justify-between min-[1600px]:justify-end mb-4 sm:mb-8">
+          <button onclick="const a=document.querySelector('aside');a.classList.toggle('-translate-x-full');a.classList.toggle('translate-x-0')" class="min-[1600px]:hidden p-2 rounded-lg bg-surface dark:bg-surface-dark border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 active:bg-gray-100 dark:active:bg-gray-600 transition-colors cursor-pointer w-max focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div class="flex items-center">
+            <%- include('_controls', { locale: locale, locales: typeof locales !== 'undefined' ? locales : ['id', 'en'] }) %>
+          </div>
+        </div>
+
+        <!-- Page Header -->
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white"><%= typeof t !== 'undefined' ? t('admin.paymentSettings') : 'Payment Settings' %></h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1"><%= typeof t !== 'undefined' ? t('admin.paymentSettingsDesc') : 'Configure credit packages and pricing' %></p>
+          </div>
+          <a href="/admin/payments?lang=<%= locale %>" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition cursor-pointer">
+            ← <%= typeof t !== 'undefined' ? t('admin.backToPayments') : 'Back to Payments' %>
+          </a>
+        </div>
+
+        <!-- Xendit Status -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-semibold text-gray-900 dark:text-white"><%= typeof t !== 'undefined' ? t('admin.xenditStatus') : 'Xendit Status' %></h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-1"><%= typeof t !== 'undefined' ? t('admin.xenditDesc') : 'Payment gateway integration status' %></p>
+            </div>
+            <span class="px-2.5 py-1 text-xs font-medium rounded-full <%= xenditConfigured ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' %>">
+              <%= xenditConfigured ? (typeof t !== 'undefined' ? t('admin.configured') : 'Configured') : (typeof t !== 'undefined' ? t('admin.notConfigured') : 'Not Configured') %>
+            </span>
+          </div>
+        </div>
+
+        <!-- Credit Packages -->
+        <form method="POST" action="/admin/payments/settings?lang=<%= locale %>" class="space-y-4">
+          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+
+          <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+              <h3 class="font-semibold text-gray-900 dark:text-white"><%= typeof t !== 'undefined' ? t('admin.creditPackages') : 'Credit Packages' %></h3>
+            </div>
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
+                  <th class="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('admin.packageLabel') : 'Package' %></th>
+                  <th class="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('admin.creditsLabel') : 'Credits' %></th>
+                  <th class="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('admin.priceLabel') : 'Price (Rp)' %></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                <% packages.forEach(function(pkg, i) { %>
+                <tr>
+                  <td class="px-4 py-3 text-gray-900 dark:text-gray-100 font-medium"><%= pkg.label %></td>
+                  <td class="px-4 py-3 text-gray-700 dark:text-gray-300"><%= pkg.credits %></td>
+                  <td class="px-4 py-3">
+                    <input type="hidden" name="packages[<%= i %>][label]" value="<%= pkg.label %>">
+                    <input type="hidden" name="packages[<%= i %>][credits]" value="<%= pkg.credits %>">
+                    <input type="number" name="packages[<%= i %>][price]" value="<%= pkg.price %>" min="0" step="1000"
+                      class="w-32 px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+                  </td>
+                </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="flex justify-end">
+            <button type="submit" class="px-6 py-2 text-sm font-medium text-white bg-orange-700 hover:bg-orange-800 rounded-lg transition cursor-pointer">
+              <%= typeof t !== 'undefined' ? t('admin.saveSettings') : 'Save Settings' %>
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+  <%- include('../partials/_expandable-rows') %>
+  <script src="/js/htmx.min.js" defer></script>
+  <script src="/js/main.js?v=1779944513366" defer></script>
+</body>
+</html>

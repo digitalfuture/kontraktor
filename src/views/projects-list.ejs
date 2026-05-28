@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+  <%- include('partials/_head') %>
+<body class="bg-gray-200 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+  <%- include('partials/_anti-flash') %>
+  <%- include('partials/header') %>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+      <div>
+        <% if (userRole === 'client') { %>
+          <h1 class="text-2xl sm:text-3xl font-bold"><%= t('projects.myProjects') %></h1>
+        <% } else { %>
+          <h1 class="text-2xl sm:text-3xl font-bold"><%= t('projects.browseTitle') %></h1>
+        <% } %>
+        <p class="text-gray-600 dark:text-gray-300 mt-1"><%= pagination.totalItems %> <%= t('projects.subtitle') %></p>
+      </div>
+      <a href="/post" class="bg-orange-700 text-white px-5 py-2 rounded-lg hover:bg-orange-800 transition font-medium text-sm">
+        <%= t('nav.postOrder') %>
+      </a>
+    </div>
+
+    <!-- Filters -->
+    <form method="GET" action="/projects" class="flex flex-col sm:flex-row gap-3 mb-8">
+      <div class="sm:w-56">
+        <select name="category" onchange="this.form.submit()"
+          class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 outline-none">
+          <option value=""><%= t('projects.allCategories') %></option>
+          <% categories.forEach(function(cat) { %>
+          <option value="<%= cat.slug %>" <%= category === cat.slug ? 'selected' : '' %>>
+            <%= (locale === 'id' && cat.name_id) ? cat.name_id : (locale === 'en' && cat.name_en) ? cat.name_en : cat.name %>
+          </option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="sm:w-44">
+        <select name="status" onchange="this.form.submit()"
+          class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 outline-none">
+          <option value=""><%= t('projects.allStatuses') %></option>
+          <option value="pending" <%= status === 'pending' ? 'selected' : '' %>><%= t('projects.open') %></option>
+          <option value="in_progress" <%= status === 'in_progress' ? 'selected' : '' %>><%= t('projects.inProgress') %></option>
+          <option value="completed" <%= status === 'completed' ? 'selected' : '' %>><%= t('projects.completed') %></option>
+        </select>
+      </div>
+      <% if (category || status) { %>
+      <a href="/projects" class="text-sm text-gray-500 dark:text-gray-300 hover:text-orange-600 px-3 py-2.5 self-center"><%= t('projects.clearFilters') %></a>
+      <% } %>
+    </form>
+
+    <!-- Projects list -->
+    <% if (projects.length === 0) { %>
+    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+      <% if (userRole === 'client') { %>
+        <p class="text-gray-500 dark:text-gray-300 text-lg mb-4"><%= t('projects.noProjectsClient') %></p>
+        <a href="/post" class="inline-block bg-orange-700 text-white px-6 py-2 rounded-lg hover:bg-orange-800 transition font-medium">
+          <%= t('projects.postFirst') %>
+        </a>
+      <% } else if (userRole === 'contractor') { %>
+        <p class="text-gray-500 dark:text-gray-300 text-lg mb-4"><%= t('projects.noProjectsContractor') %></p>
+      <% } else { %>
+        <p class="text-gray-500 dark:text-gray-300 text-lg mb-4"><%= t('projects.noProjects') %></p>
+        <% if (category || status) { %>
+        <a href="/projects" class="text-orange-700 hover:underline"><%= t('projects.clearFilters') %></a>
+        <% } %>
+      <% } %>
+    </div>
+    <% } else { %>
+    <div class="space-y-4">
+      <% projects.forEach(function(p) { %>
+      <div class="block bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5 hover:shadow-lg transition group relative">
+        <a href="/post/<%= p.id %>" class="absolute inset-0 z-10" aria-label="<%= p.title %>"></a>
+        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-3 mb-2 flex-wrap">
+              <%- include('partials/_status-badge', { status: p.status, type: 'project' }) %>
+              <span class="text-sm text-gray-500 dark:text-gray-300">📁 <%= p.category_display %></span>
+              <% if (userRole === 'client' && p.assigned_contractor_id) { %>
+                <span class="inline-flex items-center gap-1 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full">
+                  🔒 <%= t('projects.assignedLock') %>
+                </span>
+              <% } %>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-orange-600 transition truncate">
+              <%= p.title %>
+            </h3>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mt-1 line-clamp-2"><%= p.description %></p>
+            <div class="flex items-center gap-4 mt-3 text-sm text-gray-500 dark:text-gray-300">
+              <% if (p.district_display || p.address) { %>
+              <span>📍 <%= p.district_display || '' %><% if (p.district_display && p.address) { %>, <% } %><%= p.address || '' %></span>
+              <% } %>
+              <span>📅 <%= new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %></span>
+              <span>💬 <%= p.bid_count || 0 %> <%= (p.bid_count === 1) ? t('projects.bids') : t('projects.bidsPlural') %></span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 relative z-20">
+            <% if (userRole === 'client' && p.editable) { %>
+              <a href="/post/<%= p.id %>/edit?lang=<%= locale %>" class="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-orange-200 dark:hover:bg-orange-900/50 transition">
+                ✏️ <%= t('projects.edit') %>
+              </a>
+            <% } %>
+            <span class="text-orange-700 group-hover:translate-x-1 transition-transform text-lg">→</span>
+          </div>
+        </div>
+      </div>
+      <% }); %>
+    </div>
+    <% } %>
+
+    <!-- Pagination -->
+    <%- include('partials/pagination') %>
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

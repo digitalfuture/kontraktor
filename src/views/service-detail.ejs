@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="<%= typeof locale !== 'undefined' ? locale : 'en' %>">
+  <%- include('partials/_head') %>
+<body class="bg-gray-200 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+  <%- include('partials/_anti-flash') %>
+  <%- include('partials/header') %>
+  
+  <main>
+    <!-- Breadcrumbs -->
+    <section class="bg-gray-50 dark:bg-gray-900 py-4">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="text-sm text-gray-500 dark:text-gray-300">
+          <a href="/" class="hover:text-orange-600 transition"><%= t('nav.home') %></a>
+          <span class="mx-2">/</span>
+          <a href="/services" class="hover:text-orange-600 transition"><%= t('nav.services') %></a>
+          <span class="mx-2">/</span>
+          <span class="text-gray-900 dark:text-gray-100"><%= t('categories.' + service.slug) %></span>
+        </nav>
+      </div>
+    </section>
+
+    <!-- Service Header -->
+    <section class="py-8 sm:py-12 bg-white dark:bg-gray-950">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3"><%= t('categories.' + service.slug) %></h1>
+        <p class="text-gray-600 dark:text-gray-300 text-lg mb-6"><%= service.description %></p>
+        <div class="flex flex-wrap gap-4 text-sm">
+          <span class="bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 px-3 py-1 rounded-full font-medium"><%= service.totalContractors %> <%= t('services.contractors') %></span>
+          <span class="bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 px-3 py-1 rounded-full font-medium"><%= t('services.verifiedProfessionals') %></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Subcategories -->
+    <section class="py-8 bg-gray-50 dark:bg-gray-900">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6"><%= t('services.typesOfWork') %></h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <% service.subcategories.forEach(function(sub) { %>
+          <div class="bg-surface dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-card p-5 hover:shadow-card-hover shadow-card transition">
+            <h3 class="font-semibold text-gray-900 dark:text-white mb-2"><%= t('subcategories.' + sub.slug) %></h3>
+            <p class="text-sm text-gray-500 dark:text-gray-300 mb-3"><%= sub.count %> <%= t('services.professionals') %></p>
+            <p class="text-orange-700 dark:text-orange-400 font-semibold flex items-center gap-1.5 flex-wrap">
+              <%= t('services.priceFrom') %> <%= sub.priceFrom %>
+              <% if (sub.count === 0) { %>
+                <span class="text-xs text-gray-500 dark:text-gray-400 font-normal font-sans">(<%= t('services.marketPrice').toLowerCase() %>)</span>
+              <% } %>
+            </p>
+          </div>
+          <% }); %>
+        </div>
+      </div>
+    </section>
+
+    <!-- Available Contractors -->
+    <section class="py-8 bg-white dark:bg-gray-950">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6"><%= t('services.availableContractors') %></h2>
+        <% if (contractors && contractors.length > 0) { %>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <% contractors.forEach(function(ctr) { %>
+          <a href="/contractors/<%= ctr.id %>" class="block bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:shadow-md transition group">
+            <div class="flex items-center gap-3">
+              <img src="<%= ctr.avatarUrl %>" alt="<%= ctr.name %>" class="w-12 h-12 rounded-full object-cover border border-gray-200 dark:border-gray-600" loading="lazy" width="48" height="48" />
+              <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-gray-900 dark:text-white truncate group-hover:text-orange-600 transition"><%= ctr.name %></h3>
+                <% if (ctr.specialty) { %><p class="text-sm text-gray-500 dark:text-gray-300 truncate"><%= ctr.specialty %></p><% } %>
+                <div class="flex items-center gap-2 mt-1">
+                  <% if (ctr.rating > 0) { %>
+                  <span class="text-sm text-amber-500">★ <%= ctr.rating.toFixed(1) %></span>
+                  <span class="text-xs text-gray-400">(<%= ctr.reviewsCount %>)</span>
+                  <% } %>
+                  <% if (ctr.completedProjects > 0) { %>
+                  <span class="text-xs text-gray-500 dark:text-gray-300">· <%= ctr.completedProjects %> <%= t('services.completed') %></span>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </a>
+          <% }); %>
+        </div>
+        <% } else { %>
+        <div class="text-center py-8">
+          <p class="text-gray-500 dark:text-gray-300"><%= t('services.noContractors') %></p>
+        </div>
+        <% } %>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="py-12 bg-white dark:bg-gray-950">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-8 text-center"><%= t('services.howToFind') %> <%= t('categories.' + service.slug) %></h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="text-center">
+            <div class="w-12 h-12 bg-orange-700 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-3">1</div>
+            <h3 class="font-semibold text-gray-900 dark:text-white mb-2"><%= t('services.step1Title') %></h3>
+            <p class="text-sm text-gray-600 dark:text-gray-300"><%= t('services.step1Desc') %></p>
+          </div>
+          <div class="text-center">
+            <div class="w-12 h-12 bg-orange-700 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-3">2</div>
+            <h3 class="font-semibold text-gray-900 dark:text-white mb-2"><%= t('services.step2Title') %></h3>
+            <p class="text-sm text-gray-600 dark:text-gray-300"><%= t('services.step2Desc') %></p>
+          </div>
+          <div class="text-center">
+            <div class="w-12 h-12 bg-orange-700 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-3">3</div>
+            <h3 class="font-semibold text-gray-900 dark:text-white mb-2"><%= t('services.step3Title') %></h3>
+            <p class="text-sm text-gray-600 dark:text-gray-300"><%= t('services.step3Desc') %></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-12 bg-orange-600">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-2xl font-bold text-white mb-3"><%= t('services.needProfessional') %></h2>
+        <p class="text-white mb-6"><%= t('services.ctaSubtitle') %></p>
+        <a href="/post" class="bg-white text-orange-700 px-8 py-3 rounded-lg hover:bg-orange-50 transition font-semibold text-lg">
+          <%= t('nav.postOrder') %>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<%
+var s = typeof status !== 'undefined' ? status : '';
+var sBool = (s === true || s === 1 || s === '1' || s === 'true');
+
+var projectMap = {
+  'pending':    { color: 'bg-yellow-100 dark:bg-yellow-950/40 text-yellow-800 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-900/50', labelKey: 'status.pending' },
+  'active':     { color: 'bg-green-100 dark:bg-green-950/40 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-900/50', labelKey: 'status.active' },
+  'completed':  { color: 'bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-900/50', labelKey: 'status.completed' },
+  'cancelled':  { color: 'bg-red-100 dark:bg-red-950/40 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-900/50', labelKey: 'status.cancelled' },
+};
+var reviewMap = {
+  true:  { color: 'bg-green-100 dark:bg-green-950/40 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-900/50', labelKey: 'status.approved' },
+  false: { color: 'bg-yellow-100 dark:bg-yellow-950/40 text-yellow-800 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-900/50', labelKey: 'status.unmoderated' },
+};
+var contractorMap = {
+  true:  { color: 'bg-green-100 dark:bg-green-950/40 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-900/50', labelKey: 'status.active' },
+  false: { color: 'bg-red-100 dark:bg-red-950/40 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-900/50', labelKey: 'status.blocked' },
+};
+var verifiedMap = {
+  true:  { color: 'bg-teal-100 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-900/50', labelKey: 'admin.verified' },
+  false: { color: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700', labelKey: 'admin.unverified' },
+};
+var userMap = {
+  'admin':      { color: 'bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900/50', labelKey: 'role.admin' },
+  'contractor': { color: 'bg-orange-100 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-900/50', labelKey: 'role.contractor' },
+  'client':     { color: 'bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900/50', labelKey: 'role.client' },
+};
+
+var badge;
+if (type === 'review') {
+  badge = reviewMap[sBool];
+} else if (type === 'contractor-verified' || type === 'verified') {
+  badge = verifiedMap[sBool];
+} else if (type === 'contractor') {
+  badge = contractorMap[sBool];
+} else if (type === 'user') {
+  badge = userMap[s] || { color: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700', labelKey: s };
+} else {
+  badge = projectMap[s] || { color: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700', labelKey: s };
+}
+
+var label = typeof t !== 'undefined' ? t(badge.labelKey) : badge.labelKey;
+%><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold <%= badge.color %> whitespace-nowrap"><%= label %></span>

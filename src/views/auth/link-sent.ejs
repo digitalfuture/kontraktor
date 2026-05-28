@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="<%= typeof locale !== 'undefined' ? locale : 'en' %>">
+  <%- include('../partials/_head') %>
+<body class="bg-gray-100 dark:bg-gray-950 min-h-screen flex items-center justify-center">
+  <%- include('../partials/_anti-flash') %>
+  
+  <div class="max-w-md w-full mx-4">
+    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
+      <div class="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      </div>
+      <h1 class="text-xl font-semibold text-gray-900 dark:text-white mb-2"><%= t('auth.sentTitle') %></h1>
+      <p class="text-gray-500 dark:text-gray-300 mb-4"><%= t('auth.sentSubtitle') %> <strong><%= email %></strong></p>
+      <p class="text-sm text-gray-400 dark:text-gray-500 mb-6"><%= t('auth.linkExpires') %></p>
+      
+      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-6 text-left space-y-2">
+        <% if (typeof emailSent !== 'undefined' && emailSent) { %>
+        <p class="text-sm text-gray-700 dark:text-gray-300">📧 <%= t('auth.sentToEmail') %> <strong><%= email %></strong></p>
+        <% } %>
+        <% if (typeof telegramSent !== 'undefined' && telegramSent) { %>
+        <p class="text-sm text-gray-700 dark:text-gray-300">📱 <%= t('auth.sentToTelegram') %></p>
+        <% } %>
+        <% if ((typeof emailSent === 'undefined' || !emailSent) && (typeof telegramSent === 'undefined' || !telegramSent)) { %>
+        <p class="text-sm text-red-600 dark:text-red-400"><%= t('auth.sendFailed') %></p>
+        <% } %>
+      </div><a href="/auth/login" class="text-orange-700 hover:underline text-sm">← <%= t('auth.backToLogin') %></a>
+    </div>
+  </div>
+</body>
+</html>

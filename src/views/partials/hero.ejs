@@ -1,0 +1,34 @@
+<section class="bg-gradient-to-br from-orange-50 to-white dark:from-gray-900 dark:to-gray-950 py-12 sm:py-16 lg:py-24" aria-labelledby="hero-title">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center">
+      <h1 id="hero-title" class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white leading-tight">
+        <%= t('hero.title') %>
+      </h1>
+      <p class="mt-4 text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+        <%= t('hero.subtitle') %>
+      </p>
+      <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/post" class="bg-orange-700 text-white px-8 py-3 rounded-lg hover:bg-orange-800 transition font-semibold text-lg shadow-lg shadow-orange-600/30 focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2">
+          <%= t('hero.postCta') %>
+        </a>
+        <a href="/services" class="bg-white dark:bg-gray-800 text-orange-700 dark:text-orange-400 border-2 border-orange-600 px-8 py-3 rounded-lg hover:bg-orange-50 dark:hover:bg-gray-700 transition font-semibold text-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2">
+          <%= t('hero.cta') %>
+        </a>
+      </div>
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-gray-700 dark:text-gray-300">
+        <span class="flex items-center gap-1">
+          <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          <%= t('hero.trust1') %>
+        </span>
+        <span class="flex items-center gap-1">
+          <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          <%= t('hero.trust2') %>
+        </span>
+        <span class="flex items-center gap-1">
+          <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          <%= t('hero.trust3') %>
+        </span>
+      </div>
+    </div>
+  </div>
+</section>

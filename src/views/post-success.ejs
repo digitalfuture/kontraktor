@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="<%= typeof locale !== 'undefined' ? locale : 'en' %>">
+  <%- include('partials/_head') %>
+<body class="bg-gray-200 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+  <%- include('partials/_anti-flash') %>
+  <%- include('partials/header') %>
+  
+  <main>
+    <section class="py-12 sm:py-16">
+      <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3"><%= t('post.successTitle') %></h1>
+        <p class="text-gray-600 dark:text-gray-300 text-lg mb-8"><%= t('post.successSubtitle') %></p>
+        
+<div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
+          <h2 class="font-semibold text-gray-900 dark:text-white mb-4"><%= t('postSuccess.yourProject') %></h2>
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between">
+              <span class="text-gray-500 dark:text-gray-300"><%= t('postSuccess.serviceLabel') %>:</span>
+              <span class="text-gray-900 dark:text-white font-medium"><%= typeof formData !== 'undefined' && formData.service ? formData.service : '—' %></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-500 dark:text-gray-300"><%= t('postSuccess.addressLabel') %>:</span>
+              <span class="text-gray-900 dark:text-white font-medium"><%= typeof formData !== 'undefined' && (formData.district_display || formData.address) ? (formData.district_display || '') + (formData.district_display && formData.address ? ', ' : '') + (formData.address || '') : '—' %></span>
+            </div>
+            <% } %>
+          </div>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href="/" class="bg-orange-700 text-white px-6 py-3 rounded-lg hover:bg-orange-800 transition font-semibold">
+            <%= t('post.successButton') %>
+          </a>
+          <a href="/post" class="bg-white dark:bg-gray-800 text-orange-700 border-2 border-orange-600 px-6 py-3 rounded-lg hover:bg-orange-50 dark:hover:bg-gray-700 transition font-semibold">
+            <%= t('postSuccess.postAnother') %>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

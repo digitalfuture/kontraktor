@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="<%= typeof locale !== 'undefined' ? locale : 'en' %>">
+  <%- include('../partials/_head') %>
+<body class="bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+  <%- include('../partials/_anti-flash') %>
+  <div class="flex h-screen overflow-hidden">
+    <%- include('_sidebar', { activePage: 'users', t: t, locale: locale }) %>
+    <main class="flex-1 overflow-y-auto">
+      <div class="p-4 sm:p-6 lg:p-8">
+        <!-- Top Row (Header) -->
+        <div class="flex items-center justify-between min-[1600px]:justify-end mb-4 sm:mb-8">
+          <button onclick="const a=document.querySelector('aside');a.classList.toggle('-translate-x-full');a.classList.toggle('translate-x-0')" class="min-[1600px]:hidden p-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 active:bg-gray-100 dark:active:bg-gray-600 transition-colors cursor-pointer w-max focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div class="flex items-center">
+            <%- include('_controls', { locale: locale, locales: typeof locales !== 'undefined' ? locales : ['id', 'en'] }) %>
+          </div>
+        </div>
+
+        <!-- Bottom Row (Title & Actions) -->
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-4 sm:mb-8">
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white inline-flex items-center gap-2 leading-none">
+              <%= t('admin.users') %> <span class="text-gray-400 dark:text-gray-500 font-normal">(<%= pagination.total %>)</span>
+            </h1>
+            <p class="text-gray-500 dark:text-gray-300 mt-2 text-sm sm:text-base leading-none">
+              <%= locale === 'id' ? 'Kelola semua akun pengguna terdaftar dalam sistem' : 'Manage all registered user accounts in the system' %>
+            </p>
+          </div>
+        </div>
+
+        <!-- Users Table Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-card shadow-card border border-gray-200 dark:border-gray-700">
+          <div class="overflow-x-auto">
+            <table class="w-full table-auto">
+              <thead class="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+                <tr>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 w-10"></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 w-16">ID</th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3"><%= locale === 'id' ? 'Nama' : 'Name' %></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 hidden lg:table-cell"><%= locale === 'id' ? 'Email' : 'Email' %></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 hidden md:table-cell"><%= locale === 'id' ? 'Peran' : 'Role' %></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 hidden md:table-cell"><%= locale === 'id' ? 'Aktivitas' : 'Activity' %></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 hidden lg:table-cell">Telegram</th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 hidden xl:table-cell"><%= locale === 'id' ? 'Terdaftar' : 'Registered' %></th>
+                  <th class="text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 hidden min-[1600px]:table-cell"><%= locale === 'id' ? 'Aksi' : 'Actions' %></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                <% if (users.length === 0) { %>
+                <tr>
+                  <td colspan="9" class="px-4 sm:px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                    <%= t('admin.noUsers') %>
+                  </td>
+                </tr>
+                <% } else { %>
+                <% users.forEach(function(user) { %>
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition expand-trigger cursor-pointer" data-row-id="u<%= user.id %>">
+                  <!-- Expand Arrow -->
+                  <td class="px-4 sm:px-6 py-4 text-gray-400 dark:text-gray-500">
+                    <svg class="w-4 h-4 expand-icon transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                  </td>
+
+                  <!-- ID -->
+                  <td class="px-4 sm:px-6 py-4 text-sm font-semibold text-gray-500 dark:text-gray-400">#<%= user.id %></td>
+                  
+                  <!-- Name -->
+                  <td class="px-4 sm:px-6 py-4 text-sm font-bold text-gray-900 dark:text-white"><%= user.name || '—' %></td>
+
+                  <!-- Email -->
+                  <td class="px-4 sm:px-6 py-4 text-sm text-gray-600 dark:text-gray-300 hidden lg:table-cell"><%= user.email %></td>
+                  
+                  <!-- Role badge -->
+                  <td class="px-4 sm:px-6 py-4 hidden md:table-cell">
+                    <%- include('../partials/_status-badge', { status: user.role, type: 'user' }) %>
+                  </td>
+                  
+                  <!-- Activity columns (projects posted or credits balance) -->
+                  <td class="px-4 sm:px-6 py-4 text-sm text-gray-600 dark:text-gray-300 hidden md:table-cell">
+                    <% if (user.role === 'contractor') { %>
+                      <div class="flex flex-col">
+                        <span class="font-bold text-orange-700 dark:text-orange-400"><%= user.contractor_credits || 0 %> <%= locale === 'id' ? 'kredit' : 'credits' %></span>
+                        <span class="text-xs text-gray-500"><%= locale === 'id' ? 'Saldo balance' : 'Credit balance' %></span>
+                      </div>
+                    <% } else if (user.role === 'client') { %>
+                      <div class="flex flex-col">
+                        <span class="font-bold text-blue-700 dark:text-blue-400"><%= user.projects_count || 0 %> <%= locale === 'id' ? 'proyek' : 'projects' %></span>
+                        
+                      </div>
+                    <% } else { %>
+                      <span class="text-gray-400">—</span>
+                    <% } %>
+                  </td>
+                  
+                  <!-- Telegram -->
+                  <td class="px-4 sm:px-6 py-4 text-sm text-gray-500 dark:text-gray-400 hidden lg:table-cell">
+                    <% if (user.telegram_id) { %>
+                      <span class="text-teal-600 dark:text-teal-400 font-medium">💬 @<%= user.telegram_id %></span>
+                    <% } else { %>
+                      <span class="text-gray-400">—</span>
+                    <% } %>
+                  </td>
+                  
+                  <!-- Registered Date -->
+                  <td class="px-4 sm:px-6 py-4 text-sm text-gray-500 dark:text-gray-400 hidden xl:table-cell">
+                    <%= new Date(user.created_at).toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %>
+                  </td>
+                  
+                  <!-- Actions -->
+                  <td class="px-4 sm:px-6 py-4 text-sm hidden min-[1600px]:table-cell" onclick="event.stopPropagation()">
+                    <div class="flex items-center justify-center gap-3 flex-nowrap">
+                      <!-- Update Role Form -->
+                      <form action="/admin/users/<%= user.id %>/update-role" method="POST" class="flex items-center gap-1.5 whitespace-nowrap">
+                        <%- include('../partials/csrf-field') %>
+                        <select name="role" onchange="this.form.submit()" class="text-xs px-2 py-1 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-orange-500 transition cursor-pointer whitespace-nowrap">
+                          <option value="client" <%= user.role === 'client' ? 'selected' : '' %>><%= locale === 'id' ? 'Klien' : 'Client' %></option>
+                          <option value="contractor" <%= user.role === 'contractor' ? 'selected' : '' %>><%= locale === 'id' ? 'Kontraktor' : 'Contractor' %></option>
+                          <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                        </select>
+                      </form>
+
+                      <!-- Delete Form -->
+                      <form action="/admin/users/<%= user.id %>/delete" method="POST" onsubmit="return confirm('<%= locale === 'id' ? 'Hapus pengguna ini beserta semua data sesinya? Tindakan ini tidak dapat dibatalkan.' : 'Delete this user along with all session data? This action cannot be undone.' %>')">
+                        <%- include('../partials/csrf-field') %>
+                        <button type="submit" class="text-xs px-2 py-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/50 rounded transition-all font-medium cursor-pointer whitespace-nowrap" title="<%= locale === 'id' ? 'Hapus Pengguna' : 'Delete User' %>">
+                          🗑️&nbsp;<%= locale === 'id' ? 'Hapus' : 'Delete' %>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Expandable detail row -->
+                <tr class="expand-detail" id="detail-u<%= user.id %>" style="display:none;">
+                  <td colspan="9" class="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-orange-500">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-1">Email</p>
+                        <p class="text-gray-900 dark:text-white font-semibold select-all"><%= user.email %></p>
+                      </div>
+                      <% if (user.telegram_id) { %>
+                      <div>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-1">Telegram</p>
+                        <p class="text-teal-600 dark:text-teal-400 font-semibold">💬 @<%= user.telegram_id %></p>
+                      </div>
+                      <% } %>
+                      <div>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-1"><%= t('admin.phone') %></p>
+                        <p class="text-gray-900 dark:text-white font-medium select-all"><%= user.phone || '—' %></p>
+                      </div>
+                      <div>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-1"><%= locale === 'id' ? 'Terdaftar' : 'Registered' %></p>
+                        <p class="text-gray-900 dark:text-white font-medium">
+                          <%= new Date(user.created_at).toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %>
+                        </p>
+                      </div>
+                      <div>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-1"><%= locale === 'id' ? 'Aktivitas' : 'Activity' %></p>
+                        <p class="text-gray-900 dark:text-white font-medium">
+                          <% if (user.role === 'contractor') { %>
+                            <span class="text-orange-700 dark:text-orange-400 font-bold"><%= user.contractor_credits || 0 %> <%= locale === 'id' ? 'kredit' : 'credits' %></span> (Balance)
+                          <% } else if (user.role === 'client') { %>
+                            <span class="text-blue-700 dark:text-blue-400 font-bold"><%= user.projects_count || 0 %> <%= locale === 'id' ? 'proyek' : 'projects' %></span> (Posted)
+                          <% } else { %>
+                            —
+                          <% } %>
+                        </p>
+                      </div>
+                      <!-- Mobile Actions Section -->
+                      <div class="min-[1600px]:hidden">
+                        <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1"><%= locale === 'id' ? 'Aksi' : 'Actions' %></p>
+                        <div class="flex items-center gap-3 flex-wrap mt-1">
+                          <!-- Update Role Form -->
+                          <form action="/admin/users/<%= user.id %>/update-role" method="POST" class="flex items-center gap-1.5 whitespace-nowrap">
+                            <%- include('../partials/csrf-field') %>
+                            <select name="role" onchange="this.form.submit()" class="text-xs px-2.5 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-orange-500 transition cursor-pointer whitespace-nowrap">
+                              <option value="client" <%= user.role === 'client' ? 'selected' : '' %>><%= locale === 'id' ? 'Klien' : 'Client' %></option>
+                              <option value="contractor" <%= user.role === 'contractor' ? 'selected' : '' %>><%= locale === 'id' ? 'Kontraktor' : 'Contractor' %></option>
+                              <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                            </select>
+                          </form>
+
+                          <!-- Delete Form -->
+                          <form action="/admin/users/<%= user.id %>/delete" method="POST" onsubmit="return confirm('<%= locale === 'id' ? 'Hapus pengguna ini beserta semua data sesinya? Tindakan ini tidak dapat dibatalkan.' : 'Delete this user along with all session data? This action cannot be undone.' %>')">
+                            <%- include('../partials/csrf-field') %>
+                            <button type="submit" class="text-xs px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/50 rounded-lg transition-all font-medium cursor-pointer whitespace-nowrap" title="<%= locale === 'id' ? 'Hapus Pengguna' : 'Delete User' %>">
+                              🗑&nbsp;<%= locale === 'id' ? 'Hapus' : 'Delete' %>
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <% }) %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Pagination -->
+          <%- include('_pagination', { pagination: pagination }) %>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <%- include('../partials/_expandable-rows') %>
+</body>
+</html>

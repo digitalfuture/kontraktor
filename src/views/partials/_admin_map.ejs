@@ -1,0 +1,176 @@
+<!-- Indonesia Map (D3) - Reusable renderer -->
+<!-- Depends on: d3.min.js loaded before include -->
+<!-- Usage: call renderMap(containerId, opts) after page load -->
+<%
+  // This partial defines the renderMap function.
+  // Container must exist in DOM before calling.
+  // Fetches /js/indonesia.geojson and /admin/api/map automatically.
+  // Translations used: admin.noProjects, admin.loadingGraph
+%>
+<script>
+  /**
+   * Render an Indonesia D3 map with project markers.
+   * @param {string} containerId - DOM element ID (e.g. 'map-chart')
+   * @param {Object} [opts] - Optional overrides
+   */
+  function renderMap(containerId, opts) {
+    opts = opts || {};
+    opts.geoUrl = opts.geoUrl || '/js/indonesia.geojson';
+    opts.apiUrl = opts.apiUrl || '/admin/api/map';
+
+    (async function() {
+      var mapContainer = document.getElementById(containerId);
+      var mapLoading = document.getElementById(containerId.replace('chart', 'loading'));
+      if (!mapContainer) return;
+
+      try {
+        var [geoResp, dataResp] = await Promise.all([
+          fetch(opts.geoUrl),
+          fetch(opts.apiUrl)
+        ]);
+        var geoData = await geoResp.json();
+        var mapData = await dataResp.json();
+
+        function render() {
+          mapContainer.innerHTML = '';
+          if (mapLoading) mapLoading.style.display = 'none';
+          var isDark = document.documentElement.classList.contains('dark');
+          var rect = mapContainer.getBoundingClientRect();
+          var W = rect.width, H = rect.height;
+          var isMobile = W < 500;
+
+          var svg = d3.select(mapContainer).append('svg')
+            .attr('width', '100%').attr('height', '100%')
+            .attr('viewBox', '0 0 ' + W + ' ' + H);
+
+          var padding = isMobile ? 10 : 20;
+          var projection = d3.geoMercator()
+            .fitExtent([[padding, padding], [W - padding, H - padding]], geoData);
+
+          var path = d3.geoPath().projection(projection);
+
+          // Draw Indonesia outline
+          svg.append('g').selectAll('path')
+            .data(geoData.features)
+            .join('path')
+            .attr('d', path)
+            .attr('fill', isDark ? '#1e293b' : '#e2e8f0')
+            .attr('stroke', isDark ? '#334155' : '#94a3b8');
+
+          // Tooltip
+          var tooltip = d3.select(mapContainer).append('div')
+            .style('position', 'absolute')
+            .style('pointer-events', 'none')
+            .style('background', isDark ? '#1f2937' : '#ffffff')
+            .style('border', '1px solid ' + (isDark ? '#4b5563' : '#e5e7eb'))
+            .style('border-radius', '8px')
+            .style('padding', '8px 12px')
+            .style('font-size', '12px')
+            .style('color', isDark ? '#f3f4f6' : '#111827')
+            .style('box-shadow', '0 4px 12px rgba(0,0,0,0.15)')
+            .style('opacity', 0)
+            .style('z-index', '50');
+
+          if (!mapData.markers || mapData.markers.length === 0) {
+            svg.append('text')
+              .attr('x', W / 2).attr('y', H / 2)
+              .attr('text-anchor', 'middle')
+              .attr('fill', isDark ? '#9ca3af' : '#6b7280')
+              .attr('font-size', '13px')
+              .text('<%= t("admin.noProjects") %>');
+            return;
+          }
+
+          // Draw markers
+          var markers = svg.append('g').selectAll('g')
+            .data(mapData.markers)
+            .join('g')
+            .attr('transform', function(d) {
+              var c = projection([d.lng, d.lat]);
+              return 'translate(' + c[0] + ',' + c[1] + ')';
+            });
+
+          // Pending circles (orange)
+          markers.append('circle')
+            .attr('r', function(d) { return Math.max(4, Math.min(18, d.pending * 3 + 3)); })
+            .attr('fill', '#f59e0b')
+            .attr('fill-opacity', 0.6)
+            .attr('stroke', '#d97706');
+
+          // Accepted circles (green, offset)
+          markers.append('circle')
+            .attr('cx', function(d) { return d.pending > 0 ? 6 : 0; })
+            .attr('r', function(d) { return Math.max(4, Math.min(18, d.accepted * 3 + 3)); })
+            .attr('fill', '#10b981')
+            .attr('fill-opacity', 0.6)
+            .attr('stroke', '#059669');
+
+          // Province label
+          if (!isMobile || mapData.markers.length < 10) {
+            markers.append('text')
+              .attr('y', function(d) { return -Math.max(4, Math.min(18, Math.max(d.pending, d.accepted) * 3 + 3)) - 4; })
+              .attr('text-anchor', 'middle')
+              .attr('fill', isDark ? '#d1d5db' : '#374151')
+              .attr('font-size', isMobile ? '7px' : '9px')
+              .attr('font-family', 'Inter, sans-serif')
+              .text(function(d) { return d.province; });
+          }
+
+          // Hover
+          markers.style('cursor', 'pointer')
+            .on('mouseover', function(e, d) {
+              d3.select(this).selectAll('circle').attr('fill-opacity', 0.9);
+              var html = '<strong>' + d.province + '</strong><br>' +
+                '<span style="color:#f59e0b">●</span> Pending: ' + d.pending + '<br>' +
+                '<span style="color:#10b981">●</span> Accepted: ' + d.accepted + '<br>' +
+                'Total: ' + d.total;
+              tooltip.html(html).style('opacity', 1);
+            })
+            .on('mousemove', function(e) {
+              var r = mapContainer.getBoundingClientRect();
+              tooltip.style('left', (e.clientX - r.left + 12) + 'px')
+                .style('top', (e.clientY - r.top - 10) + 'px');
+            })
+            .on('mouseout', function() {
+              d3.select(this).selectAll('circle').attr('fill-opacity', 0.6);
+              tooltip.style('opacity', 0);
+            });
+
+          // Legend
+          var padL = isMobile ? 12 : 24;
+          var legendY = H - (isMobile ? 30 : 40);
+          var legend = svg.append('g').attr('transform', 'translate(' + padL + ',' + legendY + ')');
+          [['pending', '#f59e0b', '<%= t("admin.pending") %>'], ['accepted', '#10b981', '<%= t("admin.accepted") %>']].forEach(function(item) {
+            var g = legend.append('g').attr('transform', 'translate(' + (item[0] === 'pending' ? 0 : isMobile ? 80 : 100) + ',0)');
+            g.append('circle').attr('r', 5).attr('fill', item[1]).attr('fill-opacity', 0.7);
+            g.append('text').attr('x', 10).attr('y', 4).attr('fill', isDark ? '#d1d5db' : '#374151')
+              .attr('font-size', isMobile ? '9px' : '11px').text(item[2]);
+          });
+
+          window['_renderMap_' + containerId] = render;
+        }
+
+        render();
+
+        // Re-render on resize — debounced
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(render, 150);
+        });
+        if (window.ResizeObserver) {
+          const ro = new ResizeObserver(function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(render, 150);
+          });
+          ro.observe(mapContainer);
+        }
+
+      } catch (err) {
+        if (mapLoading) mapLoading.style.display = 'none';
+        mapContainer.innerHTML = '<div class="flex items-center justify-center h-full text-red-400"><%= t("admin.loadingGraph") %> (error)</div>';
+        console.error('Map error (' + containerId + '):', err);
+      }
+    })();
+  }
+</script>

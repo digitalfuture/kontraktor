@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kontraktor — Site Structure & User Flow</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0f172a;
+    color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    padding: 2rem;
+    min-height: 100vh;
+  }
+  h1 { font-size: 1.5rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem; }
+  h1 small { font-size: 0.8rem; color: #64748b; font-weight: normal; }
+  .meta { font-size: 0.85rem; color: #64748b; margin-bottom: 2rem; }
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem;
+    padding: 1rem; background: #1e293b; border-radius: 0.5rem; border: 1px solid #334155;
+  }
+  .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+  #diagram {
+    background: #1e293b;
+    border-radius: 0.75rem;
+    padding: 2rem;
+    border: 1px solid #334155;
+    overflow-x: auto;
+  }
+  #diagram svg { max-width: 100%; height: auto; }
+  .controls { margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center; }
+  .controls button {
+    background: #334155; color: #e2e8f0; border: none;
+    padding: 0.4rem 1rem; border-radius: 0.3rem; cursor: pointer; font-size: 0.85rem;
+  }
+  .controls button:hover { background: #475569; }
+  .footer { margin-top: 2rem; font-size: 0.75rem; color: #475569; text-align: center; }
+</style>
+</head>
+<body>
+
+<h1>🧭 Kontraktor — Site Structure & User Flow <small>auto-generated from routes</small></h1>
+
+<div class="legend">
+  <span class="legend-item"><span class="legend-dot" style="background:#ea580c"></span> Entry</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#1e40af"></span> Admin</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#7c3aed"></span> Auth</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#059669"></span> Account</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#d97706"></span> Payments</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#4b5563"></span> Public</span>
+  <span class="legend-item">📄 GET &nbsp; ➕ POST &nbsp; 📝 PUT &nbsp; 🗑️ DELETE</span>
+  <span class="legend-item">🛡️ middleware &nbsp; 🎨 view template &nbsp; ↪️ redirect</span>
+</div>
+
+<div class="controls">
+  <button onclick="location.reload()">🔄 Regenerate</button>
+</div>
+
+<div id="diagram">
+  <pre class="mermaid" style="background:transparent;text-align:center;">
+graph TB
+
+  root["🏠 Kontraktor"]
+  style root fill:#ea580c,color:#fff,font-weight:bold
+
+  m0["/services"]
+  style m0 fill:#4b5563,color:#fff
+  root --> m0
+
+  e1["📄 GET /"]
+  style e1 fill:#4b5563,color:#fff
+  m0 --> e1
+  e2["📄 GET /:slug"]
+  style e2 fill:#4b5563,color:#fff
+  m0 --> e2
+  m3["/projects<br/><small>🛡️Auth</small>"]
+  style m3 fill:#4b5563,color:#fff
+  root --> m3
+
+  e4["📄 GET /"]
+  style e4 fill:#4b5563,color:#fff
+  m3 --> e4
+  m5["/sitemap.xml"]
+  style m5 fill:#4b5563,color:#fff
+  root --> m5
+
+  e6["📄 GET /"]
+  style e6 fill:#4b5563,color:#fff
+  m5 --> e6
+  m7["/contractors"]
+  style m7 fill:#4b5563,color:#fff
+  root --> m7
+
+  e8["📄 GET /"]
+  style e8 fill:#4b5563,color:#fff
+  m7 --> e8
+  e9["📄 GET /register"]
+  style e9 fill:#4b5563,color:#fff
+  m7 --> e9
+  e10["➕ POST /register"]
+  style e10 fill:#4b5563,color:#fff
+  m7 --> e10
+  e11["📄 GET /dashboard"]
+  style e11 fill:#4b5563,color:#fff
+  m7 --> e11
+  e12["📄 GET /:id"]
+  style e12 fill:#4b5563,color:#fff
+  m7 --> e12
+  e13["➕ POST /dashboard/avatar"]
+  style e13 fill:#4b5563,color:#fff
+  m7 --> e13
+  e14["➕ POST /dashboard/portfolio"]
+  style e14 fill:#4b5563,color:#fff
+  m7 --> e14
+  e15["➕ POST /dashboard/photo/:photoId/delete"]
+  style e15 fill:#4b5563,color:#fff
+  m7 --> e15
+  e16["➕ POST /request-credits"]
+  style e16 fill:#4b5563,color:#fff
+  m7 --> e16
+  m17["/post"]
+  style m17 fill:#4b5563,color:#fff
+  root --> m17
+
+  e18["📄 GET /"]
+  style e18 fill:#4b5563,color:#fff
+  m17 --> e18
+  e19["📄 GET /:id/edit"]
+  style e19 fill:#4b5563,color:#fff
+  m17 --> e19
+  e20["➕ POST /:id/edit"]
+  style e20 fill:#4b5563,color:#fff
+  m17 --> e20
+  e21["📄 GET /subcategories"]
+  style e21 fill:#4b5563,color:#fff
+  m17 --> e21
+  e22["📄 GET /district-search"]
+  style e22 fill:#4b5563,color:#fff
+  m17 --> e22
+  e23["📄 GET /:id"]
+  style e23 fill:#4b5563,color:#fff
+  m17 --> e23
+  e24["📄 GET /:id/bids-partial"]
+  style e24 fill:#4b5563,color:#fff
+  m17 --> e24
+  e25["➕ POST /"]
+  style e25 fill:#4b5563,color:#fff
+  m17 --> e25
+  e26["➕ POST /:projectId/bid"]
+  style e26 fill:#4b5563,color:#fff
+  m17 --> e26
+  e27["➕ POST /:projectId/bids/:bidId/accept"]
+  style e27 fill:#4b5563,color:#fff
+  m17 --> e27
+  e28["➕ POST /:projectId/bids/:bidId/reject"]
+  style e28 fill:#4b5563,color:#fff
+  m17 --> e28
+  e29["➕ POST /:projectId/status"]
+  style e29 fill:#4b5563,color:#fff
+  m17 --> e29
+  e30["➕ POST /:projectId/review"]
+  style e30 fill:#4b5563,color:#fff
+  m17 --> e30
+  m31["/auth"]
+  style m31 fill:#7c3aed,color:#fff
+  root --> m31
+
+  e32["📄 GET /login"]
+  style e32 fill:#7c3aed,color:#fff
+  m31 --> e32
+  e33["➕ POST /login"]
+  style e33 fill:#7c3aed,color:#fff
+  m31 --> e33
+  e34["📄 GET /verify"]
+  style e34 fill:#7c3aed,color:#fff
+  m31 --> e34
+  e35["📄 GET /logout"]
+  style e35 fill:#7c3aed,color:#fff
+  m31 --> e35
+  m36["/account"]
+  style m36 fill:#059669,color:#fff
+  root --> m36
+
+  e37["📄 GET /"]
+  style e37 fill:#059669,color:#fff
+  m36 --> e37
+  m38["/contact"]
+  style m38 fill:#4b5563,color:#fff
+  root --> m38
+
+  e39["➕ POST /"]
+  style e39 fill:#4b5563,color:#fff
+  m38 --> e39
+  m40["/payments"]
+  style m40 fill:#d97706,color:#fff
+  root --> m40
+
+  e41["📄 GET /buy"]
+  style e41 fill:#d97706,color:#fff
+  m40 --> e41
+  e42["➕ POST /create-invoice"]
+  style e42 fill:#d97706,color:#fff
+  m40 --> e42
+  e43["➕ POST /webhook"]
+  style e43 fill:#d97706,color:#fff
+  m40 --> e43
+  m44["/admin<br/><small>🛡️Auth<br/>🛡️Admin</small>"]
+  style m44 fill:#1e40af,color:#fff
+  root --> m44
+
+  e45["📄 GET /"]
+  style e45 fill:#1e40af,color:#fff
+  m44 --> e45
+  e46["📄 GET /projects"]
+  style e46 fill:#1e40af,color:#fff
+  m44 --> e46
+  e47["📄 GET /contractors"]
+  style e47 fill:#1e40af,color:#fff
+  m44 --> e47
+  e48["📄 GET /categories"]
+  style e48 fill:#1e40af,color:#fff
+  m44 --> e48
+  e49["📄 GET /reviews"]
+  style e49 fill:#1e40af,color:#fff
+  m44 --> e49
+  e50["➕ POST /projects/:id/status"]
+  style e50 fill:#1e40af,color:#fff
+  m44 --> e50
+  e51["➕ POST /projects/:id/assign"]
+  style e51 fill:#1e40af,color:#fff
+  m44 --> e51
+  e52["➕ POST /reviews/:id/moderate"]
+  style e52 fill:#1e40af,color:#fff
+  m44 --> e52
+  e53["➕ POST /reviews/:id/delete"]
+  style e53 fill:#1e40af,color:#fff
+  m44 --> e53
+  e54["➕ POST /categories/create"]
+  style e54 fill:#1e40af,color:#fff
+  m44 --> e54
+  e55["➕ POST /categories/:id/update"]
+  style e55 fill:#1e40af,color:#fff
+  m44 --> e55
+  e56["➕ POST /categories/:id/toggle"]
+  style e56 fill:#1e40af,color:#fff
+  m44 --> e56
+  e57["➕ POST /categories/:id/delete"]
+  style e57 fill:#1e40af,color:#fff
+  m44 --> e57
+  e58["📄 GET /trash"]
+  style e58 fill:#1e40af,color:#fff
+  m44 --> e58
+  e59["➕ POST /categories/:id/restore"]
+  style e59 fill:#1e40af,color:#fff
+  m44 --> e59
+  e60["➕ POST /categories/:id/force-delete"]
+  style e60 fill:#1e40af,color:#fff
+  m44 --> e60
+  e61["➕ POST /contractors/:id/toggle-verified"]
+  style e61 fill:#1e40af,color:#fff
+  m44 --> e61
+  e62["➕ POST /contractors/:id/toggle-active"]
+  style e62 fill:#1e40af,color:#fff
+  m44 --> e62
+  e63["➕ POST /contractors/:id/add-credits"]
+  style e63 fill:#1e40af,color:#fff
+  m44 --> e63
+  e64["📄 GET /users"]
+  style e64 fill:#1e40af,color:#fff
+  m44 --> e64
+  e65["➕ POST /users/:id/update-role"]
+  style e65 fill:#1e40af,color:#fff
+  m44 --> e65
+  e66["➕ POST /users/:id/delete"]
+  style e66 fill:#1e40af,color:#fff
+  m44 --> e66
+  e67["➕ POST /users/:id/restore"]
+  style e67 fill:#1e40af,color:#fff
+  m44 --> e67
+  e68["➕ POST /users/:id/force-delete"]
+  style e68 fill:#1e40af,color:#fff
+  m44 --> e68
+  e69["📄 GET /payments"]
+  style e69 fill:#1e40af,color:#fff
+  m44 --> e69
+  e70["📄 GET /payments/settings"]
+  style e70 fill:#1e40af,color:#fff
+  m44 --> e70
+  e71["➕ POST /payments/settings"]
+  style e71 fill:#1e40af,color:#fff
+  m44 --> e71
+  e72["📄 GET /api/sankey"]
+  style e72 fill:#1e40af,color:#fff
+  m44 --> e72
+  e73["📄 GET /api/sankey-category-status"]
+  style e73 fill:#1e40af,color:#fff
+  m44 --> e73
+  e74["📄 GET /api/map"]
+  style e74 fill:#1e40af,color:#fff
+  m44 --> e74
+  e75["📄 GET /api/network-graph"]
+  style e75 fill:#1e40af,color:#fff
+  m44 --> e75
+  e76["📄 GET /diagrams"]
+  style e76 fill:#1e40af,color:#fff
+  m44 --> e76
+  e77["📄 GET /diagrams/sitemap-content"]
+  style e77 fill:#1e40af,color:#fff
+  m44 --> e77
+  </pre>
+</div>
+
+<div class="footer">
+  Generated 2026-05-28 at 12:48 ·
+  Run <code>npm run generate-sitemap</code> to refresh
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      fontFamily: 'system-ui',
+      fontSize: '13px',
+      primaryColor: '#334155',
+      primaryTextColor: '#e2e8f0',
+      primaryBorderColor: '#475569',
+      lineColor: '#64748b',
+      secondaryColor: '#1e293b',
+      tertiaryColor: '#0f172a',
+      clusterBkg: '#1e293b',
+      clusterBorder: '#334155',
+    },
+    flowchart: {
+      useMaxWidth: true,
+      htmlLabels: true,
+      curve: 'basis',
+      padding: 12,
+    }
+  });
+</script>
+
+</body>
+</html>

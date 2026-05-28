@@ -1,0 +1,33 @@
+[Unit]
+Description=Kontraktor — Construction Marketplace
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/root/kontraktor
+ExecStart=/usr/bin/node dist/index.js
+Restart=on-failure
+RestartSec=5
+StartLimitBurst=5
+StartLimitIntervalSec=60
+
+# Environment
+Environment=NODE_ENV=production
+Environment=PORT=3002
+# Add BASE_URL, TELEGRAM_*, SMTP_* as needed
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/root/kontraktor/data /root/kontraktor/logs
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=kontraktor
+
+[Install]
+WantedBy=multi-user.target

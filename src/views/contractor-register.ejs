@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="<%= typeof locale !== 'undefined' ? locale : 'en' %>">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title || t('contractorRegister.title') %> — Kontraktor</title>
+  <%- include('partials/_head') %>
+</head>
+<body class="bg-gray-200 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+  <%- include('partials/_anti-flash') %>
+  <%- include('partials/header') %>
+
+  <main id="main-content" class="max-w-2xl mx-auto px-4 sm:px-6 py-12" role="main">
+    <h1 class="text-2xl sm:text-3xl font-bold mb-2"><%= t('contractorRegister.title') %></h1>
+    <p class="text-gray-600 dark:text-gray-300 mb-8"><%= t('contractorRegister.subtitle') %></p>
+
+    <% if (typeof errors !== 'undefined' && errors && errors.length > 0) { %>
+    <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg" role="alert" aria-label="<%= t('common.error') %>">
+      <ul class="list-disc list-inside text-sm text-red-700 dark:text-red-400">
+        <% errors.forEach(function(err) { %>
+        <li><%= err %></li>
+        <% }); %>
+      </ul>
+    </div>
+    <% } %>
+
+    <form action="/contractors/register" method="POST" class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
+        <%- include('partials/csrf-field') %>
+      <div class="mb-6">
+        <label for="name" class="block text-sm font-semibold mb-2"><%= t('contractorRegister.fullNameLabel') %></label>
+        <input type="text" id="name" name="name" required
+          value="<%= typeof formData !== 'undefined' && formData ? formData.name.replace(/"/g, '&quot;') : '' %>"
+          placeholder="<%= t('contractorRegister.fullNamePlaceholder') %>"
+          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+      </div>
+
+      <div class="mb-6">
+        <label for="email" class="block text-sm font-semibold mb-2"><%= t('contractorRegister.emailLabel') %></label>
+        <input type="email" id="email" name="email" required
+          value="<%= typeof formData !== 'undefined' && formData ? formData.email.replace(/"/g, '&quot;') : '' %>"
+          placeholder="<%= t('contractorRegister.emailPlaceholder') %>"
+          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+      </div>
+
+      <div class="mb-6">
+        <label for="phone" class="block text-sm font-semibold mb-2"><%= t('contractorRegister.phoneLabel') %></label>
+        <input type="tel" id="phone" name="phone"
+          value="<%= typeof formData !== 'undefined' && formData ? formData.phone.replace(/"/g, '&quot;') : '' %>"
+          placeholder="<%= t('contractorRegister.phonePlaceholder') %>"
+          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+      </div>
+
+      <div class="mb-6">
+        <label for="specialty" class="block text-sm font-semibold mb-2"><%= t('contractorRegister.specialtyLabel') %></label>
+        <select id="specialty" name="specialty" required
+          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+          <option value=""><%= t('contractorRegister.selectSpecialty') %></option>
+          <% if (typeof categories !== 'undefined') { categories.forEach(function(cat) { %>
+          <option value="<%= cat.slug %>"><%= cat.display_name %></option>
+          <% }); } %>
+        </select>
+      </div>
+
+      <div class="mb-6">
+        <label for="experience" class="block text-sm font-semibold mb-2"><%= t('contractorRegister.experienceLabel') %></label>
+        <input type="number" id="experience" name="experience" min="0" max="50"
+          value="<%= typeof formData !== 'undefined' && formData ? formData.experience : '' %>"
+          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+      </div>
+
+      <div class="mb-6">
+        <label for="bio" class="block text-sm font-semibold mb-2"><%= t('contractorRegister.bioLabel') %></label>
+        <textarea id="bio" name="bio" rows="4"
+          placeholder="<%= t('contractorRegister.bioPlaceholder') %>"
+          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 resize-none"><%= typeof formData !== 'undefined' && formData ? formData.bio.replace(/</g, '&lt;') : '' %></textarea>
+      </div>
+
+      <button type="submit" class="w-full bg-orange-700 text-white py-3 rounded-lg hover:bg-orange-800 transition font-semibold text-lg shadow-lg shadow-orange-600/30 focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
+        <%= t('contractorRegister.submitButton') %>
+      </button>
+    </form>
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="<%= typeof locale !== 'undefined' ? locale : 'en' %>">
+  <%- include('../partials/_head') %>
+<body class="bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+  <%- include('../partials/_anti-flash') %>
+  <div class="flex h-screen overflow-hidden">
+    <%- include('_sidebar', { activePage: 'trash', t: t, locale: locale }) %>
+    <main class="flex-1 overflow-y-auto">
+      <div class="p-4 sm:p-6 lg:p-8">
+        <!-- Top Row (Header) -->
+        <div class="flex items-center justify-between min-[1600px]:justify-end mb-4 sm:mb-8">
+          <button onclick="const a=document.querySelector('aside');a.classList.toggle('-translate-x-full');a.classList.toggle('translate-x-0')" class="min-[1600px]:hidden p-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 active:bg-gray-100 dark:active:bg-gray-600 transition-colors cursor-pointer w-max focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div class="flex items-center">
+            <%- include('_controls', { locale: locale, locales: typeof locales !== 'undefined' ? locales : ['id', 'en'] }) %>
+          </div>
+        </div>
+
+        <!-- Title -->
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white inline-flex items-center gap-2 leading-none">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+              <%= t('admin.trash') || 'Trash' %>
+            </h1>
+            <p class="text-gray-500 dark:text-gray-300 mt-2 text-sm leading-none"><%= t('admin.trashDescription') || 'Deleted records from all sections' %></p>
+          </div>
+          <a href="/admin" class="px-4 py-2 text-sm font-medium border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition cursor-pointer text-gray-700 dark:text-gray-200"><%= t('admin.backToDashboard') || 'Back to Dashboard' %></a>
+        </div>
+
+        <!-- Categories Section -->
+        <div class="mb-8">
+          <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
+            <%= t('admin.categories') || 'Categories' %> <span class="text-sm font-normal text-gray-400">(<%= categories.length %>)</span>
+          </h2>
+
+          <% if (categories.length === 0) { %>
+            <p class="text-sm text-gray-400 dark:text-gray-500 pl-7"><%= t('admin.noDeletedCategories') || 'No deleted categories' %></p>
+          <% } else { %>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              <% categories.forEach(function(cat) { %>
+              <div class="flex flex-col bg-white dark:bg-gray-800 rounded-card shadow-card border border-gray-200 dark:border-gray-700 p-4 sm:p-6 opacity-75">
+                <div class="flex-grow">
+                  <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-semibold text-gray-900 dark:text-white line-through decoration-red-500"><%= cat.display_name || t('categories.' + cat.slug) %></h3>
+                    <span class="text-xs px-2 py-1 rounded-full font-medium bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300"><%= t('admin.deleted') || 'Deleted' %></span>
+                  </div>
+                  <p class="text-sm text-gray-500 dark:text-gray-300 mb-3"><%= cat.description_en || '—' %></p>
+                </div>
+                <div class="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700 mt-auto">
+                  <form action="/admin/categories/<%= cat.id %>/restore" method="POST">
+                    <%- include('../partials/csrf-field') %>
+                    <button type="submit" data-requires-edit class="w-auto text-sm font-medium px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-500 transition cursor-pointer"><%= t('admin.restore') || 'Restore' %></button>
+                  </form>
+                  <form action="/admin/categories/<%= cat.id %>/force-delete" method="POST" onsubmit="return confirm('<%= t('admin.deleteCategoryConfirm') || 'Are you absolutely sure you want to permanently delete this?' %>')">
+                    <%- include('../partials/csrf-field') %>
+                    <button type="submit" data-requires-edit class="w-auto text-sm font-medium px-4 py-2 rounded-lg border border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition cursor-pointer"><%= t("admin.delete") %></button>
+                  </form>
+                </div>
+              </div>
+              <% }); %>
+            </div>
+<% } %>
+      </div>
+
+      <!-- Users Section -->
+      <div class="mb-8">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+          <%= t('admin.users') || 'Users' %> <span class="text-sm font-normal text-gray-400">(<%= users.length %>)</span>
+        </h2>
+
+        <% if (users.length === 0) { %>
+          <p class="text-sm text-gray-400 dark:text-gray-500 pl-7"><%= t('admin.noDeletedUsers') || 'No deleted users' %></p>
+        <% } else { %>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <% users.forEach(function(u) { %>
+            <div class="flex flex-col bg-white dark:bg-gray-800 rounded-card shadow-card border border-gray-200 dark:border-gray-700 p-4 sm:p-6 opacity-75">
+              <div class="flex-grow">
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="font-semibold text-gray-900 dark:text-white line-through decoration-red-500"><%= u.name || u.email %></h3>
+                  <span class="text-xs px-2 py-1 rounded-full font-medium bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300"><%= t('admin.deleted') || 'Deleted' %></span>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-300 mb-1">
+                  <span class="text-xs px-2 py-0.5 rounded font-medium <%= u.role === 'admin' ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300' : u.role === 'contractor' ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300' : 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300' %>"><%= u.role %></span>
+                  <span><%= u.email %></span>
+                </div>
+              </div>
+              <div class="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700 mt-auto">
+                <form action="/admin/users/<%= u.id %>/restore" method="POST">
+                  <%- include('../partials/csrf-field') %>
+                  <button type="submit" data-requires-edit class="w-auto text-sm font-medium px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-500 transition cursor-pointer"><%= t('admin.restore') || 'Restore' %></button>
+                </form>
+                <form action="/admin/users/<%= u.id %>/force-delete" method="POST" onsubmit="return confirm('<%= t('admin.deleteUserPermanentConfirm') || 'Are you absolutely sure you want to permanently delete this user? This cannot be undone.' %>')">
+                  <%- include('../partials/csrf-field') %>
+                  <button type="submit" data-requires-edit class="w-auto text-sm font-medium px-4 py-2 rounded-lg border border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition cursor-pointer"><%= t("admin.delete") %></button>
+                </form>
+              </div>
+            </div>
+            <% }); %>
+          </div>
+        <% } %>
+      </div>
+
+      <% if (categories.length === 0 && users.length === 0) { %>
+          <div class="text-center py-12">
+            <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white"><%= t('admin.trashEmpty') || 'Trash is empty' %></h3>
+          </div>
+        <% } %>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

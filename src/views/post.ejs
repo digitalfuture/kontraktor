@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="<%= typeof locale !== 'undefined' ? locale : 'en' %>">
+  <%- include('partials/_head') %>
+<body class="bg-gray-200 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+  <%- include('partials/_anti-flash') %>
+  <%- include('partials/header') %>
+  
+  <main>
+    <section class="py-8 sm:py-12">
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3"><%= typeof editMode !== 'undefined' && editMode ? t('post.editTitle') : t('post.title') %></h1>
+        <p class="text-gray-600 dark:text-gray-300 mb-8"><%= typeof editMode !== 'undefined' && editMode ? t('post.editSubtitle') : t('post.subtitle') %></p>
+        
+        <form action="<%= typeof editMode !== 'undefined' && editMode ? '/post/' + project.id + '/edit' : '/post' %>?lang=<%= locale %>" method="POST" class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
+        <%- include('partials/csrf-field') %>
+          <!-- Validation Errors -->
+          <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+          <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <ul class="list-disc list-inside text-sm text-red-700 dark:text-red-400">
+              <% errors.forEach(function(err) { %>
+              <li><%= err %></li>
+              <% }); %>
+            </ul>
+          </div>
+          <% } %>
+          <!-- Category -->
+          <div class="mb-6">
+            <label for="category" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.categoryLabel') %> *</label>
+            <select id="category" name="category" required
+              hx-get="/post/subcategories"
+              hx-trigger="change"
+              hx-target="#subcategory-container"
+              hx-swap="innerHTML"
+              hx-include="this"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+              <option value=""><%= t('post.selectCategory') %></option>
+              <% if (typeof categories !== 'undefined') { categories.forEach(function(cat) { %>
+              <option value="<%= cat.slug %>" <%= typeof formData !== 'undefined' && formData.category === cat.slug ? 'selected' : '' %>><%= cat.display_name || t('categories.' + cat.slug) %></option>
+              <% }); } %>
+            </select>
+          </div>
+
+          <!-- Subcategory (HTMX loaded) -->
+          <div id="subcategory-container">
+            <% if (typeof formData !== 'undefined' && formData.subcategory) { %>
+            <div class="mb-6" id="subcategory-group">
+              <label for="subcategory" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.subcategoryLabel') %></label>
+              <select id="subcategory" name="subcategory" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+                <option value=""><%= t('post.selectSubcategory') %></option>
+              </select>
+            </div>
+            <% } %>
+          </div>
+          
+          <!-- Title -->
+          <div class="mb-6">
+            <label for="title" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.titleLabel') %> *</label>
+            <input type="text" id="title" name="title" required value="<%= typeof formData !== 'undefined' && formData.title ? formData.title.replace(/"/g, '&quot;') : '' %>" placeholder="<%= t('post.titlePlaceholder') %>" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
+          </div>
+
+          <!-- Description -->
+          <div class="mb-6">
+            <label for="description" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.descriptionLabel') %> *</label>
+            <textarea id="description" name="description" rows="5" required placeholder="<%= t('post.descriptionPlaceholder') %>" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 resize-none"><%= typeof formData !== 'undefined' && formData.description ? formData.description.replace(/</g, '&lt;') : '' %></textarea>
+          </div>
+          
+          <!-- Contact Info -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label for="contactName" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.nameLabel') %> *</label>
+              <input type="text" id="contactName" name="contactName" required value="<%= typeof formData !== 'undefined' && formData.contactName ? formData.contactName.replace(/"/g, '&quot;') : '' %>" placeholder="<%= t('post.namePlaceholder') %>" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
+            </div>
+            <div>
+              <label for="contactPhone" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.phoneLabel') %> *</label>
+              <input type="tel" id="contactPhone" name="contactPhone" required value="<%= typeof formData !== 'undefined' && formData.contactPhone ? formData.contactPhone.replace(/"/g, '&quot;') : '' %>" placeholder="<%= t('post.phonePlaceholder') %>" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
+            </div>
+          </div>
+          
+          <!-- District/Kota -->
+          <div class="mb-6">
+            <label for="district" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.districtLabel') %> *</label>
+            <input type="hidden" id="district_en" name="district_en" value="<%= typeof formData !== 'undefined' && formData.district_en ? formData.district_en.replace(/"/g, '&quot;') : '' %>">
+            <input type="text" id="district" name="district" required
+              list="district-list"
+              value="<%= typeof formData !== 'undefined' && formData.district ? formData.district.replace(/"/g, '&quot;') : '' %>"
+              placeholder="<%= t('post.districtPlaceholder') %>"
+              autocomplete="off"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
+            <datalist id="district-list"></datalist>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1"><%= t('post.districtHint') %></p>
+          </div>
+
+          <!-- Address detail -->
+          <div class="mb-6">
+            <div>
+              <label for="address" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.addressLabel') %></label>
+              <input type="text" id="address" name="address" value="<%= typeof formData !== 'undefined' && formData.address ? formData.address.replace(/"/g, '&quot;') : '' %>" placeholder="<%= t('post.addressPlaceholder') %>" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
+            </div>
+          </div>
+          
+          <!-- Divider -->
+          <div class="border-t border-gray-200 dark:border-gray-700 my-6"></div>
+          
+          <!-- Submit -->
+          <button type="submit" class="w-full bg-orange-700 text-white py-3 rounded-lg hover:bg-orange-800 transition font-semibold text-lg shadow-lg shadow-orange-600/30">
+            <%= typeof editMode !== 'undefined' && editMode ? t('post.saveButton') : t('post.submitButton') %>
+          </button>
+          
+          <p class="text-center text-sm text-gray-500 dark:text-gray-300 mt-4"><%- t('post.termsAgree') %></p>
+        </form>
+
+        <script>
+        (function() {
+          var input = document.getElementById('district');
+          var hiddenEn = document.getElementById('district_en');
+          var datalist = document.getElementById('district-list');
+          var debounce;
+          var allDistricts = <%- JSON.stringify(typeof districtsData !== 'undefined' ? districtsData : []) %>;
+          var locale = '<%= typeof locale !== "undefined" ? locale : "en" %>';
+
+          function getName(k) { return locale === 'id' ? k.name_id : k.name; }
+          function getProv(k) { return locale === 'id' ? k.province_id : k.province; }
+
+          // Find English name from localized input value
+          function findEnglishName(val) {
+            if (!val) return '';
+            var lv = val.toLowerCase();
+            for (var i = 0; i < allDistricts.length; i++) {
+              if (allDistricts[i].name.toLowerCase() === lv || allDistricts[i].name_id.toLowerCase() === lv) {
+                return allDistricts[i].name;
+              }
+            }
+            return '';
+          }
+
+          function filterData(q) {
+            if (!q || q.length < 2) { datalist.innerHTML = ''; return; }
+            var lq = q.toLowerCase();
+            var matches = allDistricts.filter(function(k) {
+              return k.name.toLowerCase().indexOf(lq) !== -1 || k.name_id.toLowerCase().indexOf(lq) !== -1;
+            }).slice(0, 15);
+            datalist.innerHTML = matches.map(function(k) {
+              return '<option value="' + getName(k) + '">' + getName(k) + ' — ' + getProv(k) + '</option>';
+            }).join('');
+          }
+
+          input.addEventListener('input', function() {
+            clearTimeout(debounce);
+            var self = this;
+            debounce = setTimeout(function() {
+              filterData(self.value);
+              hiddenEn.value = findEnglishName(self.value);
+            }, 150);
+          });
+
+          if (input.value) {
+            filterData(input.value);
+            hiddenEn.value = findEnglishName(input.value);
+          }
+        })();
+        </script>
+      </div>
+    </section>
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

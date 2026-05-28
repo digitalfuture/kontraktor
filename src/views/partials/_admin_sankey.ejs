@@ -1,0 +1,239 @@
+<!-- Sankey Diagram (D3) - Reusable renderer -->
+<!-- Depends on: d3.min.js, d3-sankey.min.js loaded before include -->
+<!-- Usage: call renderSankey(containerId, apiUrl) after page load -->
+<%
+  // This partial defines the renderSankey function.
+  // Container must exist in DOM before calling.
+  // Translations used: admin.clients, admin.projects, admin.contractorsLabel, admin.loadingGraph
+%>
+<script>
+  /**
+   * Render a D3 Sankey diagram in the specified container.
+   * @param {string} containerId - DOM element ID (e.g. 'sankey-chart')
+   * @param {string} apiUrl - API endpoint returning { nodes, links }
+   * @param {Object} [opts] - Optional overrides
+   */
+  function renderSankey(containerId, apiUrl, opts) {
+    opts = opts || {};
+    (async function() {
+      const container = document.getElementById(containerId);
+      const loading = document.getElementById(containerId.replace('chart', 'loading'));
+      if (!container) return;
+
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        if (!data.nodes || data.nodes.length === 0) {
+          container.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400"><%= t("admin.noProjects") %></div>';
+          return;
+        }
+
+        const isDark = document.documentElement.classList.contains('dark');
+
+        function render() {
+          container.innerHTML = '';
+          if (loading) loading.style.display = 'none';
+          const rect = container.getBoundingClientRect();
+          const W = rect.width, H = rect.height;
+          const isMobile = W < 500;
+          const margin = opts.margin || (isMobile
+            ? { top: 20, right: 10, bottom: 20, left: 10 }
+            : { top: 20, right: 160, bottom: 35, left: 160 });
+          const innerW = W - margin.left - margin.right;
+
+          const typeColors = opts.typeColors || {
+            client:   isDark ? '#60a5fa' : '#2563eb',
+            project:  isDark ? '#a78bfa' : '#7c3aed',
+            contractor: isDark ? '#fb923c' : '#ea580c'
+          };
+
+          // Build sankey data
+          const sankeyNodes = data.nodes.map((n, i) => ({ ...n, index: i }));
+          const sankeyLinks = data.links.map(l => ({
+            source: l.source,
+            target: l.target,
+            value: Math.max(l.value, 1)
+          }));
+
+          const sankey = d3.sankey()
+            .nodeId(d => d.index)
+            .nodeWidth(isMobile ? 10 : 16)
+            .nodePadding(isMobile ? 4 : 8)
+            .nodeAlign(d3.sankeyLeft)
+            .extent([[margin.left, margin.top], [W - margin.right, H - margin.bottom]]);
+
+          const graph = sankey({
+            nodes: sankeyNodes.map(d => ({ ...d })),
+            links: sankeyLinks.map(d => ({ ...d }))
+          });
+
+          const svg = d3.select(container).append('svg')
+            .attr('width', '100%')
+            .attr('height', '100%')
+            .attr('viewBox', `0 0 ${W} ${H}`)
+            .attr('preserveAspectRatio', 'xMidYMid meet');
+
+          const g = svg.append('g');
+
+          // Gradient defs
+          const defs = svg.append('defs');
+          graph.links.forEach((link, i) => {
+            const gradient = defs.append('linearGradient')
+              .attr('id', `link-gradient-${containerId}-${i}`)
+              .attr('gradientUnits', 'userSpaceOnUse')
+              .attr('x1', link.source.x1).attr('x2', link.target.x0);
+            gradient.append('stop').attr('offset', '0%').attr('stop-color', typeColors[link.source.type] || '#888').attr('stop-opacity', 0.5);
+            gradient.append('stop').attr('offset', '100%').attr('stop-color', typeColors[link.target.type] || '#888').attr('stop-opacity', 0.5);
+          });
+
+          // Links
+          const link = g.append('g').selectAll('path').data(graph.links).join('path')
+            .attr('d', d3.sankeyLinkHorizontal())
+            .attr('fill', 'none')
+            .attr('stroke', (d, i) => `url(#link-gradient-${containerId}-${i})`)
+            .attr('stroke-width', d => Math.max(1, d.width))
+            .attr('stroke-opacity', 0.4);
+
+          // Tooltip
+          const tooltip = d3.select('body').append('div')
+            .attr('class', 'sankey-tooltip')
+            .style('position', 'fixed')
+            .style('pointer-events', 'none')
+            .style('background', isDark ? '#1f2937' : '#ffffff')
+            .style('border', `1px solid ${isDark ? '#4b5563' : '#e5e7eb'}`)
+            .style('border-radius', '8px')
+            .style('padding', '8px 12px')
+            .style('font-size', '12px')
+            .style('color', isDark ? '#f3f4f6' : '#111827')
+            .style('box-shadow', '0 4px 12px rgba(0,0,0,0.15)')
+            .style('opacity', 0)
+            .style('z-index', 10000)
+            .style('transition', 'opacity 0.15s')
+            .style('max-width', '280px');
+
+          // Link hover
+          link.on('mouseover', function(e, d) {
+            d3.select(this).attr('stroke-opacity', 0.8);
+            const cx = Math.min(e.clientX + 15, window.innerWidth - 290);
+            const cy = Math.min(e.clientY - 10, window.innerHeight - 60);
+            tooltip.html(`<strong>${d.source.name}</strong> → <strong>${d.target.name}</strong>`)
+              .style('opacity', 1)
+              .style('left', cx + 'px')
+              .style('top', cy + 'px');
+          })
+          .on('mousemove', function(e) {
+            const cx = Math.min(e.clientX + 15, window.innerWidth - 290);
+            const cy = Math.min(e.clientY - 10, window.innerHeight - 60);
+            tooltip.style('left', cx + 'px').style('top', cy + 'px');
+          })
+          .on('mouseout', function() {
+            d3.select(this).attr('stroke-opacity', 0.4);
+            tooltip.style('opacity', 0);
+          });
+
+          // Touch support
+          link.on('touchstart', function(e, d) {
+            e.preventDefault();
+            const touch = e.touches ? e.touches[0] : e;
+            document.querySelectorAll('.sankey-tooltip').forEach(el => el.style.opacity = '0');
+            d3.select(this).attr('stroke-opacity', 0.8);
+            const cx = Math.min(touch.clientX + 15, window.innerWidth - 290);
+            const cy = Math.min(touch.clientY - 10, window.innerHeight - 60);
+            tooltip.html(`<strong>${d.source.name}</strong> → <strong>${d.target.name}</strong>`)
+              .style('opacity', 1)
+              .style('left', cx + 'px')
+              .style('top', cy + 'px');
+          });
+
+          // Nodes
+          const node = g.append('g').selectAll('g').data(graph.nodes).join('g');
+
+          node.append('rect')
+            .attr('x', d => d.x0).attr('y', d => d.y0)
+            .attr('width', d => d.x1 - d.x0)
+            .attr('height', d => Math.max(1, d.y1 - d.y0))
+            .attr('fill', d => typeColors[d.type] || '#888')
+            .attr('stroke', d => d3.color(typeColors[d.type] || '#888').darker(0.5))
+            .attr('stroke-width', 1)
+            .attr('rx', 3);
+
+          // Node labels (hide on mobile)
+          if (!isMobile) {
+            node.append('text')
+              .attr('x', d => d.type === 'client' ? d.x0 - 8 : d.x1 + 8)
+              .attr('y', d => (d.y0 + d.y1) / 2)
+              .attr('dy', '0.35em')
+              .attr('text-anchor', d => d.type === 'client' ? 'end' : 'start')
+              .attr('fill', isDark ? '#d1d5db' : '#374151')
+              .attr('font-size', d => d.type === 'project' ? '9px' : '11px')
+              .attr('font-family', 'Inter, sans-serif')
+              .style('pointer-events', 'none')
+              .text(d => {
+                const name = d.name || d.id;
+                return name.length > 25 ? name.slice(0, 22) + '…' : name;
+              });
+          }
+
+          // Column labels (hide on mobile)
+          if (!isMobile && opts.columnLabels) {
+            const labelY = -8;
+            g.append('text').attr('x', margin.left).attr('y', labelY)
+              .attr('fill', isDark ? '#9ca3af' : '#6b7280')
+              .attr('font-size', '12px').attr('font-weight', '600')
+              .attr('font-family', 'Inter, sans-serif')
+              .text(opts.columnLabels[0] || '');
+            g.append('text').attr('x', margin.left + innerW / 2).attr('y', labelY)
+              .attr('text-anchor', 'middle')
+              .attr('fill', isDark ? '#9ca3af' : '#6b7280')
+              .attr('font-size', '12px').attr('font-weight', '600')
+              .attr('font-family', 'Inter, sans-serif')
+              .text(opts.columnLabels[1] || '');
+            g.append('text').attr('x', W - margin.right).attr('y', labelY)
+              .attr('text-anchor', 'end')
+              .attr('fill', isDark ? '#9ca3af' : '#6b7280')
+              .attr('font-size', '12px').attr('font-weight', '600')
+              .attr('font-family', 'Inter, sans-serif')
+              .text(opts.columnLabels[2] || '');
+          }
+
+          // Legend (hide on mobile)
+          if (!isMobile && opts.legendItems) {
+            const legend = svg.append('g').attr('transform', `translate(${margin.left + 5}, ${H - 20})`);
+            let lx = 0;
+            opts.legendItems.forEach(([type, label]) => {
+              const g = legend.append('g').attr('transform', `translate(${lx}, 0)`);
+              g.append('rect').attr('width', 10).attr('height', 10).attr('y', -8).attr('rx', 2).attr('fill', typeColors[type] || '#888');
+              g.append('text').attr('x', 14).attr('y', 0).attr('fill', isDark ? '#d1d5db' : '#374151')
+                .attr('font-size', '10px').attr('font-family', 'Inter, sans-serif').text(label);
+              lx += label.length * 6.5 + 30;
+            });
+          }
+
+          window['_renderSankey_' + containerId] = render;
+        }
+
+        render();
+
+        // Re-render on resize — debounced
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(render, 150);
+        });
+        if (window.ResizeObserver) {
+          const ro = new ResizeObserver(function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(render, 150);
+          });
+          ro.observe(container);
+        }
+
+      } catch (err) {
+        if (loading) loading.style.display = 'none';
+        container.innerHTML = '<div class="flex items-center justify-center h-full text-red-400"><%= t("admin.loadingGraph") %> (error)</div>';
+        console.error('Sankey error (' + containerId + '):', err);
+      }
+    })();
+  }
+</script>

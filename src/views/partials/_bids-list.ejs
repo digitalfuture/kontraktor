@@ -1,0 +1,59 @@
+<h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2"><%= t('projectDetail.bidsTitle') %> (<%= bids.length %>)</h2>
+<p class="text-sm text-gray-500 dark:text-gray-300 mb-6"><%= t('projectDetail.reviewHint') %></p>
+
+<div class="space-y-4">
+  <% bids.forEach(function(bid) { %>
+  <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 <%= bid.status === 'accepted' ? 'border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/10' : '' %>">
+    <div class="flex items-start justify-between flex-wrap gap-3 mb-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-orange-700 font-bold">
+          <%= bid.contractor_name.charAt(0) %>
+        </div>
+        <div>
+          <a href="/contractors/<%= bid.contractor_id %>" class="font-semibold text-gray-900 dark:text-white hover:text-orange-600"><%= bid.contractor_name %></a>
+          <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-300">
+            <span>★ <%= bid.contractor_rating ? bid.contractor_rating.toFixed(1) : 'New' %></span>
+            <span>•</span>
+            <span><%= bid.specialty %></span>
+            <% if (bid.is_verified) { %>
+            <span>•</span>
+            <span class="text-green-600 dark:text-green-400">✓ <%= t('projectDetail.verified') %></span>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <% if (bid.price) { %>
+        <span class="text-lg font-bold text-gray-900 dark:text-white">Rp <%= bid.price %></span>
+        <% } %>
+        <% if (bid.estimated_days) { %>
+        <span class="text-sm text-gray-500 dark:text-gray-300">📅 <%= bid.estimated_days %> <%= t('projectDetail.days') %></span>
+        <% } %>
+      </div>
+    </div>
+    
+    <p class="text-gray-700 dark:text-gray-300 text-sm mb-3 whitespace-pre-wrap"><%= bid.description %></p>
+    
+    <div class="flex items-center justify-between">
+      <span class="text-xs text-gray-400 dark:text-gray-500"><%= new Date(bid.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
+      
+      <% if (bid.status === 'pending' && project.status === 'pending') { %>
+      <div class="flex gap-2">
+        <form action="/post/<%= project.id %>/bids/<%= bid.id %>/reject" method="POST" onsubmit="return confirm('<%= t('projectDetail.rejectConfirm') %>')">
+        <%- include('csrf-field') %>
+          <button type="submit" class="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"><%= t('projectDetail.rejectBid') %></button>
+        </form>
+        <form action="/post/<%= project.id %>/bids/<%= bid.id %>/accept" method="POST" onsubmit="return confirm('<%= t('projectDetail.acceptConfirm') %>')">
+        <%- include('csrf-field') %>
+          <button type="submit" class="px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium"><%= t('projectDetail.acceptBid') %></button>
+        </form>
+      </div>
+      <% } else if (bid.status === 'accepted') { %>
+      <span class="px-2 py-1 text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded"><%= t('projectDetail.accepted') %></span>
+      <% } else if (bid.status === 'rejected') { %>
+      <span class="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-300 rounded"><%= t('projectDetail.rejected') %></span>
+      <% } %>
+    </div>
+  </div>
+  <% }); %>
+</div>

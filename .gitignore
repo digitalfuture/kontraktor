@@ -1,0 +1,11 @@
+node_modules/
+dist/
+*.db
+.env
+.env.*
+.hermes/
+logs/
+pm2-*.json
+*.log
+.DS_Store
+Thumbs.db

@@ -1,0 +1,24 @@
+<script>
+(function() {
+  document.querySelectorAll('.expand-trigger').forEach(function(row) {
+    row.style.cursor = 'pointer';
+    row.addEventListener('click', function(e) {
+      if (e.target.closest('a, button, select, input')) return;
+      var id = row.getAttribute('data-row-id');
+      if (!id) return;
+      var detailRow = document.getElementById('detail-' + id);
+      if (!detailRow) return;
+      var icon = row.querySelector('.expand-icon');
+      if (detailRow.style.display === 'none') {
+        detailRow.style.display = '';
+        row.classList.add('bg-orange-50', 'dark:bg-gray-700/30');
+        if (icon) icon.style.transform = 'rotate(90deg)';
+      } else {
+        detailRow.style.display = 'none';
+        row.classList.remove('bg-orange-50', 'dark:bg-gray-700/30');
+        if (icon) icon.style.transform = '';
+      }
+    });
+  });
+})();
+</script>

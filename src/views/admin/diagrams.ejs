@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="<%= typeof locale !== 'undefined' ? locale : 'en' %>">
+  <%- include('../partials/_head') %>
+<body class="bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+  <%- include('../partials/_anti-flash') %>
+  <div class="flex h-screen overflow-hidden">
+    <%- include('_sidebar', { activePage: 'diagrams', locale: locale }) %>
+    <main class="flex-1 overflow-y-auto min-h-0">
+      <div class="p-4 sm:p-6 lg:p-8">
+        <!-- Hamburger -->
+        <div class="flex items-center justify-between min-[1600px]:justify-end mb-4 sm:mb-8">
+          <button onclick="const a=document.querySelector('aside');a.classList.toggle('-translate-x-full');a.classList.toggle('translate-x-0')" class="min-[1600px]:hidden p-2 rounded-lg bg-surface dark:bg-surface-dark border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 active:bg-gray-100 dark:active:bg-gray-600 transition-colors cursor-pointer w-max focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <span><%= typeof t !== 'undefined' ? t('admin.diagrams') : 'Diagrams' %></span>
+          </div>
+        </div>
+      <!-- Page Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div>
+          <h1 class="text-2xl font-bold"><%= typeof t !== 'undefined' ? t('admin.diagrams') : 'Diagrams & Charts' %></h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1"><%= typeof t !== 'undefined' ? t('admin.diagramsSubtitle') : 'Site structure, user flows, and analytics charts' %></p>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="flex gap-1 mb-6 border-b border-gray-200 dark:border-gray-700">
+        <button onclick="switchTab('sitemap')" id="tab-sitemap" class="px-4 py-2.5 text-sm font-medium border-b-2 border-orange-500 text-orange-600 dark:text-orange-400 transition">🧭 <%= typeof t !== 'undefined' ? t('admin.sitemap') : 'Sitemap' %></button>
+        <button onclick="switchTab('charts')" id="tab-charts" class="px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition">📊 <%= typeof t !== 'undefined' ? t('admin.charts') : 'Charts' %></button>
+      </div>
+
+      <!-- Tab: Sitemap -->
+      <div id="panel-sitemap" class="block">
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <h3 class="font-semibold"><%= typeof t !== 'undefined' ? t('admin.sitemapTitle') : 'Site Structure Diagram' %></h3>
+            <div class="flex gap-2">
+              <button onclick="openSitemapFull()" class="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition"><%= typeof t !== 'undefined' ? t('admin.openFull') : 'Open Full' %></button>
+              <button onclick="refreshSitemap()" class="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition"><%= typeof t !== 'undefined' ? t('admin.refresh') : 'Refresh' %></button>
+            </div>
+          </div>
+          <div id="sitemap-container" class="p-4 min-h-[400px] flex items-center justify-center text-gray-400">
+            <div class="text-center">
+              <svg class="w-10 h-10 mx-auto mb-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+              <p><%= typeof t !== 'undefined' ? t('admin.loading') : 'Loading diagram...' %></p>
+            </div>
+          </div>
+        </div>
+        <p class="text-xs text-gray-400 mt-2"><%= typeof t !== 'undefined' ? t('admin.sitemapAutoNote') : 'Auto-generated from routes. Run npm run generate-sitemap to update.' %></p>
+      </div>
+
+      <!-- Tab: Charts -->
+      <div id="panel-charts" class="hidden overflow-hidden">
+        <!-- Category Distribution -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 overflow-hidden">
+            <h3 class="font-semibold mb-4"><%= typeof t !== 'undefined' ? t('admin.categoryDistribution') : 'Projects by Category' %></h3>
+            <canvas id="categoryChart" class="w-full h-64 max-h-64"></canvas>
+          </div>
+
+          <!-- User Base Distribution -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 overflow-hidden">
+            <h3 class="font-semibold mb-4"><%= typeof t !== 'undefined' ? t('admin.userDistribution') : 'User Base Distribution' %></h3>
+            <canvas id="userChart" class="w-full h-64 max-h-64"></canvas>
+          </div>
+        </div>
+
+        <!-- Sankey Diagram -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 mb-6 overflow-hidden">
+          <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="font-semibold"><%= typeof t !== 'undefined' ? t('admin.projectFlow') : 'Project Flow (Sankey Diagram)' %></h3>
+          </div>
+          <div id="sankey-chart" class="w-full h-[400px] max-h-[400px] p-4"></div>
+        </div>
+
+        <!-- Map Chart -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="font-semibold"><%= typeof t !== 'undefined' ? t('admin.geoDistribution') : 'Geographic Distribution' %></h3>
+          </div>
+          <div id="map-chart" class="w-full h-[450px] max-h-[450px] p-4"></div>
+        </div>
+      </div>
+      <!-- End Charts Tab -->
+    </main>
+  </div>
+
+  <!-- Sitemap Fullscreen Modal -->
+  <div id="sitemap-modal" class="fixed inset-0 z-50 hidden bg-black/80 flex items-center justify-center p-4">
+    <div class="bg-gray-900 rounded-lg w-full h-[90vh] max-w-6xl flex flex-col">
+      <div class="flex items-center justify-between p-4 border-b border-gray-700">
+        <h3 class="font-semibold text-white"><%= typeof t !== 'undefined' ? t('admin.sitemapTitle') : 'Site Structure Diagram' %></h3>
+        <button onclick="closeSitemapFull()" class="p-2 hover:bg-gray-700 rounded-lg text-gray-400 hover:text-white transition">✕</button>
+      </div>
+      <div id="sitemap-modal-content" class="flex-1 overflow-auto p-4"></div>
+    </div>
+  </div>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <!-- Mermaid.js for sitemap diagram -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <!-- D3.js for Sankey & Map -->
+  <script src="/js/d3.min.js"></script>
+  <script src="/js/d3-sankey.min.js"></script>
+  <%- include('../partials/_admin_sankey') %>
+  <%- include('../partials/_admin_map') %>
+
+  <script>
+<%
+  // Pre-compute translations for JS
+  const jsProjectsLabel = typeof t !== 'undefined' ? t('admin.projects') : 'Projects';
+  const jsClientsLabel = typeof t !== 'undefined' ? t('admin.clients') : 'Clients';
+  const jsContractorsLabel = typeof t !== 'undefined' ? t('admin.contractors') : 'Contractors';
+  const jsAdminsLabel = typeof t !== 'undefined' ? t('admin.admins') : 'Admins';
+%>
+    // ── Tab Switching ─────────────────────────────────────────────────────
+    function switchTab(tab) {
+      document.querySelectorAll('[id^="tab-"]').forEach(el => {
+        el.classList.remove('border-orange-500', 'text-orange-600', 'dark:text-orange-400');
+        el.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+      });
+      document.querySelectorAll('[id^="panel-"]').forEach(el => el.classList.add('hidden'));
+      const tabEl = document.getElementById('tab-' + tab);
+      tabEl.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+      tabEl.classList.add('border-orange-500', 'text-orange-600', 'dark:text-orange-400');
+      document.getElementById('panel-' + tab).classList.remove('hidden');
+    }
+
+    // ── Sitemap Loading ────────────────────────────────────────────────────
+    function loadSitemap(target) {
+      const container = target || document.getElementById('sitemap-container');
+      if (!container) return;
+      const isModal = container.id === 'sitemap-modal-content';
+      container.innerHTML = '<div class="text-center py-8 text-gray-400"><svg class="w-10 h-10 mx-auto mb-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg><p>Loading...</p></div>';
+      fetch('/static/docs/sitemap.html')
+        .then(r => r.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          const mermaidEl = doc.querySelector('.mermaid');
+          if (mermaidEl) {
+            container.innerHTML = '<div class="mermaid" style="background:transparent;text-align:center;">' + mermaidEl.textContent + '</div>';
+            if (window.mermaid) mermaid.run({ nodes: [container.querySelector('.mermaid')] });
+          } else {
+            container.innerHTML = '<p class="text-gray-400">No diagram content found. Run <code>npm run generate-sitemap</code>.</p>';
+          }
+        })
+        .catch(err => {
+          container.innerHTML = '<p class="text-red-400">Error loading sitemap: ' + err.message + '</p>';
+        });
+    }
+
+    function refreshSitemap() {
+      loadSitemap(document.getElementById('sitemap-container'));
+    }
+
+    function openSitemapFull() {
+      const modal = document.getElementById('sitemap-modal');
+      modal.classList.remove('hidden');
+      loadSitemap(document.getElementById('sitemap-modal-content'));
+    }
+
+    function closeSitemapFull() {
+      document.getElementById('sitemap-modal').classList.add('hidden');
+    }
+
+    // ── Chart.js: Category Bar Chart ──────────────────────────────────────
+    const categoryStats = <%- JSON.stringify(categoryStats) %>;
+    const roleStats = <%- JSON.stringify(roleStats) %>;
+
+    // Colors
+    const COLORS = ['#f97316','#22c55e','#3b82f6','#a855f7','#ec4899','#14b8a6','#eab308','#ef4444','#6366f1'];
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load sitemap diagram on page load
+      loadSitemap();
+
+      // Category Chart
+      const catCtx = document.getElementById('categoryChart')?.getContext('2d');
+      if (catCtx && categoryStats.length) {
+        new Chart(catCtx, {
+          type: 'bar',
+          data: {
+            labels: categoryStats.map(c => c.name_en || c.slug),
+            datasets: [{
+              label: '<%= jsProjectsLabel %>',
+              data: categoryStats.map(c => c.count),
+              backgroundColor: categoryStats.map((_, i) => COLORS[i % COLORS.length] + '80'),
+              borderColor: categoryStats.map((_, i) => COLORS[i % COLORS.length]),
+              borderWidth: 1,
+              borderRadius: 4,
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true, ticks: { stepSize: 1 } },
+              x: { ticks: { maxRotation: 45 } }
+            }
+          }
+        });
+      }
+
+      // User Distribution Chart
+      const userCtx = document.getElementById('userChart')?.getContext('2d');
+      if (userCtx && roleStats.length) {
+        const labels = {
+          client: '<%= jsClientsLabel %>',
+          contractor: '<%= jsContractorsLabel %>',
+          admin: '<%= jsAdminsLabel %>'
+        };
+        new Chart(userCtx, {
+          type: 'doughnut',
+          data: {
+            labels: roleStats.map(r => labels[r.role] || r.role),
+            datasets: [{
+              data: roleStats.map(r => r.count),
+              backgroundColor: ['#22c55e', '#f97316', '#3b82f6'],
+              borderWidth: 0,
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom' }
+            }
+          }
+        });
+      }
+
+      // ── Sankey & Map via shared partials ──────────────────────────────────
+      renderSankey('sankey-chart', '/admin/api/sankey-category-status', {
+        typeColors: {
+          category: '#f97316', status: '#3b82f6'
+        }
+      });
+      renderMap('map-chart');
+    });
+  </script>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

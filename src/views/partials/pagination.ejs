@@ -1,0 +1,46 @@
+<%
+/**
+ * Pagination component
+ * Required: pagination { page, totalPages, limit, totalItems, baseUrl, params? }
+ * params: optional object of additional query params to preserve (e.g., { category: 'x', status: 'y' })
+ */
+var p = pagination;
+var params = p.params || {};
+function buildUrl(pageNum) {
+  var qs = 'page=' + pageNum + '&limit=' + p.limit;
+  for (var key in params) {
+    if (params[key]) qs += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+  }
+  return p.baseUrl + '?' + qs;
+}
+if (p && p.totalPages > 1) {
+%>
+<nav class="flex items-center justify-center gap-1 mt-8" aria-label="Pagination">
+  <% if (p.page > 1) { %>
+  <a href="<%= buildUrl(p.page - 1) %>" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition" aria-label="Previous page">
+    ← <%= t('pagination.previous') %>
+  </a>
+  <% } %>
+
+  <% for (var i = 1; i <= p.totalPages; i++) { %>
+    <% if (i === 1 || i === p.totalPages || Math.abs(i - p.page) <= 1) { %>
+    <a href="<%= buildUrl(i) %>"
+       class="px-3 py-2 rounded-lg text-sm font-medium transition <%= i === p.page ? 'bg-orange-700 text-white' : 'border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800' %>"
+       aria-label="Page <%= i %>" <%= i === p.page ? 'aria-current="page"' : '' %>>
+      <%= i %>
+    </a>
+    <% } else if (i === p.page - 2 || i === p.page + 2) { %>
+    <span class="px-2 text-gray-400">…</span>
+    <% } %>
+  <% } %>
+
+  <% if (p.page < p.totalPages) { %>
+  <a href="<%= buildUrl(p.page + 1) %>" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition" aria-label="Next page">
+    <%= t('pagination.next') %> →
+  </a>
+  <% } %>
+</nav>
+<p class="text-center text-sm text-gray-500 dark:text-gray-300 mt-2">
+  <%= t('pagination.pageInfo', { page: p.page, totalPages: p.totalPages, totalItems: p.totalItems }) %>
+</p>
+<% } %>

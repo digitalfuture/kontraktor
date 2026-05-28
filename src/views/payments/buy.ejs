@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+<%- include('../partials/_head') %>
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col">
+  <%- include('../partials/_anti-flash') %>
+  <%- include('../partials/header') %>
+
+  <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 py-12 w-full">
+    <!-- Header Section -->
+    <div class="text-center max-w-2xl mx-auto mb-16">
+      <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+        <%= locale === 'id' ? 'Tingkatkan Penawaran Anda' : 'Supercharge Your Bids' %>
+      </h1>
+      <p class="mt-4 text-lg text-gray-600 dark:text-gray-400">
+        <%= locale === 'id' 
+            ? 'Setiap kredit memungkinkan Anda merespons 1 proyek baru. Pilih paket yang sesuai dengan bisnis Anda.' 
+            : 'Each credit allows you to respond to 1 new project. Choose the package that fits your business.' %>
+      </p>
+      
+      <div class="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-orange-50 dark:bg-orange-950/30 border border-orange-100 dark:border-orange-900/50 rounded-full">
+        <span class="flex h-2.5 w-2.5 relative">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-orange-500"></span>
+        </span>
+        <span class="text-sm font-semibold text-orange-800 dark:text-orange-300">
+          <%= locale === 'id' ? 'Saldo Anda saat ini:' : 'Your current balance:' %> 
+          <span class="font-black"><%= contractor.credits || 0 %> <%= locale === 'id' ? 'Kredit' : 'Credits' %></span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Error/Success states -->
+    <% if (typeof error !== 'undefined' || (typeof req !== 'undefined' && req.query.error)) { %>
+      <div class="max-w-md mx-auto mb-8 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-300 flex items-center gap-3">
+        <span class="text-xl">⚠️</span>
+        <div>
+          <p class="font-bold"><%= locale === 'id' ? 'Terjadi Kesalahan' : 'Action Failed' %></p>
+          <p class="text-sm"><%= locale === 'id' ? 'Gagal menginisialisasi pembayaran. Silakan coba lagi.' : 'Failed to initialize payment. Please try again.' %></p>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- Cards Grid -->
+    <div class="grid grid-cols-1 gap-8 md:grid-cols-3 max-w-5xl mx-auto items-stretch">
+      <% packages.forEach(function(pkg) { %>
+        <% const isPopular = pkg.id === 'pack_30'; %>
+        <div class="relative flex flex-col rounded-3xl bg-white dark:bg-gray-900 border <%= isPopular ? 'border-orange-500 dark:border-orange-500 ring-4 ring-orange-500/10' : 'border-gray-200 dark:border-gray-800' %> p-8 shadow-xl transition-all duration-300 hover:scale-[1.03] hover:shadow-2xl">
+          
+          <% if (isPopular) { %>
+            <div class="absolute -top-5 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-1.5 text-xs font-bold text-white uppercase tracking-wider shadow-md">
+              <%= locale === 'id' ? 'Terpopuler' : 'Most Popular' %>
+            </div>
+          <% } %>
+
+          <div class="mb-6">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white"><%= locale === 'id' ? pkg.name_id : pkg.name_en %></h3>
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+              <%= locale === 'id' 
+                  ? `Paket penawaran berisi ${pkg.credits} kredit.` 
+                  : `Bidding bundle containing ${pkg.credits} credits.` %>
+            </p>
+          </div>
+
+          <div class="flex items-baseline gap-1 my-6">
+            <span class="text-2xl font-bold text-gray-500 dark:text-gray-400">Rp</span>
+            <span class="text-5xl font-black tracking-tight text-gray-900 dark:text-white">
+              <%= (pkg.price / 1000).toLocaleString('id-ID') %>k
+            </span>
+            <span class="text-sm font-semibold leading-6 text-gray-500 dark:text-gray-400">
+              / <%= pkg.credits %> <%= locale === 'id' ? 'kredit' : 'bids' %>
+            </span>
+          </div>
+
+          <div class="mb-8 flex-grow">
+            <ul class="space-y-4 text-sm text-gray-600 dark:text-gray-300">
+              <li class="flex items-center gap-3">
+                <span class="text-orange-500 font-bold text-lg">✓</span>
+                <span><%= locale === 'id' ? `Dapat merespons ${pkg.credits} proyek` : `Respond to ${pkg.credits} active projects` %></span>
+              </li>
+              <li class="flex items-center gap-3">
+                <span class="text-orange-500 font-bold text-lg">✓</span>
+                <span><%= locale === 'id' ? 'Metode bayar VA, QRIS, GoPay' : 'Pay via QRIS, VA, or GoPay' %></span>
+              </li>
+              <li class="flex items-center gap-3">
+                <span class="text-orange-500 font-bold text-lg">✓</span>
+                <span>
+                  <%= locale === 'id' 
+                      ? `Hanya Rp ${(pkg.price / pkg.credits).toLocaleString('id-ID')} per respon` 
+                      : `Just Rp ${(pkg.price / pkg.credits).toLocaleString('id-ID')} per response` %>
+                </span>
+              </li>
+              <li class="flex items-center gap-3">
+                <span class="text-orange-500 font-bold text-lg">✓</span>
+                <span><%= locale === 'id' ? 'Kredit aktif selamanya' : 'Credits never expire' %></span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Checkout Form -->
+          <form action="/payments/create-invoice" method="POST" class="mt-auto">
+            <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+            <input type="hidden" name="package_id" value="<%= pkg.id %>">
+            <button type="submit" class="w-full rounded-2xl py-4 px-6 text-center text-sm font-extrabold text-white shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 <%= isPopular ? 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600' : 'bg-gray-800 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600' %>">
+              <%= locale === 'id' ? 'Beli Sekarang' : 'Buy Now' %>
+            </button>
+          </form>
+
+        </div>
+      <% }); %>
+    </div>
+
+    <!-- Info Footer -->
+    <div class="mt-16 text-center max-w-lg mx-auto p-6 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm">
+      <p class="text-xs text-gray-500 dark:text-gray-400">
+        <%= locale === 'id' 
+            ? 'Transaksi diproses dengan aman oleh Xendit. Pembayaran Anda dilindungi enkripsi SSL 256-bit.' 
+            : 'Transactions are securely processed by Xendit. Your payments are protected with 256-bit SSL encryption.' %>
+      </p>
+    </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>
