@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="<%= typeof locale !== 'undefined' ? locale : 'en' %>">
+  <%- include('../partials/_head') %>
+<body class="<%= typeof bodyClass !== 'undefined' ? bodyClass : 'bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100' %>">
+  <%- include('../partials/_anti-flash') %>
+  <div class="flex h-screen overflow-hidden">
+    <%- include('_sidebar', { activePage: activePage, t: typeof t !== 'undefined' ? t : null, locale: locale }) %>
+    <div class="flex flex-col flex-1 min-w-0">
+      <%- include('_admin-header') %>
+      <main class="flex-1 overflow-y-auto">
+        <div class="p-4 sm:p-6 lg:p-8">

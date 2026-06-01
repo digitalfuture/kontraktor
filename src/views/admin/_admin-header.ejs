@@ -1,0 +1,16 @@
+<header class="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
+  <div class="flex items-center gap-3">
+    <!-- Hamburger (mobile, below 1600px) -->
+    <button onclick="const a=document.querySelector('aside');a.classList.toggle('-translate-x-full');a.classList.toggle('translate-x-0')"
+            class="min-[1600px]:hidden p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer focus:outline-none text-gray-500 dark:text-gray-400">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <div class="flex items-baseline gap-2">
+      <a href="/admin" class="text-lg font-bold text-orange-700 dark:text-orange-400 leading-none">Kontraktor</a>
+      <span class="text-xs text-gray-500 dark:text-gray-400 leading-none"><%= typeof t !== 'undefined' ? t('nav.admin') : 'Admin Panel' %></span>
+    </div>
+  </div>
+  <div class="flex items-center">
+    <%- include('_controls', { locale: locale, locales: typeof locales !== 'undefined' ? locales : ['id', 'en'] }) %>
+  </div>
+</header>

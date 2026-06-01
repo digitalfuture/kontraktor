@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="<%= typeof locale !== 'undefined' ? locale : 'en' %>">
-  <%- include('../partials/_head') %>
-<body class="bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
-  <%- include('../partials/_anti-flash') %>
-  <div class="flex h-screen overflow-hidden">
-    <%- include('_sidebar', { activePage: 'dashboard', locale: locale }) %>
-    <main class="flex-1 overflow-y-auto">
-      <div class="p-4 sm:p-6 lg:p-8">
-        <!-- Top Row (Header) -->
-        <div class="flex items-center justify-between min-[1600px]:justify-end mb-4 sm:mb-8">
-          <button onclick="const a=document.querySelector('aside');a.classList.toggle('-translate-x-full');a.classList.toggle('translate-x-0')" class="min-[1600px]:hidden p-2 rounded-lg bg-surface dark:bg-surface-dark border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 active:bg-gray-100 dark:active:bg-gray-600 transition-colors cursor-pointer w-max focus:outline-none">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-          </button>
-          <div class="flex items-center">
-            <%- include('_controls', { locale: locale, locales: typeof locales !== 'undefined' ? locales : ['id', 'en'] }) %>
-          </div>
-        </div>
+<%- include('_admin-layout', { activePage: 'dashboard' }) %>
 
         <!-- Bottom Row (Title & Actions) -->
         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
@@ -420,6 +403,7 @@
     });
   </script>
   <%- include('../partials/_expandable-rows') %>
-</main>
+
+<%- include('_admin-layout-close') %>
 </body>
 </html>
