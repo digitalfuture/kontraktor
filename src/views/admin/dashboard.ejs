@@ -331,7 +331,7 @@
   <%- include('../partials/_admin_sankey') %>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      renderSankey('sankey-chart', '/admin/api/sankey', {
+      renderSankey('sankey-chart', '/api/admin/sankey', {
         columnLabels: ['<%= t("admin.clients") %>', '<%= t("admin.projects") %>', '<%= t("admin.contractorsLabel") %>'],
         legendItems: [['client', '<%= t("admin.clients") %>'], ['project', '<%= t("admin.projects") %>'], ['contractor', '<%= t("admin.contractorsLabel") %>']]
       });
