@@ -66,7 +66,7 @@ router.get('/', (req: any, res: Response): void => {
 
   // Get paginated projects
   const projects = db.prepare(`
-    SELECT p.*, c.name_en as category_name_en, c.name_id as category_name_id,
+    SELECT p.*,
       (SELECT COUNT(*) FROM bids WHERE project_id = p.id) as bid_count
     FROM projects p
     LEFT JOIN categories c ON p.category = c.slug
@@ -77,14 +77,13 @@ router.get('/', (req: any, res: Response): void => {
 
   // Localize category names and district, mark editability for client
   projects.forEach((p: any) => {
-    p.category_display = (locale === 'id' && p.category_name_id) ? p.category_name_id : (locale === 'en' && p.category_name_en) ? p.category_name_en : p.category;
-    p.district_display = getDistrictDisplay(p.district, locale);
+        p.district_display = getDistrictDisplay(p.district, locale);
     // Client can edit only if no contractor assigned yet
     p.editable = (userRole === 'client' && !p.assigned_contractor_id);
   });
 
   // Get categories for filter
-  const categories = db.prepare('SELECT slug, name_en, name_id, name FROM categories WHERE is_active = 1 ORDER BY name').all() as any[];
+  const categories = db.prepare('SELECT slug, c.name, name FROM categories WHERE is_active = 1 ORDER BY name').all() as any[];
 
   const totalPages = Math.ceil(countResult.total / limit);
 

@@ -51,19 +51,35 @@ export function i18nMiddleware(req: Request, res: Response, next: NextFunction):
   // Set cookie for next request
   res.cookie('locale', locale, { maxAge: 365 * 24 * 60 * 60 * 1000, httpOnly: false, path: '/' });
 
-  // Redirect to add ?lang= if not present in query (skip for static assets, HTMX partials, API, non-GET)
-  if (!queryLang && req.method === 'GET' && !req.path.match(/\.(css|js|svg|png|jpg|ico|woff|json)$/) && !req.headers['hx-request']) {
-    const separator = req.url.includes('?') ? '&' : '?';
-    res.redirect(302, req.url + separator + 'lang=' + locale);
-    return;
-  }
+  // Serve content directly without redirect.
+  // Previously we redirected all GET requests to add ?lang=xx (302), but that
+  // prevented Google from crawling/indexing any page — every sitemap URL
+  // returned 302 and Google never fetched the content.
+  // Now we detect locale from query/cookie/accept-language, set the cookie,
+  // and serve the page immediately. Language toggle in the UI uses ?lang=xx.
+
+  // Build canonical URL (without ?lang=xx) and hreflang alternates for SEO
+  const canonicalPath = req.path;
+  const baseUrl = process.env.BASE_URL || `https://${req.headers.host || 'kontraktor.app'}`;
+  const canonicalUrl = `${baseUrl}${canonicalPath}`;
+
+  res.locals.canonicalUrl = canonicalUrl;
+  res.locals.alternateLocales = supportedLocales.filter((l: Locale) => l !== locale).map((l: Locale) => ({
+    lang: l,
+    href: `${canonicalUrl}?lang=${l}`,
+  }));
 
   // Create t() function
-  const t = (key: string): string | any[] => {
+  const t = (key: string, params?: Record<string, string | number>): string | any[] => {
     const result = deepGet(translations[locale], key);
-    if (typeof result === 'string' || Array.isArray(result)) return result;
+    if (typeof result === 'string') return params ? interpolate(result, params) : result;
+    if (Array.isArray(result)) return result;
     return String(result);
   };
+
+  function interpolate(str: string, params: Record<string, string | number>): string {
+    return str.replace(/\{(\w+)\}/g, (_, k) => String(params[k] ?? `{${k}}`));
+  }
 
   res.locals.t = t;
   res.locals.locale = locale;

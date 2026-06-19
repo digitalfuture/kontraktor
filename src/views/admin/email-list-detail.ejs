@@ -1,0 +1,238 @@
+<%- include('_admin-layout', { activePage: 'email' }) %>
+
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
+  <div>
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white leading-none flex items-center gap-2">
+      <span id="list-name-<%= list.id %>"><%= list.name %></span>
+      <button type="button" class="text-gray-400 hover:text-orange-600 dark:text-gray-500 dark:hover:text-orange-400 p-1 rounded transition" hx-get="/api/admin/email/lists/<%= list.id %>/edit-name" hx-target="#list-name-<%= list.id %>" hx-swap="outerHTML" title="<%= typeof t !== 'undefined' ? t('email.edit') : 'Edit' %>">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+        </svg>
+      </button>
+    </h1>
+    <p class="text-gray-500 dark:text-gray-300 mt-2 text-sm sm:text-base leading-none"><%= list.description || (typeof t !== 'undefined' ? t('email.listDetails') : 'Mailing list') %> &middot; <%= contacts.length %> <%= typeof t !== 'undefined' ? t('email.contacts') : 'contact(s)' %></p>
+  </div>
+  <%
+    const backLabel = typeof t !== 'undefined' ? t('email.mailingLists') : 'All Lists';
+  %>
+  <%- include('partials/_back-link', { href: '/admin/email/lists', label: backLabel }) %>
+</div>
+
+<!-- Campaign Status Banner -->
+<% if (campaign) { %>
+<div class="bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700 mb-6">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div>
+      <h2 class="text-base font-semibold text-gray-900 dark:text-white">
+        <% if (campaign.status === 'sending') { %>
+          <%= typeof t !== 'undefined' ? t('admin.activeCampaignRecipients') : 'Active Campaign Recipients' %>
+        <% } else { %>
+          <%= typeof t !== 'undefined' ? t('admin.lastCampaignRecipients') : 'Last Campaign Recipients' %>
+        <% } %>
+      </h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        <%= campaign.name %> · 
+        <span class="px-2 py-0.5 rounded-full text-xs font-medium 
+          <%= campaign.status === 'sending' ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300' : '' %>
+          <%= campaign.status === 'sent' ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300' : '' %>
+          <%= campaign.status === 'stopped' ? 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300' : '' %>
+          <%= campaign.status === 'draft' ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300' : '' %>">
+          <%= campaign.status %>
+        </span>
+        · <%= typeof t !== 'undefined' ? t('email.sent') : 'Sent' %>: <%= campaign.sent_count || 0 %> / <%= campaign.total_recipients || 0 %>
+      </p>
+    </div>
+    <% if (campaign.status === 'sending') { %>
+    <form method="POST" action="/api/admin/email/campaigns/<%= campaign.id %>/stop" style="display:inline">
+      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+      <button class="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium whitespace-nowrap">
+        <%= typeof t !== 'undefined' ? t('email.stop') : 'Stop' %>
+      </button>
+    </form>
+    <% } %>
+  </div>
+</div>
+<% } else { %>
+<div class="bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700 mb-6">
+  <p class="text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('admin.noActiveCampaign') : 'No active campaign for this list' %></p>
+</div>
+<% } %>
+<%
+  const isReadonly = typeof campaign !== 'undefined' && campaign && campaign.status === 'sending';
+%>
+
+<!-- Add Contact -->
+<div class="bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700 mb-6">
+  <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-4"><%= typeof t !== 'undefined' ? t('email.addContact') : 'Add Contact' %></h2>
+  <form method="POST" action="/api/admin/email/lists/<%= list.id %>/contacts/add" class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+    <div>
+      <input type="email" name="email" placeholder="<%= typeof t !== 'undefined' ? t('email.contactEmail') : 'Email' %> *" required
+        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+        <%= isReadonly ? 'disabled' : '' %>>
+    </div>
+    <div>
+      <input type="text" name="name" placeholder="<%= typeof t !== 'undefined' ? t('email.contactName') : 'Name' %>"
+        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+        <%= isReadonly ? 'disabled' : '' %>>
+    </div>
+    <div>
+      <input type="text" name="company" placeholder="<%= typeof t !== 'undefined' ? t('email.contactCompany') : 'Company' %>"
+        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+        <%= isReadonly ? 'disabled' : '' %>>
+    </div>
+    <button type="submit" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm font-medium"
+      <%= isReadonly ? 'disabled style="opacity:0.5;cursor:not-allowed"' : '' %>>
+      + <%= typeof t !== 'undefined' ? t('email.add') : 'Add' %>
+    </button>
+  </form>
+</div>
+
+<!-- CSV Import -->
+<div class="bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700 mb-6">
+<h2 class="text-base font-semibold text-gray-900 dark:text-white mb-4"><%= typeof t !== 'undefined' ? t('email.importCsv') : 'Import from CSV' %></h2>
+<p class="text-xs text-gray-500 dark:text-gray-400 mb-3"><%= typeof t !== 'undefined' ? t('email.csvFormat') : 'Format: one contact per line, email, name, company. Only email is required.' %></p>
+
+<!-- Pasta CSV -->
+<form method="POST" action="/api/admin/email/lists/<%= list.id %>/contacts/import" id="import-form">
+  <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+  <textarea name="csv_data" id="csv-input" rows="6" placeholder="email1@example.com, John Doe, ABC Corp&#10;email2@example.com, Jane Smith, XYZ Ltd"
+    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none font-mono mb-3" <%= isReadonly ? 'readonly' : '' %>></textarea>
+  <button type="submit" id="import-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium opacity-50 cursor-not-allowed" disabled>
+    <%= typeof t !== 'undefined' ? t('email.importBtn') : 'Import CSV' %>
+  </button>
+</form>
+
+<!-- Или загрузить файл -->
+<div class="relative my-4">
+  <div class="absolute inset-0 flex items-center">
+    <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
+  </div>
+  <div class="relative flex justify-center text-xs uppercase">
+    <span class="bg-surface dark:bg-surface-dark px-2 text-gray-500"><%= typeof t !== 'undefined' ? t('email.or') : 'or' %></span>
+  </div>
+</div>
+
+<form method="POST" action="/api/admin/email/lists/<%= list.id %>/contacts/import" enctype="multipart/form-data" id="file-upload-form">
+  <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+  <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+    <div class="flex-1 w-full">
+      <input type="file" name="csv_file" accept=".csv,.txt" id="csv-file-input"
+        class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-orange-50 dark:file:bg-orange-900/30 file:text-orange-700 dark:file:text-orange-300 hover:file:bg-orange-100 dark:hover:file:bg-orange-900/50 <%= isReadonly ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer' %>"
+        <%= isReadonly ? 'disabled' : '' %>>
+    </div>
+    <button type="submit" id="file-upload-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium opacity-50 cursor-not-allowed" disabled>
+      <%= typeof t !== 'undefined' ? t('email.importBtn') : 'Upload CSV' %>
+    </button>
+  </div>
+</form>
+</div>
+
+<script>
+  const csvInput = document.getElementById('csv-input');
+  const importBtn = document.getElementById('import-btn');
+  if (csvInput && importBtn) {
+    csvInput.addEventListener('input', function() {
+      const val = this.value.trim();
+      const hasValidEmail = val.split('\n').some(line => line.trim().includes('@'));
+      importBtn.disabled = !hasValidEmail;
+      importBtn.classList.toggle('opacity-50', !hasValidEmail);
+      importBtn.classList.toggle('cursor-not-allowed', !hasValidEmail);
+      importBtn.classList.toggle('hover:bg-blue-700', hasValidEmail);
+    });
+  }
+
+  // File upload handler
+  const fileInput = document.getElementById('csv-file-input');
+  const fileUploadBtn = document.getElementById('file-upload-btn');
+  if (fileInput && fileUploadBtn) {
+    fileInput.addEventListener('change', function() {
+      const hasFile = this.files && this.files.length > 0;
+      fileUploadBtn.disabled = !hasFile;
+      fileUploadBtn.classList.toggle('opacity-50', !hasFile);
+      fileUploadBtn.classList.toggle('cursor-not-allowed', !hasFile);
+      fileUploadBtn.classList.toggle('hover:bg-blue-700', hasFile);
+    });
+  }
+
+  // Update CSRF tokens after HTMX requests (token rotation fix)
+  document.body.addEventListener('htmx:afterRequest', function(evt) {
+    const detail = evt.detail;
+    if (detail.xhr?.getResponseHeader?.('X-CSRF-Token')) {
+      const newToken = detail.xhr.getResponseHeader('X-CSRF-Token');
+      document.querySelectorAll('input[name="_csrf"]').forEach(input => input.value = newToken);
+    }
+  });
+</script>
+
+<!-- Contacts Table -->
+<div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 overflow-hidden" id="paginated-list">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="bg-gray-50 dark:bg-gray-800/50">
+          <th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.contactEmail') : 'Email' %></th>
+          <th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.contactName') : 'Name' %></th>
+          <th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.contactCompany') : 'Company' %></th>
+          <% if (campaign) { %>
+          <th class="text-center px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.status') : 'Status' %></th>
+          <% } %>
+          <th class="text-center px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.delete') : 'Delete' %></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+        <% if (contacts.length === 0) { %>
+        <tr><td colspan="<%= campaign ? 5 : 4 %>" class="text-center py-8 text-gray-400 dark:text-gray-500"><%= typeof t !== 'undefined' ? t('email.noContacts') : 'No contacts in this list' %></td></tr>
+        <% } else { contacts.forEach(function(c) { %>
+            <% // Find recipient status from recipientStatuses
+            const rStatus = recipientStatuses ? recipientStatuses.find(r => r.email === c.email) : null; %>
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+          <td class="px-4 sm:px-6 py-3 text-gray-900 dark:text-white"><%= c.email %></td>
+          <td class="px-4 sm:px-6 py-3 text-gray-600 dark:text-gray-300"><%= c.name || '-' %></td>
+          <td class="px-4 sm:px-6 py-3 text-gray-600 dark:text-gray-300"><%= c.company || '-' %></td>
+          <% if (campaign) { %>
+          <td class="px-4 sm:px-6 py-3 text-center">
+            <% if (rStatus) { %>
+              <% if (rStatus.send_status === 'sent') { %>
+                <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300">
+                  <%= typeof t !== 'undefined' ? t('admin.sentTo') : 'Sent' %>
+                </span>
+              <% } else if (rStatus.send_status === 'failed') { %>
+                <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300" title="<%= rStatus.error || '' %>">
+                  <%= typeof t !== 'undefined' ? t('admin.failedToSend') : 'Failed' %>
+                </span>
+              <% } else { %>
+                <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300">
+                  <%= typeof t !== 'undefined' ? t('admin.notSentYet') : 'Pending' %>
+                </span>
+              <% } %>
+            <% } else { %>
+              <span class="text-gray-400 dark:text-gray-500 text-xs"><%= typeof t !== 'undefined' ? t('status.none') : '—' %></span>
+            <% } %>
+          </td>
+          <% } %>
+          <td class="px-4 sm:px-6 py-3 text-center">
+            <% if (!isReadonly) { %>
+            <form hx-post="/api/admin/email/lists/<%= list.id %>/contacts/<%= c.id %>/delete" hx-target="closest tr" hx-swap="outerHTML swap:300ms" style="display:inline" data-confirm="<%= typeof t !== 'undefined' ? t('email.deleteContact') : 'Remove this contact?' %>">
+              <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+              <button class="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </form>
+            <% } %>
+          </td>
+        </tr>
+        <% }); } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="px-4 sm:px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+    <%- include('_pagination', { pagination: pagination }) %>
+  </div>
+</div>
+
+<%- include('_admin-layout-close') %>

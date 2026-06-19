@@ -61,4 +61,28 @@
   button:disabled, input:disabled, select:disabled {
     cursor: not-allowed;
   }
+
+  /* Dark theme scrollbars */
+  .dark {
+    scrollbar-color: #4b5563 #1f2937; /* thumb track */
+    scrollbar-width: thin;
+  }
+  .dark ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .dark ::-webkit-scrollbar-track {
+    background: #1f2937;
+  }
+  .dark ::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-radius: 4px;
+    border: 2px solid #1f2937;
+  }
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+  }
+  .dark ::-webkit-scrollbar-corner {
+    background: #1f2937;
+  }
 }

@@ -3,9 +3,9 @@ import { sendMail } from '../lib/email';
 import rateLimit from 'express-rate-limit';
 import { requireAuth } from '../middleware/auth';
 
-const router = express.Router();
+const apiRouter = express.Router();
 
-const ADMIN_EMAIL = 'pulauberapi@gmail.com';
+const ADMIN_EMAIL = 'support@kontraktor.app';
 
 // Rate limit: 5 contact submissions per 15 minutes per IP
 const contactLimiter = rateLimit({
@@ -16,7 +16,7 @@ const contactLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-router.post('/', requireAuth, contactLimiter, async (req: Request, res: Response): Promise<void> => {
+apiRouter.post('/', requireAuth, contactLimiter, async (req: Request, res: Response): Promise<void> => {
   const { name, email, message, website } = req.body;
   const t = res.locals.t;
 
@@ -85,4 +85,5 @@ router.post('/', requireAuth, contactLimiter, async (req: Request, res: Response
   }
 });
 
-export default router;
+export { apiRouter };
+export default apiRouter;

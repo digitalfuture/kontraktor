@@ -1,21 +1,20 @@
-<aside class="fixed inset-y-0 left-0 z-40 w-64 bg-gray-900 dark:bg-gray-950 text-white flex flex-col border-r border-gray-800 dark:border-gray-800 transform -translate-x-full min-[1600px]:translate-x-0 min-[1600px]:static transition-transform duration-300 ease-in-out">
-  <div class="p-4 sm:p-6 border-b border-gray-800 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <!-- Close button (visible only below 1600px, positioned exactly in the same top-left corner as the hamburger trigger) -->
-      <button onclick="const a=document.querySelector('aside');a.classList.add('-translate-x-full');a.classList.remove('translate-x-0')" class="min-[1600px]:hidden p-2 rounded-lg hover:bg-gray-800 active:bg-gray-700 text-gray-400 cursor-pointer transition-colors focus:outline-none" aria-label="Close sidebar">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
-      <div class="flex items-baseline gap-2">
-        <a href="/" class="text-xl font-bold text-orange-500 leading-none">Kontraktor</a>
-        <p class="text-xs text-gray-400 leading-none"><%= typeof t !== 'undefined' ? t('nav.admin') : 'Admin Panel' %></p>
-      </div>
-    </div>
-  </div>
+<aside class="fixed inset-y-0 left-0 z-40 w-64 bg-gray-900 dark:bg-gray-950 text-white flex flex-col border-r border-gray-800 dark:border-gray-800 transform -translate-x-full min-[1600px]:translate-x-0 min-[1600px]:sticky min-[1600px]:top-0 min-[1600px]:h-svh transition-transform duration-300 ease-in-out overflow-y-auto scrollbar-none">
+  <%- include('../partials/_sidebar-header', { sidebarBreakpoint: 'min-[1600px]', subtitle: typeof t !== 'undefined' ? t('nav.admin') : 'Admin Panel' }) %>
+  
+  <style>
+    .scrollbar-none {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .scrollbar-none::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
   
   <nav class="flex-1 p-4 space-y-1">
     <a href="/admin" class="flex items-center gap-3 px-4 py-3 rounded-lg transition <%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'bg-orange-700 text-white' : 'text-gray-300 hover:bg-gray-800 dark:hover:bg-gray-800' %>">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-      <%= typeof t !== 'undefined' ? t('admin.dashboard') : 'Dashboard' %>
+      <%= typeof t !== 'undefined' ? t('account.overview') : 'Overview' %>
     </a>
     <a href="/admin/projects" class="flex items-center gap-3 px-4 py-3 rounded-lg transition <%= typeof activePage !== 'undefined' && activePage === 'orders' ? 'bg-orange-700 text-white' : 'text-gray-300 hover:bg-gray-800 dark:hover:bg-gray-800' %>">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
@@ -44,6 +43,18 @@
     <a href="/admin/diagrams" class="flex items-center gap-3 px-4 py-3 rounded-lg transition <%= typeof activePage !== 'undefined' && activePage === 'diagrams' ? 'bg-orange-700 text-white' : 'text-gray-300 hover:bg-gray-800 dark:hover:bg-gray-800' %>">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
       <%= typeof t !== 'undefined' ? t('admin.diagrams') : 'Diagrams' %>
+    </a>
+    <a href="/admin/email" class="flex items-center gap-3 px-4 py-3 rounded-lg transition <%= typeof activePage !== 'undefined' && activePage === 'email' ? 'bg-orange-700 text-white' : 'text-gray-300 hover:bg-gray-800 dark:hover:bg-gray-800' %>">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <%= t('email.title') %>
+    </a>
+    <a href="/admin/email/settings" class="flex items-center gap-3 pl-11 pr-4 py-1.5 text-sm rounded-lg transition <%= typeof activePage !== 'undefined' && activePage === 'email-settings' ? 'text-orange-400' : 'text-gray-400 hover:text-gray-200' %>">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      <%= typeof t !== 'undefined' ? t('email.settings') : 'Settings' %>
+    </a>
+    <a href="/admin/analytics" class="flex items-center gap-3 px-4 py-3 rounded-lg transition <%= typeof activePage !== 'undefined' && activePage === 'analytics' ? 'bg-orange-700 text-white' : 'text-gray-300 hover:bg-gray-800 dark:hover:bg-gray-800' %>">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      <%= typeof t !== 'undefined' ? t('analytics.title') : 'Analytics' %>
     </a>
     <a href="/admin/trash" class="flex items-center gap-3 px-4 py-3 rounded-lg transition <%= typeof activePage !== 'undefined' && activePage === 'trash' ? 'bg-orange-700 text-white' : 'text-gray-300 hover:bg-gray-800 dark:hover:bg-gray-800' %>">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>

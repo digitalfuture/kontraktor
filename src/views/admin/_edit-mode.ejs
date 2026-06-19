@@ -47,10 +47,10 @@
     document.querySelectorAll('form[method="POST"] button[type="submit"], form[method="POST"] select').forEach(function(el) {
       el.disabled = !isEdit;
       if (!isEdit) {
-        el.classList.add('opacity-40', 'cursor-default');
+        el.classList.add('opacity-40', 'cursor-default', 'pointer-events-none');
         el.classList.remove('cursor-pointer');
       } else {
-        el.classList.remove('opacity-40', 'cursor-default');
+        el.classList.remove('opacity-40', 'cursor-default', 'pointer-events-none');
         el.classList.add('cursor-pointer');
       }
     });

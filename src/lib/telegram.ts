@@ -30,14 +30,14 @@ function telegramRequest(method: string, data: Record<string, unknown>): Promise
 }
 
 export function sendTelegramMagicLink(telegramId: string, link: string): Promise<void> {
-  const text = `🔑 *Kontraktor — Вход в аккаунт*\n\nНажмите кнопку ниже, чтобы войти в систему:\n\nСсылка действительна 15 минут.`;
+  const text = `🔑 *Kontraktor — Account Login*\n\nClick the button below to sign in:\n\nThe link is valid for 15 minutes.`;
   
   return telegramRequest('sendMessage', {
     chat_id: telegramId,
     text,
     parse_mode: 'Markdown',
     reply_markup: {
-      inline_keyboard: [[{ text: '🔓 Войти в Kontraktor', url: link }]]
+      inline_keyboard: [[{ text: '🔓 Sign in to Kontraktor', url: link }]]
     }
   });
 }

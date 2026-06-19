@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Auto-generate site structural diagram + user flow from Express routes.
+ * Auto-generate interactive site structure treemap from Express routes.
  * Run: node scripts/generate-sitemap.mjs
- * Output: docs/sitemap.html  (self-contained, open in browser)
+ * Output: docs/sitemap.html  (self-contained D3 compact tree)
  */
 import fs from 'fs';
 import path from 'path';
@@ -14,16 +14,11 @@ const SRC = path.join(ROOT, 'src');
 
 // ── Parser ──────────────────────────────────────────────────────────────────
 
-/** Read file, return lines. */
 function readLines(file) {
   const text = fs.readFileSync(file, 'utf-8');
   return text.split('\n');
 }
 
-/**
- * Parse routes/index.ts for `app.use('/path', [middleware,] router)` lines.
- * Returns array of { mount, middleware, routerFile }.
- */
 function parseMounts() {
   const lines = readLines(path.join(SRC, 'index.ts'));
   const mounts = [];
@@ -32,310 +27,346 @@ function parseMounts() {
   while ((m = re.exec(lines.join('\n'))) !== null) {
     const mount = m[1];
     const args = m[2];
-    // Extract router variable name
-    const routerMatch = args.match(/(\w+Router)/);
+    const routerMatch = args.match(/([\w]+(?:Router|Pages|Api))/);
     if (!routerMatch) continue;
     const varName = routerMatch[1];
-    // Extract middlewares (e.g. requireAuth, requireAdmin)
     const middleware = args
       .replace(varName, '')
       .replace(/,\s*$/, '')
       .split(',')
       .map(s => s.trim())
       .filter(s => s && s !== varName && !s.startsWith('//'));
-    // Map variable name to file path
-    // The import pattern: `import adminRouter from './routes/admin'`
-    const importLines = lines.filter(l => l.includes(varName) && l.includes('import'));
+
     let routerFile = null;
-    for (const il of importLines) {
-      const im = il.match(/['"]\.\/routes\/([^'"]+)['"]/);
-      if (im) routerFile = im[1];
+    let routerType = 'router';
+    for (const line of lines) {
+      if (!line.includes(varName) || !line.includes('import')) continue;
+      const aliasMatch = line.match(/\{([^}]+)\}/);
+      if (aliasMatch) {
+        const namedImports = aliasMatch[1].split(',').map(s => s.trim());
+        for (const imp of namedImports) {
+          const parts = imp.split(/\s+as\s+/i);
+          const localName = parts[1] || parts[0];
+          const sourceName = parts[0];
+          if (localName.trim() === varName) {
+            routerType = sourceName.trim();
+            break;
+          }
+        }
+      }
+      const fileMatch = line.match(/['"]\.\/routes\/([^'"]+)['"]/);
+      if (fileMatch) {
+        routerFile = fileMatch[1];
+        break;
+      }
     }
-    mounts.push({ mount, middleware, routerFile, varName });
+    mounts.push({ mount, middleware, routerFile, varName, routerType });
   }
   return mounts;
 }
 
-/**
- * Parse a router file for endpoint definitions.
- * Returns array of { method, path, middleware, view }.
- */
 function parseRouter(filePath) {
   if (!fs.existsSync(filePath)) return [];
   const text = fs.readFileSync(filePath, 'utf-8');
-  const lines = text.split('\n');
   const endpoints = [];
 
-  // Collect all middleware names defined in this file
-  const localMiddles = new Set();
-  const constRe = /(?:const|let|var)\s+(\w+)\s*=\s*(?:require\(['"])?/g;
-  let cm;
-  while ((cm = constRe.exec(text)) !== null) {
-    // Heuristic: variable names ending in Middleware, Limiter, Auth, Check
-    if (/Middleware|Limiter|Auth|Check|Guard|Validate/i.test(cm[1])) {
-      localMiddles.add(cm[1]);
-    }
-  }
-
-  // Route patterns
-  const routeRe = /router\.(get|post|put|delete|patch)\s*\(\s*['"]([^'"]+)['"]\s*,/g;
+  const routeRe = /(\w+Router)\.(get|post|put|delete|patch)\s*\(\s*['"]([^'"]+)['"]\s*,/g;
   let rm;
   while ((rm = routeRe.exec(text)) !== null) {
-    const method = rm[1].toUpperCase();
-    const route = rm[2];
-    const startIdx = rm.index;
-    // Extract middleware between the route string and the handler function
-    const remainder = text.slice(rm.index + rm[0].length);
-    const handlerRe = /(?:\(?\s*(?:req|_req)\s*,?\s*(?:res|_res)\s*\)?\s*(?::[^=]+)?\s*(?:=>|{))/;
-    const handlerMatch = remainder.match(handlerRe);
-    const handlerStart = handlerMatch ? handlerMatch.index : -1;
-    const handlerEnd = handlerStart >= 0 ? handlerStart + handlerMatch[0].length : -1;
-
-    // Extract middleware arguments (strings or identifiers between route path and first callback)
-    const middlewareStr = handlerStart > 0 ? remainder.slice(0, handlerStart) : '';
-    const middleware = [];
-    // Match identifiers (function names) that are not strings
-    const mwRe = /([a-zA-Z_$][\w$.]+\s*(?=\s*,|\s*\)))/g;
-    let mw;
-    while ((mw = mwRe.exec(middlewareStr)) !== null) {
-      const name = mw[1].trim();
-      if (name && !name.startsWith("'") && !name.startsWith('"') && name.length > 1) {
-        middleware.push(name);
-      }
-    }
-
-    // Find view template via res.render
-    const afterHandler = handlerEnd >= 0 ? text.slice(rm.index + rm[0].length + handlerEnd) : '';
-    const renderMatch = afterHandler.match(/res\.render\s*\(\s*['"]([^'"]+)['"]/);
-    const view = renderMatch ? renderMatch[1] : null;
-
-    // Find redirect
-    const redirectMatch = afterHandler.match(/res\.redirect\s*\(\s*['"]([^'"]+)['"]/);
-    const redirect = redirectMatch ? redirectMatch[1] : null;
-
-    endpoints.push({
-      method,
-      path: route,
-      middleware: middleware.filter(m => m !== route && !m.includes("'") && !m.includes('"')),
-      view,
-      redirect,
-    });
+    const routerType = rm[1];
+    const method = rm[2].toUpperCase();
+    const route = rm[3];
+    endpoints.push({ routerType, method, path: route });
   }
-
   return endpoints;
 }
 
-/** Get a human-friendly label for a view path */
-function viewLabel(view) {
-  if (!view) return null;
-  return view.replace(/^admin\//, '📊 ').replace(/^auth\//, '🔐 ').replace(/^account\//, '👤 ');
-}
+// ── Category ────────────────────────────────────────────────────────────────
 
-/** Get icon for HTTP method */
-function methodIcon(m) {
-  const icons = { GET: '📄', POST: '➕', PUT: '📝', DELETE: '🗑️', PATCH: '🔧' };
-  return icons[m] || '➡️';
-}
-
-/** Determine category for color groups */
 function categoryFor(mount) {
-  if (mount === '/admin') return 'admin';
-  if (mount === '/auth') return 'auth';
-  if (mount === '/account') return 'account';
-  if (mount === '/payments') return 'payments';
+  if (mount.startsWith('/admin')) return 'admin';
+  if (mount.startsWith('/api')) return 'api';
+  if (mount.startsWith('/auth')) return 'auth';
+  if (mount.startsWith('/account')) return 'account';
+  if (mount.startsWith('/payments')) return 'payments';
   return 'public';
 }
 
-// ── Generation ──────────────────────────────────────────────────────────────
+// ── Hierarchy builder ───────────────────────────────────────────────────────
 
-function generateMermaid(mounts) {
-  const lines = [];
-  lines.push('graph TB');
-  lines.push('');
-
-  // Root node
-  lines.push('  root["🏠 Kontraktor"]');
-  lines.push('  style root fill:#ea580c,color:#fff,font-weight:bold');
-  lines.push('');
-
-  const colors = {
-    admin: '#1e40af',
-    auth: '#7c3aed',
-    account: '#059669',
-    payments: '#d97706',
-    public: '#4b5563',
+function buildHierarchy(mounts) {
+  const root = {
+    name: '🏠 Kontraktor',
+    category: 'root',
+    children: [],
   };
 
-  const groups = {};
-  let nodeId = 0;
-
   for (const mount of mounts) {
-    const cat = categoryFor(mount.mount);
-    const routerFile = path.join(SRC, 'routes', mount.routerFile + '.ts');
-    const endpoints = parseRouter(routerFile);
-    const displayPath = mount.mount === '/' ? 'Home' : mount.mount;
+    // Skip API-only mounts — diagram shows only pages
+    if (mount.mount.startsWith('/api')) continue;
 
-    // Mount node
-    const mountId = `m${nodeId++}`;
-    const mwLabel = mount.middleware.length
-      ? mount.middleware.map(m => m.replace('require', '🛡️')).join('<br/>')
+    const routerFilePath = path.join(SRC, 'routes', mount.routerFile + '.ts');
+    const allEndpoints = parseRouter(routerFilePath);
+    const endpoints = allEndpoints.filter(ep => ep.routerType === mount.routerType);
+
+    // Skip mounts with no page endpoints
+    if (endpoints.length === 0) continue;
+
+    const mwTag = mount.middleware.length
+      ? mount.middleware.map(m => m.replace('require', '🛡️')).join(' ')
       : '';
-    const label = mwLabel ? `${displayPath}<br/><small>${mwLabel}</small>` : displayPath;
-    lines.push(`  ${mountId}["${label}"]`);
-    lines.push(`  style ${mountId} fill:${colors[cat] || colors.public},color:#fff`);
-    lines.push(`  root --> ${mountId}`);
-    lines.push('');
 
-    // Group admin sub-routes
-    if (cat === 'admin' && mount.routerFile) {
-      const subGroups = [];
-      for (const ep of endpoints) {
-        const subCat = ep.path.replace(/^\//, '').split('/')[0] || 'dashboard';
-        if (!subGroups.includes(subCat)) subGroups.push(subCat);
-      }
-    }
+    // Clean group name from mount path
+    const groupName = mount.mount.replace(/^\//, '').replace(/\/$/, '');
+    const displayName = groupName.charAt(0).toUpperCase() + groupName.slice(1);
 
-    // Endpoint nodes
-    for (const ep of endpoints) {
-      const epId = `e${nodeId++}`;
-      const icon = methodIcon(ep.method);
-      const view = viewLabel(ep.view);
-      const viewText = view ? `<br/><small>🎨 ${view}</small>` : '';
-      const redirectText = ep.redirect ? `<br/><small>↪️ ${ep.redirect}</small>` : '';
-      const epPath = ep.path === '/' ? '' : ep.path;
-      const epShow = epPath || '/';
-      const mwText = ep.middleware.length
-        ? `<br/><small>🛡️ ${ep.middleware.join(', ')}</small>`
-        : '';
-      
-      lines.push(`  ${epId}["${icon} ${ep.method} ${epShow}${viewText}${redirectText}${mwText}"]`);
-      lines.push(`  style ${epId} fill:${colors[cat] || colors.public},color:#fff`);
-      lines.push(`  ${mountId} --> ${epId}`);
+    const mountChildren = endpoints.map(ep => {
+      // Full path: mount + endpoint path (e.g. /auth/login, /contractors/register)
+      const fullPath = mount.mount + ep.path;
+      return { name: fullPath, value: 1, category: categoryFor(mount.mount), leaf: true };
+    });
 
-      // Add redirect as arrow
-      if (ep.redirect && ep.redirect.startsWith('/')) {
-        const targetRoute = ep.redirect;
-        lines.push(`  ${epId} -.->|redirect| ${targetRoute.replace(/\//g, '_')}[${targetRoute}]`);
-        lines.push(`  style ${targetRoute.replace(/\//g, '_')} fill:#888,color:#fff`);
-      }
-    }
-
-    // Add special routing for root endpoints on the index router
-    if (mount.mount === '/' && mount.routerFile) {
-      for (const ep of endpoints) {
-        // These are on the root router — show them directly
-        if (ep.path === '/' || ep.path === '' || ep.path === '/contact' || ep.path.startsWith('/sitemap')) {
-          // Already added under root
-        }
-      }
-    }
+    const mountNode = {
+      name: displayName,
+      category: categoryFor(mount.mount),
+      middleware: mwTag,
+      children: mountChildren.length > 0 ? mountChildren : undefined,
+      value: mountChildren.length || 1,
+    };
+    root.children.push(mountNode);
   }
 
-  return lines.join('\n');
+  return root;
 }
 
-// ── HTML Output ─────────────────────────────────────────────────────────────
+// ── HTML Generator (D3 tree, 2-level drill-down) ────────────────────────
 
-function generateHtml(mermaidDef) {
-  // Escape { and } for HTML
-  const encoded = mermaidDef.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+function generateHtml(rootData) {
+  const jsonStr = JSON.stringify(rootData);
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kontraktor — Site Structure & User Flow</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<title>Kontraktor — Pages</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: #0f172a;
-    color: #e2e8f0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    padding: 2rem;
-    min-height: 100vh;
+  html, body { min-height: 100%; background: #f8fafc; color: #111827; font-family: system-ui, -apple-system, sans-serif; }
+  body { padding-top: 52px; }
+  #header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+    padding: 0.75rem 1.25rem; background: #ffffff; border-bottom: 1px solid #e5e7eb;
+    display: flex; align-items: center; gap: 0.75rem; height: 52px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   }
-  h1 { font-size: 1.5rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem; }
-  h1 small { font-size: 0.8rem; color: #64748b; font-weight: normal; }
-  .meta { font-size: 0.85rem; color: #64748b; margin-bottom: 2rem; }
-  .legend {
-    display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem;
-    padding: 1rem; background: #1e293b; border-radius: 0.5rem; border: 1px solid #334155;
+  #header h1 { font-size: 1rem; font-weight: 700; white-space: nowrap; color: #ea580c; letter-spacing: -0.01em; }
+  #breadcrumb { display: flex; align-items: center; gap: 0.2rem; font-size: 0.8125rem; color: #6b7280; flex-wrap: wrap; }
+  #breadcrumb .crumb { cursor: pointer; padding: 0.15rem 0.4rem; border-radius: 4px; transition: all 0.15s; }
+  #breadcrumb .crumb:hover { background: #fff7ed; color: #ea580c; }
+  #breadcrumb .sep { color: #d1d5db; cursor: default; }
+  #breadcrumb .here { color: #ea580c; font-weight: 600; }
+  #viz { min-height: 350px; display: flex; align-items: center; justify-content: center; }
+  #viz svg { display: block; width: 100%; max-width: 1200px; height: auto; }
+  .link { fill: none; stroke: #d1d5db; stroke-width: 1.5; stroke-opacity: 0.5; }
+  .node-group circle { transition: r 0.15s, stroke-width 0.15s; }
+  .node-group:hover circle { stroke-width: 3; }
+  .node-group.nodrill:hover circle { stroke-width: 1.5; }
+  .node-count { pointer-events: none; }
+  .hint {
+    position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); z-index: 10;
+    background: #ffffff; color: #6b7280; font-size: 0.75rem;
+    padding: 0.5rem 1rem; border-radius: 8px; pointer-events: none;
+    border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   }
-  .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; }
-  .legend-dot { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
-  #diagram {
-    background: #1e293b;
-    border-radius: 0.75rem;
-    padding: 2rem;
-    border: 1px solid #334155;
-    overflow-x: auto;
+  @media (prefers-color-scheme: dark) {
+    body { background: #0f172a; color: #e2e8f0; }
+    #header { background: #1e293b; border-bottom-color: #334155; }
+    #header h1 { color: #fb923c; }
+    #breadcrumb { color: #94a3b8; }
+    #breadcrumb .crumb:hover { background: rgba(251,146,60,0.08); color: #fb923c; }
+    #breadcrumb .sep { color: #475569; }
+    #breadcrumb .here { color: #fb923c; }
+    .link { stroke: #475569; stroke-opacity: 0.6; }
+    .node-label { fill: #e2e8f0; }
+    .node-count { fill: #64748b; }
+    .hint { background: #1e293b; color: #94a3b8; border-color: #334155; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
   }
-  #diagram svg { max-width: 100%; height: auto; }
-  .controls { margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center; }
-  .controls button {
-    background: #334155; color: #e2e8f0; border: none;
-    padding: 0.4rem 1rem; border-radius: 0.3rem; cursor: pointer; font-size: 0.85rem;
-  }
-  .controls button:hover { background: #475569; }
-  .footer { margin-top: 2rem; font-size: 0.75rem; color: #475569; text-align: center; }
 </style>
 </head>
 <body>
 
-<h1>🧭 Kontraktor — Site Structure & User Flow <small>auto-generated from routes</small></h1>
-
-<div class="legend">
-  <span class="legend-item"><span class="legend-dot" style="background:#ea580c"></span> Entry</span>
-  <span class="legend-item"><span class="legend-dot" style="background:#1e40af"></span> Admin</span>
-  <span class="legend-item"><span class="legend-dot" style="background:#7c3aed"></span> Auth</span>
-  <span class="legend-item"><span class="legend-dot" style="background:#059669"></span> Account</span>
-  <span class="legend-item"><span class="legend-dot" style="background:#d97706"></span> Payments</span>
-  <span class="legend-item"><span class="legend-dot" style="background:#4b5563"></span> Public</span>
-  <span class="legend-item">📄 GET &nbsp; ➕ POST &nbsp; 📝 PUT &nbsp; 🗑️ DELETE</span>
-  <span class="legend-item">🛡️ middleware &nbsp; 🎨 view template &nbsp; ↪️ redirect</span>
+<div id="header">
+  <h1>🧭 Kontraktor</h1>
+  <div id="breadcrumb"></div>
+</div>
+<div id="viz">
+  <svg viewBox="0 0 1000 400"></svg>
+  <div class="hint">клик на 📁 → провалиться • клик на фон → назад</div>
 </div>
 
-<div class="controls">
-  <button onclick="location.reload()">🔄 Regenerate</button>
-</div>
-
-<div id="diagram">
-  <pre class="mermaid" style="background:transparent;text-align:center;">
-${mermaidDef}
-  </pre>
-</div>
-
-<div class="footer">
-  Generated ${new Date().toISOString().slice(0, 10)} at ${new Date().toISOString().slice(11, 16)} ·
-  Run <code>npm run generate-sitemap</code> to refresh
-</div>
-
+<script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-  mermaid.initialize({
-    startOnLoad: true,
-    theme: 'dark',
-    themeVariables: {
-      fontFamily: 'system-ui',
-      fontSize: '13px',
-      primaryColor: '#334155',
-      primaryTextColor: '#e2e8f0',
-      primaryBorderColor: '#475569',
-      lineColor: '#64748b',
-      secondaryColor: '#1e293b',
-      tertiaryColor: '#0f172a',
-      clusterBkg: '#1e293b',
-      clusterBorder: '#334155',
-    },
-    flowchart: {
-      useMaxWidth: true,
-      htmlLabels: true,
-      curve: 'basis',
-      padding: 12,
-    }
+const data = ${jsonStr};
+
+const color = d3.scaleOrdinal()
+  .domain(['root','admin','auth','account','payments','public'])
+  .range(['#ea580c','#2563eb','#7c3aed','#059669','#d97706','#6b7280']);
+
+const svg = d3.select('svg');
+const g = svg.append('g');
+
+const nodeSepY = 22;
+const nodeSepX = 140;
+
+let zoomStack = [];
+let isLoading = false;
+
+function isEmpty(node) { return !node.children || node.children.length === 0; }
+
+function breadcrumb() {
+  const bc = d3.select('#breadcrumb');
+  bc.html('');
+  zoomStack.forEach((d, i) => {
+    if (i > 0) bc.append('span').attr('class','sep').text(' › ');
+    const label = d.data.name.length > 28 ? d.data.name.slice(0,25)+'…' : d.data.name;
+    const span = bc.append('span').attr('class','crumb').text(label);
+    span.attr('class', i === zoomStack.length - 1 ? 'crumb here' : 'crumb');
+    if (i < zoomStack.length - 1) span.on('click', () => { zoomToCrumb(i); });
   });
+}
+
+function zoomToCrumb(idx) {
+  if (isLoading) return;
+  zoomStack.splice(idx + 1);
+  draw(zoomStack[idx]);
+}
+
+function draw(node) {
+  isLoading = true;
+  g.selectAll('*').remove();
+
+  const root = d3.hierarchy(node.data);
+  if (!root.children) { isLoading = false; return; }
+
+  const treeLayout = d3.tree()
+    .nodeSize([nodeSepY, nodeSepX])
+    .separation(() => 1);
+  treeLayout(root);
+
+  // Only 2 levels
+  const visibleNodes = root.descendants().filter(d => d.depth <= 1);
+  const visibleLinks = root.links().filter(l => l.target.depth <= 1);
+
+  // Compute bounds with room for labels
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  visibleNodes.forEach(d => {
+    // Left side for parent label (depth 0)
+    const leftW = d.depth === 0 ? d.data.name.length * 10 + 20 : 0;
+    // Right side for child label (depth 1)
+    const rightW = d.depth > 0 ? d.data.name.length * 8 + 30 : 0;
+    if (d.y - leftW - 16 < x0) x0 = d.y - leftW - 16;
+    if (d.y + rightW + 16 > x1) x1 = d.y + rightW + 16;
+    if (d.x < y0) y0 = d.x;
+    if (d.x > y1) y1 = d.x;
+  });
+
+  const padY = 30;
+  const vw = Math.max(x1 - x0, 500);
+  const vh = Math.max(y1 - y0 + padY * 2, 250);
+  svg.attr('viewBox', [x0, y0 - padY, vw, vh]);
+
+  // ── LINKS ──
+  const linkGen = d3.linkHorizontal().x(d => d[0]).y(d => d[1]);
+  g.selectAll('path')
+    .data(visibleLinks)
+    .join('path')
+    .attr('class', 'link')
+    .attr('d', d => linkGen({ source: [d.source.y, d.source.x], target: [d.target.y, d.target.x] }));
+
+  // ── NODES ──
+  const nodeG = g.selectAll('g.node-group')
+    .data(visibleNodes)
+    .join('g')
+    .attr('class', d => 'node-group' + (isEmpty(d.data) ? ' nodrill' : ''));
+
+  // Circle
+  nodeG.append('circle')
+    .attr('cx', d => d.y)
+    .attr('cy', d => d.x)
+    .attr('r', d => d.data.leaf ? 4 : 6)
+    .attr('fill', d => color(d.data.category || 'public'))
+    .attr('stroke', d => d3.color(color(d.data.category || 'public')).darker(0.4))
+    .attr('stroke-width', 1.5);
+
+  // Label — parent on LEFT, children on RIGHT
+  nodeG.append('text')
+    .attr('class', 'node-label')
+    .attr('text-anchor', d => d.depth === 0 ? 'end' : 'start')
+    .attr('x', d => d.depth === 0 ? d.y - 14 : d.y + 14)
+    .attr('y', d => d.x + 5)
+    .attr('font-size', d => d.depth === 0 ? '17px' : (d.data.leaf ? '12px' : '14px'))
+    .attr('font-weight', d => d.depth === 0 ? '700' : '500')
+    .attr('fill', d => {
+      if (d.depth === 0) return '#ea580c';
+      if (d.data.leaf) return '#9ca3af';
+      try { return window.matchMedia('(prefers-color-scheme: dark)').matches ? '#e2e8f0' : '#1f2937'; }
+      catch(e) { return '#1f2937'; }
+    })
+    .text(d => {
+      if (d.depth === 0) return d.data.name;
+      let icon = d.data.leaf ? '📄' : '📁';
+      return icon + ' ' + d.data.name;
+    });
+
+  // Child count badge
+  nodeG.filter(d => !isEmpty(d.data) && d.depth > 0).append('text')
+    .attr('class', 'node-count')
+    .attr('text-anchor', 'start')
+    .attr('x', d => d.y + 14)
+    .attr('y', d => d.x + 19)
+    .attr('font-size', '10px')
+    .attr('fill', '#9ca3af')
+    .text(d => {
+      const count = d.data.children ? d.data.children.length : 0;
+      return count > 0 ? count + ' page' + (count > 1 ? 's' : '') : '';
+    });
+
+  // Click handler
+  nodeG.filter(d => !isEmpty(d.data))
+    .style('cursor', 'pointer')
+    .on('click', function(event, d) {
+      if (isLoading) return;
+      event.stopPropagation();
+      zoomTo(d);
+    });
+
+  nodeG.filter(d => isEmpty(d.data))
+    .style('cursor', 'default');
+
+  breadcrumb();
+  isLoading = false;
+}
+
+function zoomTo(node) {
+  zoomStack.push(node);
+  draw(node);
+}
+
+// Click on SVG background → zoom out
+svg.on('click', (event) => {
+  if (event.target === svg.node() && zoomStack.length > 1) {
+    zoomStack.pop();
+    draw(zoomStack[zoomStack.length - 1]);
+  }
+});
+
+// ── Init ──
+zoomStack = [d3.hierarchy(data)];
+draw(zoomStack[0]);
 </script>
 
+<!-- JSON data for admin page sitemap loader -->
+<script id="sitemap-data" type="application/json">${jsonStr}</script>
 </body>
 </html>`;
 }
@@ -344,22 +375,25 @@ ${mermaidDef}
 
 function main() {
   const mounts = parseMounts();
-  
+
   console.log(`📦 Found ${mounts.length} route mounts:`);
   for (const m of mounts) {
-    const endpoints = parseRouter(path.join(SRC, 'routes', m.routerFile + '.ts'));
-    console.log(`   ${m.mount.padEnd(20)} → ${m.routerFile}.ts (${endpoints.length} endpoints)`);
+    const routerFilePath = path.join(SRC, 'routes', m.routerFile + '.ts');
+    const allEndpoints = parseRouter(routerFilePath);
+    const endpoints = allEndpoints.filter(ep => ep.routerType === m.routerType);
+    console.log(`   ${m.mount.padEnd(22)} → ${m.routerFile}.ts (${m.routerType}) (${endpoints.length} endpoints)`);
   }
 
-  const mermaid = generateMermaid(mounts);
-  
+  const hierarchy = buildHierarchy(mounts);
+  const html = generateHtml(hierarchy);
+
   const outDir = path.join(ROOT, 'docs');
   fs.mkdirSync(outDir, { recursive: true });
   const outPath = path.join(outDir, 'sitemap.html');
-  fs.writeFileSync(outPath, generateHtml(mermaid), 'utf-8');
-  
+  fs.writeFileSync(outPath, html, 'utf-8');
+
   console.log(`\n✅ Generated: ${outPath}`);
-  console.log(`   Open in browser to view interactive diagram`);
+  console.log(`   Open in browser to view interactive D3 sitemap (2 levels)`);
 }
 
 main();

@@ -1,0 +1,9 @@
+<form hx-put="/api/admin/email/lists/<%= list.id %>/rename" hx-target="#list-name-<%= list.id %>" hx-swap="outerHTML" class="flex items-center gap-2">
+  <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+  <input type="text" name="name" value="<%= list.name %>" required
+    class="px-3 py-1.5 border border-orange-500 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none w-48 sm:w-64"
+    autofocus>
+  <button type="submit" class="text-sm px-2 py-1.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"><%= typeof t !== 'undefined' ? t('email.save') : 'Save' %></button>
+  <button type="button" class="text-sm px-2 py-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+    hx-get="/api/admin/email/lists/<%= list.id %>/display-name" hx-target="#list-name-<%= list.id %>" hx-swap="outerHTML"><%= typeof t !== 'undefined' ? t('email.cancel') : 'Cancel' %></button>
+</form>

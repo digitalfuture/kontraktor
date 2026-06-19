@@ -4,8 +4,6 @@ import db from '../db';
 import { requireAuth } from '../middleware/auth';
 import { sendPaymentSuccessNotification } from '../lib/telegram';
 
-const router: express.Router = express.Router();
-
 const XENDIT_API_KEY = process.env.XENDIT_API_KEY || '';
 const XENDIT_CALLBACK_TOKEN = process.env.XENDIT_CALLBACK_TOKEN || '';
 
@@ -77,40 +75,22 @@ function createXenditInvoice(
   });
 }
 
-// Display package selection screen
-router.get('/buy', requireAuth, (req: Request, res: Response): void => {
-  const user = (req as any).user;
-  const locale = (res.locals.locale as string) || 'en';
+// ── Pages ──
 
-  if (user.role !== 'contractor' && user.role !== 'admin') {
-    res.redirect('/account/profile');
-    return;
-  }
+export const pageRouter: express.Router = express.Router();
 
-  const contractor = db.prepare('SELECT id, credits FROM contractors WHERE email = ?').get(user.email) as any;
-  if (!contractor) {
-    res.redirect('/contractors/dashboard?error=not_contractor');
-    return;
-  }
-
-  const t = (key: string) => {
-    const keys = key.split('.');
-    const dict = (res.locals as any).dict || {};
-    let val: any = dict;
-    for (const k of keys) { val = val?.[k]; }
-    return typeof val === 'string' ? val : key;
-  };
-
-  res.render('payments/buy', {
-    title: t('requestCredits') + ' — Kontraktor',
-    contractor,
-    packages: CREDIT_PACKAGES,
-    locale
-  });
+// Display package selection screen — now redirected: bidding is free
+pageRouter.get('/buy', requireAuth, (req: Request, res: Response): void => {
+  res.redirect('/contractors/dashboard?free_bidding=true');
+  return;
 });
 
+// ── API ──
+
+export const apiRouter: express.Router = express.Router();
+
 // Trigger checkout invoice creation
-router.post('/create-invoice', requireAuth, async (req: Request, res: Response): Promise<void> => {
+apiRouter.post('/create-invoice', requireAuth, async (req: Request, res: Response): Promise<void> => {
   const user = (req as any).user;
   const locale = (res.locals.locale as string) || 'en';
   const { package_id } = req.body;
@@ -166,7 +146,7 @@ router.post('/create-invoice', requireAuth, async (req: Request, res: Response):
 });
 
 // Xendit callback webhook (Excluded from CSRF)
-router.post('/webhook', (req: Request, res: Response): void => {
+apiRouter.post('/webhook', (req: Request, res: Response): void => {
   const callbackToken = req.headers['x-callback-token'];
   const { external_id, status, payment_method } = req.body;
 
@@ -239,4 +219,4 @@ router.post('/webhook', (req: Request, res: Response): void => {
   res.status(200).json({ status: 'processed' });
 });
 
-export default router;
+export default pageRouter;

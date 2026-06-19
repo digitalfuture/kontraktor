@@ -1,0 +1,47 @@
+<!-- Admin Contractor Actions - reusable verify + credits + active -->
+<%#
+  Params:
+    c — contractor object with .id, .is_verified, .is_active
+%>
+<form action="/api/admin/contractors/<%= c.id %>/toggle-verified" method="POST">
+<%- include('../partials/csrf-field') %>
+  <!-- Compact -->
+  <button type="submit" class="hidden min-[1600px]:inline-flex text-xs px-2 py-1 rounded border transition cursor-pointer <%= c.is_verified ? 'bg-gray-50 hover:bg-yellow-50 dark:bg-gray-800 dark:hover:bg-yellow-950/30 text-yellow-600 dark:text-yellow-400 hover:text-yellow-700 border-gray-200 dark:border-gray-700 hover:border-yellow-200 dark:hover:border-yellow-900/50' : 'bg-gray-50 hover:bg-green-50 dark:bg-gray-800 dark:hover:bg-green-950/30 text-gray-400 hover:text-green-600 dark:hover:text-green-400 border-gray-200 dark:border-gray-700 hover:border-green-200 dark:hover:border-green-900/50' %>" title="<%= c.is_verified ? t('admin.unverify') : t('admin.verify') %>"><%= c.is_verified ? '★' : '☆' %></button>
+  <!-- Full -->
+  <button type="submit" class="min-[1600px]:hidden text-xs px-2.5 py-1.5 rounded-lg border bg-white dark:bg-gray-800 transition cursor-pointer <%= c.is_verified ? 'text-yellow-600 dark:text-yellow-400 border-yellow-300 dark:border-yellow-800' : 'text-gray-400 dark:text-gray-500 border-gray-300 dark:border-gray-600' %>" title="<%= c.is_verified ? t('admin.unverify') : t('admin.verify') %>"><%= c.is_verified ? '★ ' + t('admin.unverify') : '☆ ' + t('admin.verify') %></button>
+</form>
+<form action="/api/admin/contractors/<%= c.id %>/add-credits" method="POST" class="flex gap-1.5 items-center flex-nowrap whitespace-nowrap">
+<%- include('../partials/csrf-field') %>
+  <!-- Compact input -->
+  <input type="number" name="amount" value="5" min="1" max="100" oninput="this.closest('form').querySelectorAll('button[type=submit]').forEach(b=>b.disabled=!this.value||parseInt(this.value)<1)" class="hidden min-[1600px]:inline-block w-12 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+  <!-- Full input -->
+  <input type="number" name="amount" value="5" min="1" max="100" oninput="this.closest('form').querySelectorAll('button[type=submit]').forEach(b=>b.disabled=!this.value||parseInt(this.value)<1)" class="min-[1600px]:hidden w-12 px-2.5 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+  <!-- Compact button -->
+  <button type="submit" class="hidden min-[1600px]:inline-flex px-2.5 py-1 bg-gray-100 dark:bg-gray-855 hover:bg-orange-600 dark:hover:bg-orange-600 text-gray-700 dark:text-gray-350 hover:text-white dark:hover:text-white border border-gray-300 dark:border-gray-700 hover:border-orange-500 rounded text-xs font-medium transition cursor-pointer whitespace-nowrap disabled:opacity-40 disabled:cursor-default disabled:hover:bg-gray-100 dark:disabled:hover:bg-gray-855 disabled:hover:text-gray-700 dark:disabled:hover:text-gray-350 disabled:hover:border-gray-300 dark:disabled:hover:border-gray-700"><%= t('admin.addCredits') %></button>
+  <!-- Full button -->
+  <button type="submit" class="min-[1600px]:hidden px-2.5 py-1.5 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:bg-orange-600 dark:hover:bg-orange-600 hover:text-white dark:hover:text-white rounded-lg text-xs font-medium transition cursor-pointer whitespace-nowrap disabled:opacity-40 disabled:cursor-default disabled:hover:bg-gray-100 dark:disabled:hover:bg-gray-800 disabled:hover:text-gray-700 dark:disabled:hover:text-gray-300 disabled:hover:border-gray-300 dark:disabled:hover:border-gray-700"><%= t('admin.addCredits') %></button>
+</form>
+<form action="/api/admin/contractors/<%= c.id %>/toggle-active" method="POST">
+<%- include('../partials/csrf-field') %>
+  <!-- Compact -->
+  <button type="submit" class="hidden min-[1600px]:inline-flex text-xs px-2 py-1 rounded border transition cursor-pointer <%= c.is_active ? 'bg-gray-50 hover:bg-red-50 dark:bg-gray-800 dark:hover:bg-red-950/30 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 border-gray-200 dark:border-gray-700 hover:border-red-200 dark:hover:border-red-900/50' : 'bg-gray-50 hover:bg-green-50 dark:bg-gray-800 dark:hover:bg-green-950/30 text-red-500 hover:text-green-600 dark:text-red-400 dark:hover:text-green-400 border-gray-200 dark:border-gray-700 hover:border-green-200 dark:hover:border-green-900/50' %>" title="<%= c.is_active ? t('admin.block') : t('admin.activate') %>">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <% if (c.is_active) { %>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6"/>
+      <% } else { %>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+      <% } %>
+    </svg>
+  </button>
+  <!-- Full -->
+  <button type="submit" class="min-[1600px]:hidden text-xs px-2.5 py-1.5 rounded-lg border bg-white dark:bg-gray-800 transition cursor-pointer <%= c.is_active ? 'text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-600' : 'text-red-500 dark:text-red-400 border-red-300 dark:border-red-800' %>" title="<%= c.is_active ? t('admin.block') : t('admin.activate') %>">
+    <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <% if (c.is_active) { %>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6"/>
+      <% } else { %>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+      <% } %>
+    </svg>
+    <%= c.is_active ? t('admin.block') : t('admin.activate') %>
+  </button>
+</form>

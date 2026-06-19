@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <%- include('partials/_head') %>
+<body class="bg-gray-100 dark:bg-gray-950 min-h-screen flex items-center justify-center">
+  <main id="main-content" class="text-center px-4" role="main">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 max-w-md mx-auto">
+      <p class="text-lg text-gray-700 dark:text-gray-200 mb-6"><%= message %></p>
+      <% if (typeof link !== 'undefined' && link) { %>
+        <a href="<%= link %>" class="text-orange-700 hover:underline focus:outline-none focus:ring-2 focus:ring-orange-700 rounded">
+          <%= typeof linkText !== 'undefined' ? linkText : 'Назад' %>
+        </a>
+      <% } %>
+    </div>
+  </main>
+</body>
+</html>

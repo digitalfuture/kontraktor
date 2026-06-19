@@ -1,0 +1,467 @@
+<%- include('_admin-layout', { activePage: 'email' }) %>
+
+        <!-- Title -->
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white leading-none"><%= typeof t !== 'undefined' ? t('email.title') : 'Email' %></h1>
+            <p class="text-gray-500 dark:text-gray-300 mt-2 text-sm sm:text-base leading-none"><%= typeof t !== 'undefined' ? t('email.subtitle') : 'Send & manage email campaigns' %></p>
+          </div>
+        </div>
+
+        <!-- Quota Stats -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          <div class="bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700">
+            <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1"><%= typeof t !== 'undefined' ? t('email.sentToday') : 'Sent Today' %></p>
+            <p class="text-2xl font-bold text-green-600 dark:text-green-400"><%= sentToday %></p>
+          </div>
+          <div class="bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700">
+            <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1"><%= typeof t !== 'undefined' ? t('email.failedToday') : 'Failed Today' %></p>
+            <p class="text-2xl font-bold text-red-600 dark:text-red-400"><%= failedToday %></p>
+          </div>
+          <div class="bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700">
+            <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1"><%= typeof t !== 'undefined' ? t('email.quotaRemaining').replace('{quota}', '300') : 'Quota Remaining (300/day)' %></p>
+            <p class="text-2xl font-bold <%= (300 - sentToday) === 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>"><%= 300 - sentToday %></p>
+          </div>
+          <div class="bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700" id="queue-stats-card">
+            <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1"><%= typeof t !== 'undefined' ? t('email.queue') : 'Queue' %></p>
+            <p class="text-2xl font-bold text-blue-600 dark:text-blue-400"><%= queueStats.queued + queueStats.processing %></p>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+              <%= typeof t !== 'undefined' ? t('email.statsStatus').replace('{queued}', queueStats.queued).replace('{sending}', queueStats.processing) : queueStats.queued + ' queued · ' + queueStats.processing + ' sending' %></p>
+            <% if (queueStats.waitingRetry > 0) { %>
+            <p class="text-xs text-amber-500 dark:text-amber-400 mt-0.5"><%= typeof t !== 'undefined' ? t('email.waitingRetry').replace('{n}', queueStats.waitingRetry) : queueStats.waitingRetry + ' waiting retry' %></p>
+            <% } %>
+            <% if (queueStats.providerCooldown) { %>
+            <p class="text-xs text-red-500 dark:text-red-400 mt-0.5 font-medium"><%= typeof t !== 'undefined' ? t('email.cooldown').replace('{s}', queueStats.providerCooldownSeconds) : 'Cooldown ' + queueStats.providerCooldownSeconds + 's' %></p>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Two-column layout -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+
+          <!-- LEFT: Send Test Email -->
+          <div class="bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-4"><%= typeof t !== 'undefined' ? t('email.sendTestEmail') : 'Send Test Email' %></h2>
+            <form method="POST" action="/api/admin/email/send-test" class="space-y-3">
+              <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= typeof t !== 'undefined' ? t('email.recipientEmail') : 'Recipient Email' %></label>
+                <input type="email" name="to" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= typeof t !== 'undefined' ? t('email.subject') : 'Subject' %></label>
+                <input type="text" name="subject" id="test-subject" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= typeof t !== 'undefined' ? t('email.bodyHtml') : 'Body (HTML)' %></label>
+                <!-- Placeholder shortcut buttons -->
+                <div class="flex flex-wrap items-center gap-1.5 mb-2">
+                  <span class="text-xs text-gray-400 dark:text-gray-500 mr-1"><%= typeof t !== 'undefined' ? t('email.insertPlaceholder') : 'Insert:' %></span>
+                  <button type="button" onclick="insertPlaceholder('test-body', '{{recipient_name}}')"
+                    class="px-2 py-0.5 text-xs font-mono bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 cursor-pointer transition"><%= typeof t !== 'undefined' ? t('email.recipientName') : 'Recipient Name' %></button>
+                  <button type="button" onclick="insertPlaceholder('test-body', '{{company_name}}')"
+                    class="px-2 py-0.5 text-xs font-mono bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 cursor-pointer transition"><%= typeof t !== 'undefined' ? t('email.companyName') : 'Company' %></button>
+                </div>
+                <textarea name="body" id="test-body" rows="4" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none font-mono"></textarea>
+              </div>
+              <button type="submit" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm font-medium">
+                <%= typeof t !== 'undefined' ? t('email.send') : 'Send' %>
+              </button>
+            </form>
+          </div>
+
+          <!-- RIGHT: Create Campaign -->
+          <div class="bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-4"><%= typeof t !== 'undefined' ? t('email.newCampaign') : 'New Campaign' %></h2>
+
+            <!-- Template loader -->
+            <% if (typeof templates !== 'undefined' && templates.length > 0) { %>
+            <div class="mb-4 p-3 bg-gray-50 dark:bg-gray-800/30 rounded-lg border border-gray-200 dark:border-gray-700">
+              <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5"><%= typeof t !== 'undefined' ? t('email.loadTemplate') : 'Load Template' %></label>
+              <select id="template-select" class="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                onchange="loadTemplate(this)">
+                <option value=""><%= typeof t !== 'undefined' ? t('email.noTemplates') : '— Select template —' %></option>
+                <% templates.forEach(function(tmpl) { %>
+                <option value="<%= tmpl.id %>"
+                  data-subject="<%= tmpl.subject.replace(/"/g, '&quot;') %>"
+                  data-body="<%= tmpl.body_html.replace(/"/g, '&quot;') %>"><%= tmpl.name %></option>
+                <% }); %>
+              </select>
+            </div>
+            <% } %>
+
+            <form id="campaign-form" method="POST" action="/api/admin/email/campaigns/create" class="space-y-3">
+              <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= typeof t !== 'undefined' ? t('email.name') : 'Campaign Name' %></label>
+                <input type="text" name="name" id="campaign-name" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= typeof t !== 'undefined' ? t('email.subject') : 'Subject' %></label>
+                <input type="text" name="subject" id="campaign-subject" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= typeof t !== 'undefined' ? t('email.recipients') : 'Recipients' %></label>
+                <select id="recipient-select" onchange="updateRecipients()"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm">
+                  <optgroup label="<%= typeof t !== 'undefined' ? t('email.userType') : 'By user type' %>">
+                    <option value="filter:all"><%= typeof t !== 'undefined' ? t('email.all') : 'All (contractors + clients)' %></option>
+                    <option value="filter:all_contractors"><%= typeof t !== 'undefined' ? t('email.allContractors') : 'All Contractors' %></option>
+                    <option value="filter:clients"><%= typeof t !== 'undefined' ? t('email.clients') : 'Clients only' %></option>
+                  </optgroup>
+                  <optgroup label="<%= typeof t !== 'undefined' ? t('email.mailingLists') : 'Mailing Lists' %>">
+                    <% (typeof mailingLists !== 'undefined' ? mailingLists : []).forEach(function(ml) { %>
+                    <option value="list:<%= ml.id %>"><%= ml.name %></option>
+                    <% }); %>
+                  </optgroup>
+                </select>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                  <a href="/admin/email/lists" class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300"><%= typeof t !== 'undefined' ? t('email.manageLists') : 'Manage mailing lists' %></a>
+                </p>
+              </div>
+              <input type="hidden" name="recipient_filter" id="hidden-filter" value="all">
+              <input type="hidden" name="mailing_list_id" id="hidden-list" value="">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= typeof t !== 'undefined' ? t('email.bodyHtml') : 'Body (HTML)' %></label>
+                <!-- Placeholder shortcut buttons -->
+                <div class="flex flex-wrap items-center gap-1.5 mb-2">
+                  <span class="text-xs text-gray-400 dark:text-gray-500 mr-1"><%= typeof t !== 'undefined' ? t('email.insertPlaceholder') : 'Insert:' %></span>
+                  <button type="button" onclick="insertPlaceholder('campaign-body', '{{recipient_name}}')"
+                    class="px-2 py-0.5 text-xs font-mono bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 cursor-pointer transition"><%= typeof t !== 'undefined' ? t('email.recipientName') : 'Recipient Name' %></button>
+                  <button type="button" onclick="insertPlaceholder('campaign-body', '{{company_name}}')"
+                    class="px-2 py-0.5 text-xs font-mono bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 cursor-pointer transition"><%= typeof t !== 'undefined' ? t('email.companyName') : 'Company' %></button>
+                </div>
+                <textarea name="body_html" id="campaign-body" rows="4" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none font-mono"></textarea>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-2">
+                <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium">
+                  <%= typeof t !== 'undefined' ? t('email.createCampaign') : 'Create Campaign' %>
+                </button>
+                <button type="button" onclick="saveAsTemplate()"
+                  class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium whitespace-nowrap">
+                  <%= typeof t !== 'undefined' ? t('email.saveTemplate') : 'Save as Template' %>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Campaigns Table -->
+        <div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 mb-8 overflow-hidden">
+          <div class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white"><%= typeof t !== 'undefined' ? t('email.campaigns') : 'Campaigns' %></h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50 dark:bg-gray-800/50">
+                  <th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.name') : 'Name' %></th>
+                  <th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.status') : 'Status' %></th>
+                  <th class="text-right px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.sent') : 'Sent' %></th>
+                  <th class="text-right px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.failed') : 'Failed' %></th>
+                  <th class="text-right px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.pending') : 'Total' %></th>
+                  <th class="text-center px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400">—</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                <% if (campaigns.length === 0) { %>
+                <tr><td colspan="6" class="text-center py-8 text-gray-400 dark:text-gray-500"><%= typeof t !== 'undefined' ? t('email.noCampaigns') : 'No campaigns yet' %></td></tr>
+                <% } else { campaigns.forEach(function(c) { %>
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                  <td class="px-4 sm:px-6 py-3 text-gray-900 dark:text-white">
+                    <%= c.name %>
+                    <% if (c.mailing_list_name) { %><span class="text-xs text-gray-400 dark:text-gray-500 ml-1">(<%= typeof t !== 'undefined' ? t('email.viaList') : 'list' %>: <%= c.mailing_list_name %>)</span><% } %>
+                    <% if (c.recipient_filter && c.recipient_filter !== 'all' && !c.mailing_list_id) { %><span class="text-xs text-gray-400 dark:text-gray-500 ml-1">(<%= c.recipient_filter %>)</span><% } %>
+                  </td>
+                  <td class="px-4 sm:px-6 py-3">
+                    <% if (c.status === 'draft') { %><span class="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"><%= typeof t !== 'undefined' ? t('status.draft') : 'Draft' %></span><% } %>
+                    <% if (c.status === 'sending') { %><span class="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300"><%= typeof t !== 'undefined' ? t('email.sending') : 'Sending…' %></span><% } %>
+                    <% if (c.status === 'sent') { %><span class="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300"><%= typeof t !== 'undefined' ? t('email.sent') : 'Sent' %></span><% } %>
+                    <% if (c.status === 'stopped') { %><span class="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300"><%= typeof t !== 'undefined' ? t('status.stopped') : 'Stopped' %></span><% } %>
+                  </td>
+                  <td class="px-4 sm:px-6 py-3 text-right text-gray-600 dark:text-gray-300"><%= c.sent_count || 0 %></td>
+                  <td class="px-4 sm:px-6 py-3 text-right text-gray-600 dark:text-gray-300"><%= c.failed_count || 0 %></td>
+                  <td class="px-4 sm:px-6 py-3 text-right text-gray-600 dark:text-gray-300"><%= c.total_recipients || 0 %></td>
+                  <td class="px-4 sm:px-6 py-3 text-center">
+                    <div class="flex items-center justify-center gap-2">
+                      <% if (c.status === 'draft') { %>
+                      <form method="POST" action="/api/admin/email/campaigns/<%= c.id %>/start" style="display:inline">
+                        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                        <button class="text-xs px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700"><%= typeof t !== 'undefined' ? t('email.start') : 'Start' %></button>
+                      </form>
+                      <% } %>
+                      <% if (c.status === 'sending') { %>
+                      <form method="POST" action="/api/admin/email/campaigns/<%= c.id %>/stop" style="display:inline">
+                        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                        <button class="text-xs px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"><%= typeof t !== 'undefined' ? t('email.stop') : 'Stop' %></button>
+                      </form>
+                      <% } %>
+                      <form hx-post="/api/admin/email/campaigns/<%= c.id %>/delete" hx-target="closest tr" hx-swap="outerHTML swap:300ms" style="display:inline" data-confirm="<%= typeof t !== 'undefined' ? t('email.deleteConfirm') : 'Delete this campaign?' %>">
+                        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                        <button class="text-xs px-2 py-1 bg-gray-600 text-white rounded hover:bg-gray-700">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                          </svg>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+                <% }); } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Mailing Lists -->
+        <div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 mb-8 overflow-hidden">
+          <div class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white"><%= typeof t !== 'undefined' ? t('email.mailingLists') : 'Mailing Lists' %></h2>
+            <a href="/admin/email/lists" class="text-sm text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium"><%= typeof t !== 'undefined' ? t('email.manageLists') : 'Manage all lists' %> &rarr;</a>
+          </div>
+
+          <!-- Quick create -->
+          <div class="px-4 sm:px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/30">
+            <form method="POST" action="/api/admin/email/lists/create" class="flex flex-col sm:flex-row gap-2">
+              <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+              <input type="text" name="name" placeholder="<%= typeof t !== 'undefined' ? t('email.newListName') : 'New list name...' %>" required
+                class="flex-1 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+              <input type="text" name="description" placeholder="<%= typeof t !== 'undefined' ? t('email.description') : 'Description (optional)' %>"
+                class="flex-1 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+              <button type="submit" class="px-3 py-1.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm font-medium whitespace-nowrap">
+                <%= typeof t !== 'undefined' ? t('email.quickCreate') : '+ Quick Create' %>
+              </button>
+            </form>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50 dark:bg-gray-800/50">
+                  <th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.name') : 'Name' %></th>
+                  <th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.description') : 'Description' %></th>
+                  <th class="text-right px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.contacts') : 'Contacts' %></th>
+                  <th class="text-center px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.delete') : 'Delete' %></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                <% if (mailingLists.length === 0) { %>
+                <tr><td colspan="4" class="text-center py-8 text-gray-400 dark:text-gray-500"><%= typeof t !== 'undefined' ? t('email.noLists') : 'No mailing lists yet' %></td></tr>
+                <% } else { mailingLists.forEach(function(ml) { %>
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                  <td class="px-4 sm:px-6 py-3 font-medium">
+                    <a href="/admin/email/lists/<%= ml.id %>" class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300"><%= ml.name %></a>
+                  </td>
+                  <td class="px-4 sm:px-6 py-3 text-gray-500 dark:text-gray-400"><%= ml.description || '-' %></td>
+                  <td class="px-4 sm:px-6 py-3 text-right"><%= ml.contact_count || 0 %></td>
+                  <td class="px-4 sm:px-6 py-3 text-center">
+                    <form hx-post="/api/admin/email/lists/<%= ml.id %>/delete" hx-target="closest tr" hx-swap="outerHTML swap:300ms" style="display:inline" data-confirm="<%= typeof t !== 'undefined' ? t('email.confirmDeleteList') : 'Delete this list and all its contacts?' %>">
+                      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                      <button class="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+                <% }); } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Email Queue Table -->
+        <div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 mb-8 overflow-hidden">
+          <div class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white"><%= typeof t !== 'undefined' ? t('admin.emailQueue') : 'Email Queue' %></h2>
+            <span class="text-xs text-gray-400 dark:text-gray-500"><%= typeof t !== 'undefined' ? t('email.pendingCount').replace('{n}', queueItems.length) : queueItems.length + ' pending' %></span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50 dark:bg-gray-800/50">
+                  <th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.recipientEmail') : 'To' %></th>
+                  <th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.subject') : 'Subject' %></th>
+                  <th class="text-center px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.priority') : 'Priority' %></th>
+                  <th class="text-center px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.status') : 'Status' %></th>
+                  <th class="text-center px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('admin.attempts') : 'Attempts' %></th>
+                  <th class="text-right px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('admin.info') : 'Info' %></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                <% if (queueItems.length === 0) { %>
+                <tr><td colspan="6" class="text-center py-8 text-gray-400 dark:text-gray-500"><%= typeof t !== 'undefined' ? t('admin.queueEmpty') : 'Queue is empty' %></td></tr>
+                <% } else { queueItems.forEach(function(q) { %>
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                  <td class="px-4 sm:px-6 py-3 text-gray-900 dark:text-white max-w-[200px] truncate" title="<%= q.to_email %>"><%= q.to_email %></td>
+                  <td class="px-4 sm:px-6 py-3 text-gray-600 dark:text-gray-300 max-w-[250px] truncate" title="<%= q.subject %>"><%= q.subject %></td>
+                  <td class="px-4 sm:px-6 py-3 text-center">
+                    <% if (q.priority >= 1) { %><span class="px-1.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300">H</span><% } else { %><span class="text-gray-400 dark:text-gray-500 text-xs">–</span><% } %>
+                  </td>
+                  <td class="px-4 sm:px-6 py-3 text-center">
+                    <% if (q.status === 'queued') { %><span class="text-gray-500 dark:text-gray-400 text-xs"><%= typeof t !== 'undefined' ? t('admin.queued') : 'Queued' %></span><% } %>
+                    <% if (q.status === 'processing') { %><span class="text-blue-600 dark:text-blue-400 text-xs"><%= typeof t !== 'undefined' ? t('email.sending') : 'Sending...' %></span><% } %>
+                    <% if (q.status === 'sent') { %><span class="text-green-600 dark:text-green-400 text-xs">✓ Sent</span><% } %>
+                    <% if (q.status === 'failed') { %><span class="text-red-600 dark:text-red-400 text-xs" title="<%= q.error || '' %>">✗ Failed</span><% } %>
+                  </td>
+                  <td class="px-4 sm:px-6 py-3 text-center text-gray-600 dark:text-gray-300 text-xs font-mono"><%= q.attempts %></td>
+                  <td class="px-4 sm:px-6 py-3 text-right text-gray-400 dark:text-gray-500 text-xs">
+                    <% if (q.status === 'queued' && q.retry_at) { %><span class="text-amber-500 dark:text-amber-400" title="Retry at">⏰ <%= q.retry_at.slice(5, 16) %></span><% } else { %><%= q.created_at.slice(5, 16) %><% } %>
+                  </td>
+                </tr>
+                <% }); } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Recent Email Log -->
+        <div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white"><%= typeof t !== 'undefined' ? t('email.recentActivity') : 'Recent Activity' %></h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50 dark:bg-gray-800/50">
+                  <th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('status.time') : 'Time' %></th>
+                  <th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.recipientEmail') : 'To' %></th>
+                  <th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.subject') : 'Subject' %></th>
+                  <th class="text-center px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.status') : 'Status' %></th>
+                  <th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('errors') : 'Error' %></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                <% if (recentLog.length === 0) { %>
+                <tr><td colspan="5" class="text-center py-8 text-gray-400 dark:text-gray-500"><%= typeof t !== 'undefined' ? t('email.noActivity') : 'No email activity yet' %></td></tr>
+                <% } else { recentLog.forEach(function(log) { %>
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                  <td class="px-4 sm:px-6 py-3 text-gray-500 dark:text-gray-400 text-xs"><%= log.created_at %></td>
+                  <td class="px-4 sm:px-6 py-3 text-gray-900 dark:text-white"><%= log.recipient_email %></td>
+                  <td class="px-4 sm:px-6 py-3 max-w-[200px] truncate text-gray-900 dark:text-white"><%= log.subject %></td>
+                  <td class="px-4 sm:px-6 py-3 text-center">
+                    <% if (log.status === 'sent') { %><span class="text-green-600 dark:text-green-400 font-medium">✓ <%= typeof t !== 'undefined' ? t('email.sent') : 'Sent' %></span><% } %>
+                    <% if (log.status === 'failed') { %><span class="text-red-600 dark:text-red-400 font-medium">✗ <%= typeof t !== 'undefined' ? t('email.failed') : 'Failed' %></span><% } %>
+                    <% if (log.status === 'pending') { %><span class="text-gray-400 dark:text-gray-500"><%= typeof t !== 'undefined' ? t('email.pending') : 'Pending' %></span><% } %>
+                  </td>
+                  <td class="px-4 sm:px-6 py-3 text-red-500 dark:text-red-400 text-xs max-w-[200px] truncate"><%= log.error || '' %></td>
+                </tr>
+                <% }); } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+<%- include('_admin-layout-close') %>
+  <script>
+    (function() {
+      var card = document.getElementById('queue-stats-card');
+      if (!card) return;
+      var L = <%- typeof t !== 'undefined' ? JSON.stringify({ statsStatus: t('email.statsStatus'), waitingRetry: t('email.waitingRetry'), cooldown: t('email.cooldown') }) : JSON.stringify({ statsStatus: '{queued} queued · {sending} sending', waitingRetry: '{n} waiting retry', cooldown: 'Cooldown {s}s' }) %>;
+      function poll() {
+        fetch('/api/admin/email/queue-stats')
+          .then(function(r) { return r.json(); })
+      .then(function(d) {
+        var total = d.queued + d.processing;
+        var card = document.getElementById('queue-stats-card');
+        var el = card.querySelector('.text-2xl');
+        var sub = card.querySelector('.text-xs.mt-1');
+        if (el) el.textContent = total;
+        if (sub) sub.textContent = L.statsStatus.replace('{queued}', d.queued).replace('{sending}', d.processing);
+
+        // Remove old retry/cooldown indicators
+        card.querySelectorAll('.text-xs.mt-0\\.5').forEach(function(n) { n.remove(); });
+
+        if (d.waitingRetry > 0) {
+          var r = document.createElement('p');
+          r.className = 'text-xs text-amber-500 dark:text-amber-400 mt-0.5';
+          r.textContent = L.waitingRetry.replace('{n}', d.waitingRetry);
+          card.appendChild(r);
+        }
+        if (d.providerCooldown) {
+          var c = document.createElement('p');
+          c.className = 'text-xs text-red-500 dark:text-red-400 mt-0.5 font-medium';
+          c.textContent = L.cooldown.replace('{s}', d.providerCooldownSeconds);
+          card.appendChild(c);
+        }
+      })
+          .catch(function() {});
+      }
+      setInterval(poll, 5000);
+    })();
+
+    // Insert placeholder at cursor in a textarea
+    function insertPlaceholder(id, text) {
+      var ta = document.getElementById(id);
+      if (!ta) return;
+      var start = ta.selectionStart;
+      var end = ta.selectionEnd;
+      var before = ta.value.substring(0, start);
+      var after = ta.value.substring(end);
+      ta.value = before + text + after;
+      ta.selectionStart = ta.selectionEnd = start + text.length;
+      ta.focus();
+    }
+
+    // Load template data into campaign form
+    function loadTemplate(select) {
+      var opt = select.options[select.selectedIndex];
+      if (!opt || !opt.value) return;
+      var subject = opt.getAttribute('data-subject');
+      var body = opt.getAttribute('data-body');
+      if (subject) document.getElementById('campaign-subject').value = subject;
+      if (body) document.getElementById('campaign-body').value = body;
+    }
+
+    // Save current campaign form as a template via hidden form
+    function saveAsTemplate() {
+      var subject = document.getElementById('campaign-subject').value;
+      var body = document.getElementById('campaign-body').value;
+      if (!subject || !body) {
+        showNotification('<%= typeof t !== 'undefined' ? t('email.fillInSubjectBody') : 'Please fill in Subject and Body HTML first.' %>', 'error');
+        return;
+      }
+      var name = prompt('<%= typeof t !== 'undefined' ? t('email.templateName') : 'Template Name' %>');
+      if (!name || !name.trim()) return;
+      name = name.trim();
+
+      var form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/api/admin/email/templates/create';
+      form.style.display = 'none';
+
+      var csrf = document.querySelector('input[name="_csrf"]');
+      if (csrf) {
+        var h = document.createElement('input');
+        h.type = 'hidden';
+        h.name = '_csrf';
+        h.value = csrf.value;
+        form.appendChild(h);
+      }
+
+      var f1 = document.createElement('input');
+      f1.type = 'hidden'; f1.name = 'name'; f1.value = name;
+      form.appendChild(f1);
+      var f2 = document.createElement('input');
+      f2.type = 'hidden'; f2.name = 'subject'; f2.value = subject;
+      form.appendChild(f2);
+      var f3 = document.createElement('input');
+      f3.type = 'hidden'; f3.name = 'body_html'; f3.value = body;
+      form.appendChild(f3);
+
+      document.body.appendChild(form);
+      form.submit();
+    }
+    // Update hidden fields when recipient select changes
+    function updateRecipients() {
+      var val = document.getElementById('recipient-select').value;
+      if (val.startsWith('filter:')) {
+        document.getElementById('hidden-filter').value = val.replace('filter:', '');
+        document.getElementById('hidden-list').value = '';
+      } else if (val.startsWith('list:')) {
+        document.getElementById('hidden-filter').value = 'all';
+        document.getElementById('hidden-list').value = val.replace('list:', '');
+      }
+    }
+  </script>

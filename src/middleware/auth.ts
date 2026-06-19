@@ -41,7 +41,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
 
 export function requireAdmin(req: Request, res: Response, next: NextFunction): void {
   if (req.user?.role !== 'admin') {
-    res.status(403).render('error', { message: 'Доступ запрещён' });
+    res.status(403).render('error', { message: 'Access denied' });
     return;
   }
   next();

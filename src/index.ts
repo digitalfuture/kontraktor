@@ -1,5 +1,6 @@
 import { config as dotenvConfig } from 'dotenv';
 import path from 'path';
+import * as seoLib from './lib/seo';
 
 // Load environment-specific config file (.env.production or .env.development)
 const nodeEnv = process.env.NODE_ENV || 'development';
@@ -16,25 +17,33 @@ import { serviceIcons, defaultServiceIcon } from './config/service-icons';
 import db from './db';
 
 import servicesRouter from './routes/services';
-import contractorsRouter from './routes/contractors';
+import { pageRouter as contractorsPages, apiRouter as contractorsApi } from './routes/contractors';
 import projectsRouter from './routes/projects';
 import sitemapRouter from './routes/sitemap';
-import postRouter from './routes/post';
-import adminRouter from './routes/admin';
-import authRouter from './routes/auth';
+import { pageRouter as postPages, apiRouter as postApi } from './routes/post';
+import { pageRouter as adminPages, apiRouter as adminApi } from './routes/admin';
+import { pageRouter as authPages, apiRouter as authApi } from './routes/auth';
 import accountRouter from './routes/account';
-import contactRouter from './routes/contact';
-import paymentsRouter from './routes/payments';
+import gaOptRouter from './routes/ga-opt';
+import { apiRouter as contactApi } from './routes/contact';
+import { pageRouter as paymentsPages, apiRouter as paymentsApi } from './routes/payments';
 import { requireAuth, requireAdmin } from './middleware/auth';
 import { i18nMiddleware } from './middleware/i18n';
 import { csrfMiddleware } from './middleware/csrf';
+import { startQueueProcessor, stopQueueProcessor } from './lib/email-queue';
+import pkg from '../package.json';
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT: number = parseInt(process.env.PORT || '3002', 10);
 
 const BUILD_VERSION = Date.now().toString();
+const APP_VERSION = pkg.version;
+
 app.use((req, res, next) => {
   res.locals.cssVersion = process.env.NODE_ENV === 'production' ? BUILD_VERSION : Date.now().toString();
+  res.locals.appVersion = APP_VERSION;
+  res.locals.buildTimestamp = BUILD_VERSION;
   next();
 });
 
@@ -60,8 +69,8 @@ app.use(express.static(path.join(__dirname, '../public'), {
   },
 }));
 app.use(compression()); // Gzip compression for all responses
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 
 // Security headers (CSP, HSTS disabled since production is HTTP-only without SSL/443 listener)
@@ -95,6 +104,16 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
       ? `${num.toLocaleString('id-ID')}`
       : `${num.toLocaleString('en-US')}`;
   };
+  // Internal traffic detection — exclude server self-requests from analytics
+  const internalIps = (process.env.INTERNAL_IPS || '').split(',').map(s => s.trim()).filter(Boolean);
+  const clientIp = req.ip || req.socket?.remoteAddress || '';
+  const isInternal = (
+    clientIp === '127.0.0.1' || clientIp === '::1' || clientIp === '::ffff:127.0.0.1' ||
+    internalIps.includes(clientIp) ||
+    (req.headers['user-agent'] || '').startsWith('Kontraktor-SEO/') ||
+    (req.headers['user-agent'] || '').startsWith('Kontraktor-Sitemap/')
+  );
+  res.locals.GA_DISABLED = isInternal || req.cookies?.ga_opt_out === '1';
   next();
 });
 
@@ -103,8 +122,9 @@ app.get('/health', (_req: express.Request, res: express.Response): void => {
   res.json({ status: 'ok', uptime: process.uptime(), memory: process.memoryUsage().heapUsed });
 });
 
-// Routes
+// Routes — Pages
 app.get('/', (req: express.Request, res: express.Response): void => {
+  const locale = (res.locals.locale as string) || 'en';
   const t = res.locals.t;
   
   const categories = db.prepare('SELECT id, slug FROM categories WHERE is_active = 1').all() as Array<{ id: number; slug: string }>;
@@ -124,6 +144,7 @@ app.get('/', (req: express.Request, res: express.Response): void => {
   const reviews = db.prepare('SELECT author_email, rating, comment FROM reviews WHERE is_moderated = 1 ORDER BY created_at DESC LIMIT 3').all();
 
   res.render('index', {
+    seo: seoLib.homePageSeo(locale as 'en' | 'id'),
     title: `${t('site.name')} — ${t('site.tagline')}`,
     iconMap: serviceIcons,
     defaultIcon: defaultServiceIcon,
@@ -136,24 +157,46 @@ app.use('/services', servicesRouter);
 app.use('/static/docs', express.static(path.join(__dirname, '../docs')));
 app.use('/projects', requireAuth, projectsRouter);
 app.use('/sitemap.xml', sitemapRouter);
-app.use('/contractors', contractorsRouter);
-app.use('/post', postRouter);
-app.use('/auth', authRouter);
+app.use('/contractors', contractorsPages);
+app.use('/post', postPages);
+app.use('/auth', authPages);
 app.use('/account', accountRouter);
-app.use('/contact', contactRouter);
-app.use('/payments', paymentsRouter);
-app.use('/admin', requireAuth, requireAdmin, adminRouter);
+app.use(gaOptRouter);
+app.use('/payments', paymentsPages);
+
+// Routes — API (flat /api/ namespace)
+app.use('/api/auth', authApi);
+app.use('/api/contact', contactApi);
+app.use('/api/contractors', contractorsApi);
+app.use('/api/payments', paymentsApi);
+app.use('/api/post', postApi);
+
+// Admin pages (with auth guard)
+app.use('/admin', requireAuth, requireAdmin, adminPages);
+// Admin API (with auth guard)
+app.use('/api/admin', requireAuth, requireAdmin, adminApi);
 
 app.get('/terms', (req: express.Request, res: express.Response): void => {
-  res.render('terms');
+  const locale = (res.locals.locale as string) || 'en';
+  res.render('terms', {
+    seo: seoLib.termsSeo(locale as 'en' | 'id'),
+  });
 });
 
 app.get('/privacy', (req: express.Request, res: express.Response): void => {
-  res.render('privacy');
+  const locale = (res.locals.locale as string) || 'en';
+  res.render('privacy', {
+    seo: seoLib.privacySeo(locale as 'en' | 'id'),
+  });
 });
 
-// 404 handler
-app.use((_req: express.Request, res: express.Response): void => {
+// 404 handler — log to file for SEO/analytics tracking
+app.use((req: express.Request, res: express.Response): void => {
+  const ua = req.headers['user-agent'] || '';
+  const ref = req.headers['referer'] || '-';
+  if (!ua.startsWith('Kontraktor-SEO/')) {
+    console.log(`[404] ${req.method} ${req.url} — referer: ${ref} — ${ua.slice(0, 80)}`);
+  }
   res.status(404).render('error', {
     message: res.locals.t ? res.locals.t('error.notFound') : 'Not Found',
     statusCode: 404,
@@ -164,6 +207,7 @@ app.use((_req: express.Request, res: express.Response): void => {
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction): void => {
   console.error('ERROR:', err.message);
   console.error(err.stack);
+  try { require('fs').appendFileSync('/tmp/express-error.log', `${new Date().toISOString()} ERROR: ${err.message}\n${err.stack}\n\n`); } catch(_) {}
   res.status(500).render('error', { message: 'Internal Server Error' });
 });
 
@@ -174,11 +218,42 @@ const HOST =
 
 const server = app.listen(PORT, HOST, (): void => {
   console.log(`Kontraktor ${process.env.NODE_ENV || 'dev'} server running on http://127.0.0.1:${PORT}`);
+
+  // Rescue campaigns stuck in 'sending' status after unclean shutdown
+  try {
+    const zombieCampaigns = db.prepare(`
+      SELECT id, name FROM email_campaigns
+      WHERE status = 'sending'
+    `).all() as Array<{ id: number; name: string }>;
+
+    if (zombieCampaigns.length > 0) {
+      for (const c of zombieCampaigns) {
+        // Only rescue if no active queue items for this campaign
+        const activeItems = db.prepare(`
+          SELECT COUNT(*) as count FROM email_queue
+          WHERE campaign_id = ? AND status IN ('queued', 'processing')
+        `).get(c.id) as { count: number };
+
+        if (activeItems.count === 0) {
+          db.prepare("UPDATE email_campaigns SET status = 'stopped' WHERE id = ?").run(c.id);
+          console.log(`[startup] Rescued zombie campaign #${c.id} "${c.name}" → stopped`);
+        }
+      }
+    }
+  } catch (err) {
+    console.error('[startup] Error rescuing zombie campaigns:', err);
+  }
+
+  // Start background email queue processor
+  if (process.env.SMTP_HOST && process.env.SMTP_USER) {
+    startQueueProcessor(3000);
+  }
 });
 
 // Graceful shutdown
 function gracefulShutdown(signal: string): void {
   console.log(`\n${signal} received — shutting down gracefully...`);
+  stopQueueProcessor();
   server.close(() => {
     console.log('HTTP server closed');
     process.exit(0);

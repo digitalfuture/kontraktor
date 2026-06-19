@@ -47,10 +47,6 @@ db.exec(`CREATE TABLE IF NOT EXISTS categories (
   slug TEXT UNIQUE NOT NULL,
   description TEXT,
   icon TEXT,
-  name_en TEXT,
-  name_id TEXT,
-  description_en TEXT,
-  description_id TEXT,
   is_active INTEGER DEFAULT 1,
   deleted_at DATETIME DEFAULT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -63,8 +59,6 @@ db.exec(`CREATE TABLE IF NOT EXISTS subcategories (
   slug TEXT NOT NULL,
   price_from TEXT,
   contractors_count INTEGER DEFAULT 0,
-  name_en TEXT,
-  name_id TEXT,
   FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
   UNIQUE(category_id, slug)
 );`);
@@ -118,7 +112,8 @@ db.exec(`CREATE TABLE IF NOT EXISTS reviews (
   comment TEXT,
   is_moderated INTEGER DEFAULT 0,
   is_approved INTEGER DEFAULT 0,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  deleted_at DATETIME
 );`);
 
 // Photos for projects (before/after) and contractor portfolio
@@ -235,6 +230,128 @@ const migrations: Array<{ version: number; name: string; sql: string }> = [
       );
     `,
   },
+  {
+    version: 7,
+    name: 'add_paid_mode_setting',
+    sql: `
+      INSERT OR IGNORE INTO settings (key, value) VALUES ('paid_mode', 'false');
+    `,
+  },
+  {
+    version: 8,
+    name: 'add_contractor_services',
+    sql: `
+      CREATE TABLE IF NOT EXISTS contractor_services (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        contractor_id INTEGER NOT NULL,
+        category_id INTEGER NOT NULL,
+        is_active INTEGER DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (contractor_id) REFERENCES contractors(id) ON DELETE CASCADE,
+        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+        UNIQUE(contractor_id, category_id)
+      );
+      INSERT OR IGNORE INTO contractor_services (contractor_id, category_id, is_active)
+        SELECT id, category_id, 1 FROM contractors WHERE category_id IS NOT NULL;
+    `,
+  },
+  {
+    version: 9,
+    name: 'add_users_is_active',
+    sql: `
+      ALTER TABLE users ADD COLUMN is_active INTEGER DEFAULT 1;
+    `,
+  },
+  {
+    version: 10,
+    name: 'add_email_tables',
+    sql: `
+      CREATE TABLE IF NOT EXISTS email_templates (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        subject TEXT NOT NULL,
+        body_html TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS email_campaigns (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        template_id INTEGER REFERENCES email_templates(id) ON DELETE SET NULL,
+        subject TEXT NOT NULL,
+        body_html TEXT NOT NULL,
+        recipient_filter TEXT NOT NULL DEFAULT 'all' CHECK(recipient_filter IN ('all', 'contractors', 'clients', 'all_contractors')),
+        status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft', 'sending', 'sent', 'stopped')),
+        total_recipients INTEGER DEFAULT 0,
+        sent_count INTEGER DEFAULT 0,
+        failed_count INTEGER DEFAULT 0,
+        created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        started_at DATETIME,
+        completed_at DATETIME
+      );
+
+      CREATE TABLE IF NOT EXISTS email_log (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        campaign_id INTEGER REFERENCES email_campaigns(id) ON DELETE CASCADE,
+        recipient_email TEXT NOT NULL,
+        recipient_name TEXT,
+        subject TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'sent', 'failed')),
+        error TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        sent_at DATETIME
+      );
+    `,
+  },
+  {
+    version: 11,
+    name: 'add_email_queue',
+    sql: `
+      CREATE TABLE IF NOT EXISTS email_queue (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        to_email TEXT NOT NULL,
+        subject TEXT NOT NULL,
+        html TEXT NOT NULL,
+        priority INTEGER DEFAULT 0,
+        status TEXT NOT NULL DEFAULT 'queued' CHECK(status IN ('queued', 'processing', 'sent', 'failed')),
+        campaign_id INTEGER REFERENCES email_campaigns(id) ON DELETE SET NULL,
+        recipient_name TEXT,
+        error TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        processed_at DATETIME,
+        attempts INTEGER DEFAULT 0
+      );
+    `,
+  },
+  {
+    version: 12,
+    name: 'add_email_queue_retry_at',
+    sql: `
+      ALTER TABLE email_queue ADD COLUMN retry_at DATETIME;
+    `,
+  },
+  {
+    version: 13,
+    name: 'add_email_settings_and_system_templates',
+    sql: `
+      CREATE TABLE IF NOT EXISTS email_settings (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+      INSERT OR IGNORE INTO email_settings (key, value) VALUES ('daily_quota', '300');
+      INSERT OR IGNORE INTO email_settings (key, value) VALUES ('from_name', 'Kontraktor');
+      INSERT OR IGNORE INTO email_settings (key, value) VALUES ('from_email', 'noreply@kontraktor.app');
+      INSERT OR IGNORE INTO email_settings (key, value) VALUES ('admin_bcc', 'pulauberapi@gmail.com');
+      INSERT OR IGNORE INTO email_settings (key, value) VALUES ('brevo_api_key', '');
+      INSERT OR IGNORE INTO email_settings (key, value) VALUES ('rate_limit_per_minute', '10');
+
+      ALTER TABLE email_templates ADD COLUMN system_key TEXT;
+      ALTER TABLE email_templates ADD COLUMN description TEXT;
+    `,
+  },
 ];
 
 const getApplied = db.prepare('SELECT version FROM schema_migrations');
@@ -281,83 +398,134 @@ function seedCategories(): void {
   if (count.c > 0) return;
 
   const categories = [
-    { name: 'Ремонт квартир', slug: 'remont-kvartir', description: 'Косметический, капитальный, дизайнерский ремонт', icon: '', name_en: 'Apartment Renovation', name_id: 'Renovasi Apartemen', description_en: 'Cosmetic, major, and designer renovation', description_id: 'Renovasi kosmetik, besar, dan desainer' },
-    { name: 'Электромонтаж', slug: 'elektromontazh', description: 'Проводка, розетки, освещение, щитки', icon: '', name_en: 'Electrical Work', name_id: 'Pekerjaan Listrik', description_en: 'Wiring, outlets, lighting, panels', description_id: 'Kabel, stopkontak, penerangan, panel' },
-    { name: 'Сантехника', slug: 'santehnika', description: 'Установка, замена, ремонт сантехники', icon: '🔧', name_en: 'Plumbing', name_id: 'Plumbing', description_en: 'Installation, replacement, repair', description_id: 'Pemasangan, penggantian, perbaikan' },
-    { name: 'Отделка', slug: 'otdelka', description: 'Обои, покраска, плитка, потолки', icon: '🎨', name_en: 'Finishing', name_id: 'Finishing', description_en: 'Wallpaper, painting, tiles, ceilings', description_id: 'Wallpaper, pengecatan, ubin, plafon' },
-    { name: 'Строительство', slug: 'stroitelstvo', description: 'Дома, бани, пристройки', icon: '', name_en: 'Construction', name_id: 'Konstruksi', description_en: 'Houses, saunas, extensions', description_id: 'Rumah, sauna, ekstensi' },
-    { name: 'Кровля', slug: 'krovlya', description: 'Монтаж, ремонт, утепление кровли', icon: '', name_en: 'Roofing', name_id: 'Atap', description_en: 'Installation, repair, insulation', description_id: 'Pemasangan, perbaikan, insulasi' },
-    { name: 'Фасад', slug: 'fasad', description: 'Штукатурка, сайдинг, утепление', icon: '', name_en: 'Facade', name_id: 'Fasad', description_en: 'Plastering, siding, insulation', description_id: 'Plester, siding, insulasi' },
-    { name: 'Ландшафт', slug: 'landshaft', description: 'Заборы, дорожки, озеленение', icon: '', name_en: 'Landscaping', name_id: 'Pertamanan', description_en: 'Fences, paths, gardening', description_id: 'Pagar, jalan, pertamanan' },
-    { name: 'Демонтаж', slug: 'demontazh', description: 'Снос, демонтаж, вывоз мусора', icon: '', name_en: 'Demolition', name_id: 'Pembongkaran', description_en: 'Demolition, removal, waste disposal', description_id: 'Pembongkaran, penghapusan, pembuangan sampah' },
+    { name: 'General Contractor', slug: 'general-contractor', description: 'Full-project construction management, design-build, turnkey', icon: '🏗️' },
+    { name: 'Construction Company', slug: 'construction-company', description: 'Licensed construction companies for commercial & industrial projects', icon: '🏢' },
+    { name: 'Civil Engineering', slug: 'civil-engineering', description: 'Roads, bridges, drainage, earthworks, infrastructure', icon: '🛣️' },
+    { name: 'Steel Structure', slug: 'steel-structure', description: 'Structural steel, precast, metal fabrication, industrial structures', icon: '🏭' },
+    { name: 'Apartment Renovation', slug: 'apartment-renovation', description: 'Professional apartment renovation services in Indonesia — cosmetic updates, major structural renovations, and full designer refurbishments. Get free quotes from verified contractors.', icon: '' },
+    { name: 'Interior Renovation', slug: 'interior-renovation', description: 'Office, retail, hotel, commercial interior fit-out', icon: '🏪' },
+    { name: 'Electrical Work', slug: 'electrical-work', description: 'Professional electrical services in Indonesia — wiring replacement, outlet installation, lighting setup, and electrical panel upgrades. Licensed electricians for safe, compliant installations.', icon: '' },
+    { name: 'Plumbing', slug: 'plumbing', description: 'Installation, replacement, repair', icon: '🔧' },
+    { name: 'MEP Systems', slug: 'mep-systems', description: 'Integrated mechanical, electrical, plumbing, HVAC', icon: '⚙️' },
+    { name: 'Finishing', slug: 'finishing', description: 'Wallpaper, painting, tiles, ceilings', icon: '🎨' },
+    { name: 'Construction', slug: 'construction', description: 'New home construction services in Indonesia — frame houses, brick houses, block houses, baths and saunas. Build your dream home with experienced contractors.', icon: '' },
+    { name: 'Roofing', slug: 'roofing', description: 'Professional roofing services in Indonesia — new roof installation, repair, insulation, and drainage systems. Protect your home with quality roofing from verified contractors.', icon: '' },
+    { name: 'Facade', slug: 'facade', description: 'Professional facade services in Indonesia — plastering, siding, insulation and stone cladding. Enhance your building exterior with quality materials and expert craftsmanship.', icon: '' },
+    { name: 'Waterproofing', slug: 'waterproofing', description: 'Roof, basement, bathroom, balcony waterproofing', icon: '💧' },
+    { name: 'Landscaping', slug: 'landscaping', description: 'Professional landscaping services in Indonesia — fence installation, path paving, gardening, and drainage systems. Transform your outdoor space with expert contractors.', icon: '' },
+    { name: 'Demolition', slug: 'demolition', description: 'Professional demolition services in Indonesia — wall and floor demolition, building dismantling, and waste removal. Safe, licensed demolition crews for residential and commercial projects.', icon: '' },
   ];
 
-  const insertCat = db.prepare('INSERT INTO categories (name, slug, description, icon, name_en, name_id, description_en, description_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
-  const insertSub = db.prepare('INSERT INTO subcategories (category_id, name, slug, price_from, contractors_count, name_en, name_id) VALUES (?, ?, ?, ?, ?, ?, ?)');
+  const insertCat = db.prepare('INSERT INTO categories (name, slug, description, icon) VALUES (?, ?, ?, ?)');
+  const insertSub = db.prepare('INSERT INTO subcategories (category_id, name, slug, price_from, contractors_count) VALUES (?, ?, ?, ?, ?)');
 
-  const subcategories: Record<string, Array<{ name: string; slug: string; price_from: string; count: number; name_en: string; name_id: string }>> = {
-    'remont-kvartir': [
-      { name: 'Косметический ремонт', slug: 'cosmetic', price_from: '150K Rp/m²', count: 1200, name_en: 'Cosmetic Renovation', name_id: 'Renovasi Kosmetik' },
-      { name: 'Капитальный ремонт', slug: 'capital', price_from: '300K Rp/m²', count: 800, name_en: 'Major Renovation', name_id: 'Renovasi Besar' },
-      { name: 'Ремонт под ключ', slug: 'turnkey', price_from: '500K Rp/m²', count: 600, name_en: 'Turnkey Renovation', name_id: 'Renovasi Turnkey' },
-      { name: 'Дизайнерский ремонт', slug: 'design', price_from: '800K Rp/m²', count: 300, name_en: 'Designer Renovation', name_id: 'Renovasi Desainer' },
+  const subcategories: Record<string, Array<{ name: string; slug: string; price_from: string; count: number }>> = {
+    'apartment-renovation': [
+      { name: 'Cosmetic Renovation', slug: 'cosmetic', price_from: '150K Rp/m²', count: 1200 },
+      { name: 'Major Renovation', slug: 'capital', price_from: '300K Rp/m²', count: 800 },
+      { name: 'Turnkey Renovation', slug: 'turnkey', price_from: '500K Rp/m²', count: 600 },
+      { name: 'Designer Renovation', slug: 'design', price_from: '800K Rp/m²', count: 300 },
     ],
-    'elektromontazh': [
-      { name: 'Замена проводки', slug: 'wiring', price_from: '50K Rp/point', count: 400, name_en: 'Wiring Replacement', name_id: 'Penggantian Kabel' },
-      { name: 'Установка розеток', slug: 'sockets', price_from: '30K Rp/pcs', count: 600, name_en: 'Outlet Installation', name_id: 'Pemasangan Stopkontak' },
-      { name: 'Монтаж освещения', slug: 'lighting', price_from: '80K Rp/point', count: 500, name_en: 'Lighting Installation', name_id: 'Pemasangan Penerangan' },
-      { name: 'Электрощиты', slug: 'panels', price_from: '300K Rp', count: 200, name_en: 'Electrical Panels', name_id: 'Panel Listrik' },
+    'electrical-work': [
+      { name: 'Wiring Replacement', slug: 'wiring', price_from: '50K Rp/point', count: 400 },
+      { name: 'Outlet Installation', slug: 'sockets', price_from: '30K Rp/pcs', count: 600 },
+      { name: 'Lighting Installation', slug: 'lighting', price_from: '80K Rp/point', count: 500 },
+      { name: 'Electrical Panels', slug: 'panels', price_from: '300K Rp', count: 200 },
     ],
-    'santehnika': [
-      { name: 'Установка сантехники', slug: 'install', price_from: '100K Rp', count: 500, name_en: 'Fixture Installation', name_id: 'Pemasangan Perlengkapan' },
-      { name: 'Замена труб', slug: 'pipes', price_from: '50K Rp/m', count: 400, name_en: 'Pipe Replacement', name_id: 'Penggantian Pipa' },
-      { name: 'Ремонт труб', slug: 'repair', price_from: '80K Rp', count: 350, name_en: 'Pipe Repair', name_id: 'Perbaikan Pipa' },
-      { name: 'Установка водонагревателя', slug: 'water-heater', price_from: '200K Rp', count: 200, name_en: 'Water Heater Installation', name_id: 'Pemasangan Pemanas Air' },
+    'plumbing': [
+      { name: 'Fixture Installation', slug: 'install', price_from: '100K Rp', count: 500 },
+      { name: 'Pipe Replacement', slug: 'pipes', price_from: '50K Rp/m', count: 400 },
+      { name: 'Pipe Repair', slug: 'repair', price_from: '80K Rp', count: 350 },
+      { name: 'Water Heater Installation', slug: 'water-heater', price_from: '200K Rp', count: 200 },
     ],
-    'otdelka': [
-      { name: 'Поклейка обоев', slug: 'wallpaper', price_from: '15K Rp/m²', count: 600, name_en: 'Wallpaper Hanging', name_id: 'Pemasangan Wallpaper' },
-      { name: 'Покраска стен', slug: 'painting', price_from: '10K Rp/m²', count: 500, name_en: 'Wall Painting', name_id: 'Pengecatan Dinding' },
-      { name: 'Укладка плитки', slug: 'tiles', price_from: '80K Rp/m²', count: 800, name_en: 'Tile Laying', name_id: 'Pemasangan Ubin' },
-      { name: 'Натяжные потолки', slug: 'ceilings', price_from: '50K Rp/m²', count: 400, name_en: 'Stretch Ceilings', name_id: 'Plafon Stretch' },
+    'finishing': [
+      { name: 'Wallpaper Hanging', slug: 'wallpaper', price_from: '15K Rp/m²', count: 600 },
+      { name: 'Wall Painting', slug: 'painting', price_from: '10K Rp/m²', count: 500 },
+      { name: 'Tile Laying', slug: 'tiles', price_from: '80K Rp/m²', count: 800 },
+      { name: 'Stretch Ceilings', slug: 'ceilings', price_from: '50K Rp/m²', count: 400 },
     ],
-    'stroitelstvo': [
-      { name: 'Каркасные дома', slug: 'frame', price_from: '1,500K Rp/m²', count: 200, name_en: 'Frame Houses', name_id: 'Rumah Bingkai' },
-      { name: 'Кирпичные дома', slug: 'brick', price_from: '2,500K Rp/m²', count: 150, name_en: 'Brick Houses', name_id: 'Rumah Bata' },
-      { name: 'Дома из блоков', slug: 'blocks', price_from: '2,000K Rp/m²', count: 250, name_en: 'Block Houses', name_id: 'Rumah Blok' },
-      { name: 'Бани и сауны', slug: 'saunas', price_from: '1,200K Rp/m²', count: 180, name_en: 'Baths & Saunas', name_id: 'Mandi & Sauna' },
+    'construction': [
+      { name: 'Frame Houses', slug: 'frame', price_from: '1,500K Rp/m²', count: 200 },
+      { name: 'Brick Houses', slug: 'brick', price_from: '2,500K Rp/m²', count: 150 },
+      { name: 'Block Houses', slug: 'blocks', price_from: '2,000K Rp/m²', count: 250 },
+      { name: 'Baths & Saunas', slug: 'saunas', price_from: '1,200K Rp/m²', count: 180 },
     ],
-    'krovlya': [
-      { name: 'Монтаж кровли', slug: 'install', price_from: '200K Rp/m²', count: 300, name_en: 'Roof Installation', name_id: 'Pemasangan Atap' },
-      { name: 'Ремонт кровли', slug: 'repair', price_from: '100K Rp/m²', count: 200, name_en: 'Roof Repair', name_id: 'Perbaikan Atap' },
-      { name: 'Утепление', slug: 'insulation', price_from: '50K Rp/m²', count: 150, name_en: 'Insulation', name_id: 'Insulasi' },
-      { name: 'Водосточные системы', slug: 'drainage', price_from: '80K Rp/m', count: 100, name_en: 'Drainage Systems', name_id: 'Sistem Drainase' },
+    'roofing': [
+      { name: 'Roof Installation', slug: 'install', price_from: '200K Rp/m²', count: 300 },
+      { name: 'Roof Repair', slug: 'repair', price_from: '100K Rp/m²', count: 200 },
+      { name: 'Insulation', slug: 'insulation', price_from: '50K Rp/m²', count: 150 },
+      { name: 'Drainage Systems', slug: 'roofing-drainage', price_from: '80K Rp/m', count: 100 },
     ],
-    'fasad': [
-      { name: 'Штукатурка фасада', slug: 'plaster', price_from: '100K Rp/m²', count: 200, name_en: 'Facade Plastering', name_id: 'Plester Fasad' },
-      { name: 'Сайдинг', slug: 'siding', price_from: '150K Rp/m²', count: 150, name_en: 'Siding', name_id: 'Siding' },
-      { name: 'Утепление', slug: 'insulation', price_from: '120K Rp/m²', count: 180, name_en: 'Insulation', name_id: 'Insulasi' },
-      { name: 'Облицовка камнем', slug: 'stone', price_from: '250K Rp/m²', count: 100, name_en: 'Stone Cladding', name_id: 'Cladding Batu' },
+    'facade': [
+      { name: 'Facade Plastering', slug: 'plaster', price_from: '100K Rp/m²', count: 200 },
+      { name: 'Siding', slug: 'siding', price_from: '150K Rp/m²', count: 150 },
+      { name: 'Insulation', slug: 'insulation', price_from: '120K Rp/m²', count: 180 },
+      { name: 'Stone Cladding', slug: 'stone', price_from: '250K Rp/m²', count: 100 },
     ],
-    'landshaft': [
-      { name: 'Установка заборов', slug: 'fences', price_from: '120K Rp/m', count: 150, name_en: 'Fence Installation', name_id: 'Pemasangan Pagar' },
-      { name: 'Мощение дорожек', slug: 'paths', price_from: '80K Rp/m²', count: 120, name_en: 'Path Paving', name_id: 'Pengerasan Jalan' },
-      { name: 'Озеленение', slug: 'greening', price_from: '50K Rp/m²', count: 80, name_en: 'Gardening', name_id: 'Pertamanan' },
-      { name: 'Дренажные системы', slug: 'drainage', price_from: '100K Rp/m', count: 60, name_en: 'Drainage Systems', name_id: 'Sistem Drainase' },
+    'landscaping': [
+      { name: 'Fence Installation', slug: 'fences', price_from: '120K Rp/m', count: 150 },
+      { name: 'Path Paving', slug: 'paths', price_from: '80K Rp/m²', count: 120 },
+      { name: 'Gardening', slug: 'greening', price_from: '50K Rp/m²', count: 80 },
+      { name: 'Drainage Systems', slug: 'landscaping-drainage', price_from: '100K Rp/m', count: 60 },
     ],
-    'demontazh': [
-      { name: 'Демонтаж стен', slug: 'walls', price_from: '50K Rp/m²', count: 200, name_en: 'Wall Demolition', name_id: 'Pembongkaran Dinding' },
-      { name: 'Демонтаж пола', slug: 'floor', price_from: '30K Rp/m²', count: 150, name_en: 'Floor Demolition', name_id: 'Pembongkaran Lantai' },
-      { name: 'Вывоз мусора', slug: 'disposal', price_from: '300K Rp/load', count: 300, name_en: 'Waste Removal', name_id: 'Pembuangan Sampah' },
-      { name: 'Снос зданий', slug: 'buildings', price_from: 'from 5M Rp', count: 50, name_en: 'Building Demolition', name_id: 'Pembongkaran Bangunan' },
+    'demolition': [
+      { name: 'Wall Demolition', slug: 'walls', price_from: '50K Rp/m²', count: 200 },
+      { name: 'Floor Demolition', slug: 'floor', price_from: '30K Rp/m²', count: 150 },
+      { name: 'Waste Removal', slug: 'disposal', price_from: '300K Rp/load', count: 300 },
+      { name: 'Building Demolition', slug: 'buildings', price_from: 'from 5M Rp', count: 50 },
+    ],
+    'general-contractor': [
+      { name: 'Design & Build', slug: 'design-build', price_from: '2,000K Rp/m²', count: 150 },
+      { name: 'General Contracting', slug: 'general-contracting', price_from: '1,800K Rp/m²', count: 200 },
+      { name: 'Project Management', slug: 'project-management', price_from: '10% project cost', count: 100 },
+      { name: 'Turnkey Construction', slug: 'turnkey-construction', price_from: '2,500K Rp/m²', count: 120 },
+    ],
+    'construction-company': [
+      { name: 'Commercial Construction', slug: 'commercial', price_from: '3,000K Rp/m²', count: 80 },
+      { name: 'Industrial Construction', slug: 'industrial', price_from: '3,500K Rp/m²', count: 60 },
+      { name: 'High-Rise Construction', slug: 'high-rise', price_from: '4,000K Rp/m²', count: 40 },
+      { name: 'Renovation & Retrofit', slug: 'renovation-retrofit', price_from: '1,500K Rp/m²', count: 100 },
+    ],
+    'civil-engineering': [
+      { name: 'Road Construction', slug: 'roads', price_from: '500K Rp/m²', count: 100 },
+      { name: 'Bridge Construction', slug: 'bridges', price_from: 'from 10M Rp', count: 30 },
+      { name: 'Drainage & Sewerage', slug: 'drainage', price_from: '200K Rp/m', count: 80 },
+      { name: 'Earthworks & Grading', slug: 'earthworks', price_from: '150K Rp/m³', count: 120 },
+      { name: 'Piling & Foundation', slug: 'piling', price_from: '500K Rp/pile', count: 70 },
+    ],
+    'steel-structure': [
+      { name: 'Structural Steel Fabrication', slug: 'fabrication', price_from: '200K Rp/kg', count: 80 },
+      { name: 'Precast Concrete', slug: 'precast', price_from: '1,000K Rp/m³', count: 60 },
+      { name: 'Industrial Steel Buildings', slug: 'industrial-buildings', price_from: '1,500K Rp/m²', count: 50 },
+      { name: 'Metal Roofing & Cladding', slug: 'metal-roofing', price_from: '180K Rp/m²', count: 70 },
+    ],
+    'interior-renovation': [
+      { name: 'Office Fit-Out', slug: 'office-fitout', price_from: '800K Rp/m²', count: 200 },
+      { name: 'Retail & Shop Renovation', slug: 'retail-renovation', price_from: '1,000K Rp/m²', count: 150 },
+      { name: 'Hotel & Hospitality', slug: 'hospitality', price_from: '1,500K Rp/m²', count: 80 },
+      { name: 'Restaurant & F&B', slug: 'restaurant', price_from: '1,200K Rp/m²', count: 100 },
+    ],
+    'mep-systems': [
+      { name: 'HVAC Installation', slug: 'hvac', price_from: '300K Rp/m²', count: 150 },
+      { name: 'Electrical Systems', slug: 'electrical-systems', price_from: '200K Rp/m²', count: 200 },
+      { name: 'Plumbing Systems', slug: 'plumbing-systems', price_from: '150K Rp/m²', count: 180 },
+      { name: 'Fire Protection', slug: 'fire-protection', price_from: '100K Rp/m²', count: 80 },
+      { name: 'Building Automation', slug: 'building-automation', price_from: '150K Rp/m²', count: 50 },
+    ],
+    'waterproofing': [
+      { name: 'Roof Waterproofing', slug: 'roof-waterproofing', price_from: '80K Rp/m²', count: 200 },
+      { name: 'Basement Waterproofing', slug: 'basement-waterproofing', price_from: '150K Rp/m²', count: 100 },
+      { name: 'Bathroom Waterproofing', slug: 'bathroom-waterproofing', price_from: '100K Rp/m²', count: 300 },
+      { name: 'Balcony & Deck Waterproofing', slug: 'balcony-waterproofing', price_from: '90K Rp/m²', count: 120 },
     ],
   };
 
   for (const cat of categories) {
-    const result = insertCat.run(cat.name, cat.slug, cat.description, cat.icon, cat.name_en, cat.name_id, cat.description_en, cat.description_id);
+    const result = insertCat.run(cat.name, cat.slug, cat.description, cat.icon);
     const catId = result.lastInsertRowid as number;
     const subs = subcategories[cat.slug] || [];
     for (const sub of subs) {
-      insertSub.run(catId, sub.name, sub.slug, sub.price_from, 0, sub.name_en, sub.name_id);
+      insertSub.run(catId, sub.name, sub.slug, sub.price_from, 0);
     }
   }
   console.log('✅ Categories seeded');
@@ -375,12 +543,12 @@ function seedMockData(): void {
   console.log('Seeding mock data...');
 
   const projects = [
-    { title: 'Bathroom Renovation', description: 'Full bathroom renovation 4m²', category: 'remont-kvartir', contact_name: 'John Doe', contact_phone: '+62812****4567', status: 'pending' },
-    { title: 'Wiring Replacement', description: '2-room apartment', category: 'elektromontazh', contact_name: 'Jane Smith', contact_phone: '+62812****5678', status: 'active' },
-    { title: 'Stretch Ceiling', description: 'Living room 20m², matte white', category: 'otdelka', contact_name: 'Alex Brown', contact_phone: '+62812****6789', status: 'completed' },
-    { title: 'Sauna Construction', description: 'Sauna 6x4m from timber', category: 'stroitelstvo', contact_name: 'David Wilson', contact_phone: '+62812****7890', status: 'pending' },
-    { title: 'Paving Stones', description: 'Yard 50m²', category: 'landshaft', contact_name: 'Sarah Lee', contact_phone: '+62812****8901', status: 'active' },
-    { title: 'Roof Installation', description: 'Metal tiles 120m²', category: 'krovlya', contact_name: 'Mike Johnson', contact_phone: '+62812****9012', status: 'completed' },
+    { title: 'Bathroom Renovation', description: 'Full bathroom renovation 4m²', category: 'apartment-renovation', contact_name: 'John Doe', contact_phone: '+62812****4567', status: 'pending' },
+    { title: 'Wiring Replacement', description: '2-room apartment', category: 'electrical-work', contact_name: 'Jane Smith', contact_phone: '+62812****5678', status: 'active' },
+    { title: 'Stretch Ceiling', description: 'Living room 20m², matte white', category: 'finishing', contact_name: 'Alex Brown', contact_phone: '+62812****6789', status: 'completed' },
+    { title: 'Sauna Construction', description: 'Sauna 6x4m from timber', category: 'construction', contact_name: 'David Wilson', contact_phone: '+62812****7890', status: 'pending' },
+    { title: 'Paving Stones', description: 'Yard 50m²', category: 'landscaping', contact_name: 'Sarah Lee', contact_phone: '+62812****8901', status: 'active' },
+    { title: 'Roof Installation', description: 'Metal tiles 120m²', category: 'roofing', contact_name: 'Mike Johnson', contact_phone: '+62812****9012', status: 'completed' },
   ];
 
   const insertProject = db.prepare('INSERT INTO projects (title, description, category, contact_name, contact_phone, status) VALUES (?, ?, ?, ?, ?, ?)');

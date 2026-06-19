@@ -15,59 +15,55 @@
 
       <!-- Tab: Sitemap -->
       <div id="panel-sitemap" class="block">
-        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-            <h3 class="font-semibold"><%= typeof t !== 'undefined' ? t('admin.sitemapTitle') : 'Site Structure Diagram' %></h3>
-            <div class="flex gap-2">
-              <button onclick="openSitemapFull()" class="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition"><%= typeof t !== 'undefined' ? t('admin.openFull') : 'Open Full' %></button>
-              <button onclick="refreshSitemap()" class="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition"><%= typeof t !== 'undefined' ? t('admin.refresh') : 'Refresh' %></button>
-            </div>
-          </div>
-          <div id="sitemap-container" class="p-4 min-h-[400px] flex items-center justify-center text-gray-400">
-            <div class="text-center">
-              <svg class="w-10 h-10 mx-auto mb-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-              <p><%= typeof t !== 'undefined' ? t('admin.loading') : 'Loading diagram...' %></p>
-            </div>
-          </div>
-        </div>
+        <%- include('../partials/_admin_chart_card', {
+          cardId: 'sitemap-card',
+          chartId: 'sitemap-container',
+          loadingId: '',
+          title: typeof t !== 'undefined' ? t('admin.sitemapTitle') : 'Site Structure Diagram',
+          desc: ''
+        }) %>
         <p class="text-xs text-gray-400 mt-2"><%= typeof t !== 'undefined' ? t('admin.sitemapAutoNote') : 'Auto-generated from routes. Run npm run generate-sitemap to update.' %></p>
       </div>
 
       <!-- Tab: Charts -->
-      <div id="panel-charts" class="hidden overflow-hidden">
-        <!-- Category Distribution -->
+      <div id="panel-charts" class="hidden">
+        <!-- Category Distribution + User Distribution (grid) -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 overflow-hidden">
-            <h3 class="font-semibold mb-4"><%= typeof t !== 'undefined' ? t('admin.categoryDistribution') : 'Projects by Category' %></h3>
-            <canvas id="categoryChart" class="w-full h-64 max-h-64"></canvas>
-          </div>
-
-          <!-- User Base Distribution -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 overflow-hidden">
-            <h3 class="font-semibold mb-4"><%= typeof t !== 'undefined' ? t('admin.userDistribution') : 'User Base Distribution' %></h3>
-            <canvas id="userChart" class="w-full h-64 max-h-64"></canvas>
-          </div>
+          <%- include('../partials/_admin_chart_card', {
+            cardId: 'category-card',
+            chartId: 'categoryChart',
+            loadingId: 'cat-loading',
+            title: typeof t !== 'undefined' ? t('admin.categoryDistribution') : 'Projects by Category',
+            chartType: 'canvas'
+          }) %>
+          <%- include('../partials/_admin_chart_card', {
+            cardId: 'user-card',
+            chartId: 'userChart',
+            loadingId: 'user-loading',
+            title: typeof t !== 'undefined' ? t('admin.userDistribution') : 'User Base Distribution',
+            chartType: 'canvas'
+          }) %>
         </div>
 
         <!-- Sankey Diagram -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 mb-6 overflow-hidden">
-          <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-            <h3 class="font-semibold"><%= typeof t !== 'undefined' ? t('admin.projectFlow') : 'Project Flow (Sankey Diagram)' %></h3>
-          </div>
-          <div id="sankey-chart" class="w-full h-[400px] max-h-[400px] p-4"></div>
-        </div>
+        <%- include('../partials/_admin_chart_card', {
+          cardId: 'sankey-card',
+          chartId: 'sankey-chart',
+          loadingId: 'sankey-loading',
+          title: typeof t !== 'undefined' ? t('admin.projectFlow') : 'Project Flow (Sankey Diagram)',
+          desc: typeof t !== 'undefined' ? t('admin.sankeyDesc') : ''
+        }) %>
 
         <!-- Map Chart -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-            <h3 class="font-semibold"><%= typeof t !== 'undefined' ? t('admin.geoDistribution') : 'Geographic Distribution' %></h3>
-          </div>
-          <div id="map-chart" class="w-full h-[450px] max-h-[450px] p-4"></div>
-        </div>
+        <%- include('../partials/_admin_chart_card', {
+          cardId: 'map-card',
+          chartId: 'map-chart',
+          loadingId: 'map-loading',
+          title: typeof t !== 'undefined' ? t('admin.geoDistribution') : 'Geographic Distribution',
+          desc: typeof t !== 'undefined' ? t('admin.geoDesc') : ''
+        }) %>
       </div>
       <!-- End Charts Tab -->
-    </main>
-  </div>
 
   <!-- Sitemap Fullscreen Modal -->
   <div id="sitemap-modal" class="fixed inset-0 z-50 hidden bg-black/80 flex items-center justify-center p-4">
@@ -90,6 +86,7 @@
   <%- include('../partials/_admin_sankey') %>
   <%- include('../partials/_admin_map') %>
 
+  <%- include('../partials/_chart-expand') %>
   <script>
 <%
   // Pre-compute translations for JS
@@ -116,18 +113,19 @@
       const container = target || document.getElementById('sitemap-container');
       if (!container) return;
       const isModal = container.id === 'sitemap-modal-content';
-      container.innerHTML = '<div class="text-center py-8 text-gray-400"><svg class="w-10 h-10 mx-auto mb-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg><p>Loading...</p></div>';
+      container.innerHTML = '<div class="flex items-center justify-center w-full h-full min-h-[200px] text-gray-400"><div class="text-center"><svg class="w-10 h-10 mx-auto mb-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg><p>' + '<%= typeof t !== 'undefined' ? t('common.loading') : 'Loading...' %>' + '</p></div></div>';
       fetch('/static/docs/sitemap.html')
         .then(r => r.text())
         .then(html => {
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, 'text/html');
-          const mermaidEl = doc.querySelector('.mermaid');
-          if (mermaidEl) {
-            container.innerHTML = '<div class="mermaid" style="background:transparent;text-align:center;">' + mermaidEl.textContent + '</div>';
-            if (window.mermaid) mermaid.run({ nodes: [container.querySelector('.mermaid')] });
+          const dataEl = doc.getElementById('sitemap-data');
+          if (dataEl) {
+            const data = JSON.parse(dataEl.textContent);
+            container.innerHTML = '';
+            renderSitemapTree(container, data);
           } else {
-            container.innerHTML = '<p class="text-gray-400">No diagram content found. Run <code>npm run generate-sitemap</code>.</p>';
+            container.innerHTML = '<p class="text-gray-400">' + '<%= typeof t !== 'undefined' ? t('admin.noSitemap') : 'No sitemap data found. Run' %>' + ' <code>npm run generate-sitemap</code>.</p>';
           }
         })
         .catch(err => {
@@ -135,8 +133,152 @@
         });
     }
 
-    function refreshSitemap() {
-      loadSitemap(document.getElementById('sitemap-container'));
+    function renderSitemapTree(container, data) {
+      container.style.overflow = '';
+      container.style.overflowX = '';
+      container.style.touchAction = '';
+      container.style.minHeight = '200px';
+      container.innerHTML = '';
+      container.style.display = 'flex';
+      container.style.alignItems = 'center';
+      container.style.justifyContent = 'center';
+
+      const color = d3.scaleOrdinal()
+        .domain(['root','admin','auth','account','payments','public'])
+        .range(['#ea580c','#2563eb','#7c3aed','#059669','#d97706','#6b7280']);
+
+      const svg = d3.select(container).append('svg')
+        .style('display', 'block')
+        .style('width', '100%')
+        .style('height', '100%')
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .attr('viewBox', '0 0 1000 400');
+      const g = svg.append('g');
+
+      const nodeSepY = 22, nodeSepX = 140;
+      let zoomStack = [];
+      let isLoading = false;
+
+      function isEmpty(node) { return !node.children || node.children.length === 0; }
+
+      function draw(node) {
+        isLoading = true;
+        g.selectAll('*').remove();
+
+        const root = d3.hierarchy(node.data);
+        if (!root.children) { isLoading = false; return; }
+
+        const treeLayout = d3.tree().nodeSize([nodeSepY, nodeSepX]).separation(() => 1);
+        treeLayout(root);
+
+        // Only 2 levels
+        const visibleNodes = root.descendants().filter(d => d.depth <= 1);
+        const visibleLinks = root.links().filter(l => l.target.depth <= 1);
+
+        // Compute bounds with room for labels
+        let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+        visibleNodes.forEach(d => {
+          const leftW = d.depth === 0 ? d.data.name.length * 10 + 20 : 0;
+          const rightW = d.depth > 0 ? d.data.name.length * 8 + 30 : 0;
+          if (d.y - leftW - 16 < x0) x0 = d.y - leftW - 16;
+          if (d.y + rightW + 16 > x1) x1 = d.y + rightW + 16;
+          if (d.x < y0) y0 = d.x;
+          if (d.x > y1) y1 = d.x;
+        });
+
+        // Center tree within the fixed 1000×400 viewBox
+        const padY = 30;
+        const treeCx = (x0 + x1) / 2;
+        const treeCy = (y0 + y1) / 2;
+        g.attr('transform', 'translate(' + (500 - treeCx) + ',' + (200 - treeCy) + ')');
+
+        // Links
+        const linkGen = d3.linkHorizontal().x(d => d[0]).y(d => d[1]);
+        g.selectAll('path')
+          .data(visibleLinks)
+          .join('path')
+          .attr('fill', 'none')
+          .attr('stroke', '#d1d5db')
+          .attr('stroke-opacity', 0.5)
+          .attr('stroke-width', 1.5)
+          .attr('d', d => linkGen({ source: [d.source.y, d.source.x], target: [d.target.y, d.target.x] }));
+
+        // Nodes
+        const nodeG = g.selectAll('g')
+          .data(visibleNodes)
+          .join('g')
+          .attr('class', d => 'node-group' + (isEmpty(d.data) ? ' nodrill' : ''));
+
+        // Circle
+        nodeG.append('circle')
+          .attr('cx', d => d.y)
+          .attr('cy', d => d.x)
+          .attr('r', d => d.data.leaf ? 4 : 6)
+          .attr('fill', d => color(d.data.category || 'public'))
+          .attr('stroke', d => d3.color(color(d.data.category || 'public')).darker(0.4))
+          .attr('stroke-width', 1.5);
+
+        // Label — parent LEFT, children RIGHT
+        nodeG.append('text')
+          .attr('text-anchor', d => d.depth === 0 ? 'end' : 'start')
+          .attr('x', d => d.depth === 0 ? d.y - 14 : d.y + 14)
+          .attr('y', d => d.x + 5)
+          .attr('font-size', d => d.depth === 0 ? '17px' : (d.data.leaf ? '12px' : '14px'))
+          .attr('font-weight', d => d.depth === 0 ? '700' : '500')
+          .attr('fill', d => {
+            if (d.depth === 0) return '#ea580c';
+            const isDark = container.closest('.dark');
+            return isDark ? '#e2e8f0' : '#1f2937';
+          })
+          .text(d => {
+            if (d.depth === 0) return d.data.name;
+            let icon = d.data.leaf ? '📄' : '📁';
+            return icon + ' ' + d.data.name;
+          });
+
+        // Child count
+        nodeG.filter(d => !isEmpty(d.data) && d.depth > 0).append('text')
+          .attr('text-anchor', 'start')
+          .attr('x', d => d.y + 14)
+          .attr('y', d => d.x + 19)
+          .attr('font-size', '10px')
+          .attr('fill', '#9ca3af')
+          .text(d => {
+            const count = d.data.children ? d.data.children.length : 0;
+            return count > 0 ? count + ' page' + (count > 1 ? 's' : '') : '';
+          });
+
+        // Click handler
+        nodeG.filter(d => !isEmpty(d.data))
+          .style('cursor', 'pointer')
+          .on('click', function(event, d) {
+            if (isLoading) return;
+            event.stopPropagation();
+            zoomTo(d);
+          });
+
+        nodeG.filter(d => isEmpty(d.data))
+          .style('cursor', 'default');
+
+        isLoading = false;
+      }
+
+      function zoomTo(node) {
+        zoomStack.push(node);
+        draw(node);
+      }
+
+      // Click on container background (outside nodes) → zoom out
+      container.addEventListener('click', function(event) {
+        if (zoomStack.length > 1) {
+          zoomStack.pop();
+          draw(zoomStack[zoomStack.length - 1]);
+        }
+      });
+
+      // Init
+      zoomStack = [d3.hierarchy(data)];
+      draw(zoomStack[0]);
     }
 
     function openSitemapFull() {
@@ -187,6 +329,8 @@
           }
         });
       }
+      var catLoading = document.getElementById('cat-loading');
+      if (catLoading) catLoading.style.display = 'none';
 
       // User Distribution Chart
       const userCtx = document.getElementById('userChart')?.getContext('2d');
@@ -215,12 +359,13 @@
           }
         });
       }
+      var userLoading = document.getElementById('user-loading');
+      if (userLoading) userLoading.style.display = 'none';
 
       // ── Sankey & Map via shared partials ──────────────────────────────────
-      renderSankey('sankey-chart', '/api/admin/sankey-category-status', {
-        typeColors: {
-          category: '#f97316', status: '#3b82f6'
-        }
+      renderSankey('sankey-chart', '/api/admin/sankey', {
+        columnLabels: ['<%= t("admin.clients") %>', '<%= t("admin.projects") %>', '<%= t("admin.contractorsLabel") %>'],
+        legendItems: [['client', '<%= t("admin.clients") %>'], ['project', '<%= t("admin.projects") %>'], ['contractor', '<%= t("admin.contractorsLabel") %>']]
       });
       renderMap('map-chart');
     });

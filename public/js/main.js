@@ -1,6 +1,11 @@
 // Kontraktor Main Client-Side JavaScript
 // Completely crash-proof, HTMX-compatible, and CSP-compliant.
 
+// HTMX: Enable credentials (cookies) for AJAX requests
+if (typeof htmx !== 'undefined') {
+  htmx.config.withCredentials = true;
+}
+
 (() => {
   function init() {
     // 1. Mobile Menu Toggling via Event Delegation on Document

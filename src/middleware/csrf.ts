@@ -17,7 +17,7 @@ declare global {
  */
 export function csrfMiddleware(req: Request, res: Response, next: NextFunction) {
   // Exclude external webhooks from CSRF checks
-  if (req.path === '/payments/webhook') {
+  if (req.path === '/api/payments/webhook') {
     return next();
   }
 

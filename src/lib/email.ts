@@ -1,3 +1,4 @@
+import { enqueueEmail } from './email-queue';
 import * as nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
@@ -15,15 +16,34 @@ const transporter = nodemailer.createTransport({
 const fromEmail = process.env.SMTP_FROM || 'noreply@kontraktor.id';
 const baseUrl = process.env.BASE_URL || 'http://localhost:3002';
 const isDev = process.env.NODE_ENV !== 'production';
+const ADMIN_BCC = process.env.ADMIN_BCC || 'pulauberapi@gmail.com';
 
-export function sendMail(to: string, subject: string, html: string, replyTo?: string, replyName?: string): Promise<void> {
+/**
+ * Queue an email for sending via the background processor.
+ * Returns immediately — the processor handles SMTP rate limits & daily quota.
+ * Also logs to email_log when actually sent (handled by email-queue processor).
+ */
+export function sendMail(to: string, subject: string, html: string, _replyTo?: string, _replyName?: string): Promise<void> {
+  const finalSubject = isDev ? `[DEV] ${subject}` : subject;
+  enqueueEmail(to, finalSubject, html, {
+    priority: 1,
+    replyTo: _replyTo,
+    recipientName: _replyName || null,
+  });
+  return Promise.resolve();
+}
+
+/**
+ * Direct send (bypasses queue) — used only for admin test emails.
+ */
+export function sendMailDirect(to: string, subject: string, html: string): Promise<void> {
   const finalSubject = isDev ? `[DEV] ${subject}` : subject;
   return transporter.sendMail({
     from: `"Kontraktor${isDev ? ' DEV' : ''}" <${fromEmail}>`,
     to,
+    bcc: ADMIN_BCC,
     subject: finalSubject,
     html,
-    ...(replyTo ? { replyTo: `"${replyName || replyTo}" <${replyTo}>` } : {}),
   }).then(() => {});
 }
 

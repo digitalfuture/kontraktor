@@ -24,56 +24,47 @@
           </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+        <div id="paginated-list" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div class="overflow-x-auto">
             <table class="w-full table-auto">
               <thead class="bg-gray-50 dark:bg-gray-900/50">
                 <tr>
-                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 w-10"></th>
-                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3">ID</th>
-                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3"><%= t("admin.title") %></th>
-                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 hidden md:table-cell"><%= t("admin.client") %></th>
-                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 hidden lg:table-cell"><%= t("admin.phone") %></th>
-                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3"><%= t("projects.allStatuses") %></th>
-                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 hidden xl:table-cell"><%= t("admin.date") %></th>
-                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-4 sm:px-6 py-3 hidden min-[1600px]:table-cell"><%= t("admin.actions") %></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-2 sm:px-3 py-3 w-10"></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-2 sm:px-3 py-3">ID</th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-2 sm:px-3 py-3"><%= t("admin.title") %></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-2 sm:px-3 py-3 hidden md:table-cell"><%= t("admin.client") %></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-2 sm:px-3 py-3 hidden lg:table-cell"><%= t("admin.phone") %></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-2 sm:px-3 py-3"><%= t("projects.allStatuses") %></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-2 sm:px-3 py-3 hidden xl:table-cell"><%= t("admin.date") %></th>
+                  <th class="text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase px-2 sm:px-3 py-3 hidden min-[1600px]:table-cell"><%= t("admin.actions") %></th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                 <% if (orders.length === 0) { %>
-                <tr><td colspan="8" class="px-4 sm:px-6 py-8 text-center text-gray-500 dark:text-gray-300"><%= t('admin.noProjects') %></td></tr>
+                <tr><td colspan="8" class="px-2 sm:px-3 py-8 text-center text-gray-500 dark:text-gray-300"><%= t('admin.noProjects') %></td></tr>
                 <% } else { %>
                 <% orders.forEach(function(o) { %>
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition expand-trigger cursor-pointer" data-row-id="o<%= o.id %>">
-                  <td class="px-4 sm:px-6 py-4 text-gray-400 dark:text-gray-500">
+                  <td class="px-2 sm:px-3 py-4 text-gray-400 dark:text-gray-500">
                     <svg class="w-4 h-4 expand-icon transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                   </td>
-                  <td class="px-4 sm:px-6 py-4 text-sm text-gray-500 dark:text-gray-300">#<%= o.id %></td>
-                  <td class="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900 dark:text-white max-w-[180px] truncate"><%= o.title %></td>
-                  <td class="px-4 sm:px-6 py-4 text-sm text-gray-600 dark:text-gray-300 hidden md:table-cell"><%= o.contact_name %></td>
-                  <td class="px-4 sm:px-6 py-4 text-sm text-gray-600 dark:text-gray-300 hidden lg:table-cell"><%= o.contact_phone %></td>
-                  <td class="px-4 sm:px-6 py-4">
+                  <td class="px-2 sm:px-3 py-4 text-sm text-gray-500 dark:text-gray-300">#<%= o.id %></td>
+                  <td class="px-2 sm:px-3 py-4 text-sm font-medium text-gray-900 dark:text-white max-w-[180px] truncate"><%= o.title %></td>
+                  <td class="px-2 sm:px-3 py-4 text-sm text-gray-600 dark:text-gray-300 hidden md:table-cell"><%= o.contact_name %></td>
+                  <td class="px-2 sm:px-3 py-4 text-sm text-gray-600 dark:text-gray-300 hidden lg:table-cell"><%= o.contact_phone %></td>
+                  <td class="px-2 sm:px-3 py-4">
                     <%- include('../partials/_status-badge', { status: o.status, type: 'project' }) %>
                   </td>
-                  <td class="px-4 sm:px-6 py-4 text-sm text-gray-500 dark:text-gray-300 hidden xl:table-cell"><%= o.created_at %></td>
-                  <td class="px-4 sm:px-6 py-4 hidden min-[1600px]:table-cell" onclick="event.stopPropagation()">
+                  <td class="px-2 sm:px-3 py-4 text-sm text-gray-500 dark:text-gray-300 hidden xl:table-cell"><%= o.created_at %></td>
+                  <td class="px-2 sm:px-3 py-4 hidden min-[1600px]:table-cell" onclick="event.stopPropagation()">
                     <div class="flex flex-col gap-1">
-                      <form action="/admin/projects/<%= o.id %>/status" method="POST" class="flex gap-1 items-center flex-nowrap whitespace-nowrap">
-                      <%- include('../partials/csrf-field') %>
-                        <select name="status" class="text-xs px-1.5 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 cursor-pointer whitespace-nowrap">
-                          <option value="pending" <%= o.status === 'pending' ? 'selected' : '' %>><%= t('admin.pending') %></option>
-                          <option value="in_progress" <%= o.status === 'in_progress' ? 'selected' : '' %>><%= t('admin.inProgress') %></option>
-                          <option value="completed" <%= o.status === 'completed' ? 'selected' : '' %>><%= t('admin.done') %></option>
-                          <option value="cancelled" <%= o.status === 'cancelled' ? 'selected' : '' %>><%= t('admin.cancelLabel') %></option>
-                        </select>
-                        <button type="submit" class="text-xs px-2.5 py-1 rounded bg-gray-100 dark:bg-gray-700 hover:bg-orange-600 dark:hover:bg-orange-600 text-gray-700 dark:text-gray-300 hover:text-white dark:hover:text-white border border-gray-300 dark:border-gray-600 hover:border-orange-500 transition cursor-pointer whitespace-nowrap">→</button>
-                      </form>
+                      <%- include('../partials/_admin-order-status', { order: o }) %>
                     </div>
                   </td>
                 </tr>
                 <!-- Expandable detail row -->
                 <tr class="expand-detail" id="detail-o<%= o.id %>" style="display:none;">
-                  <td colspan="8" class="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-orange-500">
+                  <td colspan="8" class="px-2 sm:px-3 py-4 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-orange-500">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                       <div>
                         <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-1"><%= t("admin.title") %></p>
@@ -101,31 +92,20 @@
                       </div>
                       <div class="sm:col-span-2 lg:col-span-2 border-t border-gray-200 dark:border-gray-700 pt-4 mt-2">
                         <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-2"><%= t("admin.assignContractor") %></p>
-                        <form action="/admin/projects/<%= o.id %>/assign" method="POST" class="flex gap-2 items-center flex-wrap">
+                        <form action="/api/admin/projects/<%= o.id %>/assign" method="POST" class="flex gap-2 items-center flex-wrap">
                         <%- include('../partials/csrf-field') %>
-                          <select name="contractor_id" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-orange-500 outline-none">
+                          <select name="contractor_id" data-original="" onchange="this.form.querySelector('button[type=submit]').disabled=!this.value" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-orange-500 outline-none">
                             <option value=""><%= t("admin.selectContractor") %></option>
                             <% if (typeof contractors !== 'undefined') { contractors.forEach(function(c) { %>
                             <option value="<%= c.id %>"><%= c.name %> (<%= c.email %>)</option>
                             <% }); } %>
                           </select>
-                          <button type="submit" class="px-3 py-2 text-sm rounded-lg bg-green-600 text-white hover:bg-green-700 transition font-medium"><%= t("admin.assignStart") %></button>
+                          <button type="submit" disabled class="px-3 py-2 text-sm rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-40 disabled:cursor-default disabled:hover:bg-green-600 transition font-medium"><%= t("admin.assignStart") %></button>
                         </form>
                       </div>
-                      
-                      <!-- Mobile Actions Section -->
                       <div class="min-[1600px]:hidden sm:col-span-2 lg:col-span-1 border-t border-gray-200 dark:border-gray-700 pt-4 mt-2">
-                        <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2"><%= locale === 'id' ? 'Status Proyek' : 'Project Status' %></p>
-                        <form action="/admin/projects/<%= o.id %>/status" method="POST" class="flex gap-2 items-center">
-                        <%- include('../partials/csrf-field') %>
-                          <select name="status" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-orange-500 outline-none">
-                            <option value="pending" <%= o.status === 'pending' ? 'selected' : '' %>><%= t('admin.pending') %></option>
-                            <option value="in_progress" <%= o.status === 'in_progress' ? 'selected' : '' %>><%= t('admin.inProgress') %></option>
-                            <option value="completed" <%= o.status === 'completed' ? 'selected' : '' %>><%= t('admin.done') %></option>
-                            <option value="cancelled" <%= o.status === 'cancelled' ? 'selected' : '' %>><%= t('admin.cancelLabel') %></option>
-                          </select>
-                          <button type="submit" class="px-4 py-2 text-sm rounded-lg bg-orange-700 text-white hover:bg-orange-850 transition font-medium"><%= t('admin.save') %></button>
-                        </form>
+                        <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2"><%= t('admin.projectStatus') %></p>
+                        <%- include('../partials/_admin-order-status', { order: o }) %>
                       </div>
                     </div>
                   </td>
@@ -139,7 +119,6 @@
           <!-- Pagination -->
           <%- include('_pagination', { pagination: pagination }) %>
         </div>
-      </div>
 
 <%- include('_admin-layout-close') %>
 <%- include('../partials/_expandable-rows') %>

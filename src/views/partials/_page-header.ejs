@@ -1,0 +1,61 @@
+<!-- Shared page header bar -->
+<header data-scroll-header class="sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0 transition-transform duration-300">
+  <div class="flex items-center gap-3">
+    <!-- Hamburger (mobile, below sidebar breakpoint) -->
+    <button onclick="const a=document.querySelector('aside');a.classList.toggle('-translate-x-full');a.classList.toggle('translate-x-0')"
+            class="<%= typeof sidebarBreakpoint !== 'undefined' ? sidebarBreakpoint : 'min-[1200px]' %>:hidden p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer focus:outline-none text-gray-500 dark:text-gray-400">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <div class="flex items-baseline gap-2">
+      <!-- Mobile branding (shown only below sidebar breakpoint) -->
+      <% if (typeof mobileBranding !== 'undefined' && mobileBranding) { %>
+      <a href="<%= typeof mobileBrandingLink !== 'undefined' ? mobileBrandingLink : '/' %>" class="<%= sidebarBreakpoint %>:hidden text-lg font-bold text-gray-900 dark:text-white leading-none"><%= mobileBranding %></a>
+      <% } %>
+      <!-- Desktop subtitle (shown only at/above sidebar breakpoint) -->
+      <% if (typeof desktopSubtitle !== 'undefined' && desktopSubtitle) { %>
+      <span class="hidden sm:<%= sidebarBreakpoint %>:inline text-xs text-gray-500 dark:text-gray-400 leading-none"><%= desktopSubtitle %></span>
+      <% } %>
+      <!-- Page title (always visible) -->
+      <h1 class="text-base font-bold text-gray-900 dark:text-white whitespace-nowrap"><%= typeof pageTitle !== 'undefined' ? pageTitle : '' %></h1>
+    </div>
+  </div>
+  <div class="flex items-center gap-2">
+    <%- include('_controls', { 
+      locale: typeof locale !== 'undefined' ? locale : 'en', 
+      locales: typeof locales !== 'undefined' ? locales : ['id', 'en'], 
+      controlsIdPrefix: typeof controlsIdPrefix !== 'undefined' ? controlsIdPrefix : 'page',
+      isAdmin: typeof isAdmin !== 'undefined' ? isAdmin : false,
+      extraLangParams: typeof extraLangParams !== 'undefined' ? extraLangParams : ''
+    }) %>
+    <% if (typeof showAdminLink !== 'undefined' && showAdminLink && typeof user !== 'undefined' && user && user.role === 'admin') { %>
+      <a href="/admin" class="text-xs text-orange-600 dark:text-orange-400 hover:underline whitespace-nowrap"><%= typeof t !== 'undefined' ? t('nav.admin') : 'Admin' %></a>
+    <% } %>
+    <% if (typeof showAccountLink !== 'undefined' && showAccountLink && typeof user !== 'undefined' && user) { %>
+      <a href="/account" class="text-xs text-orange-600 dark:text-orange-400 hover:underline whitespace-nowrap"><%= typeof t !== 'undefined' ? t('nav.account') : 'Account' %></a>
+    <% } %>
+  </div>
+  <!-- Tailwind safelist: min-[1200px]:hidden min-[1600px]:hidden (used dynamically via sidebarBreakpoint) -->
+  <span class="hidden min-[1200px]:hidden min-[1600px]:hidden" aria-hidden="true"></span>
+</header>
+<script>
+(function() {
+  var h = document.querySelector('[data-scroll-header]');
+  if (!h) return;
+  var last = 0, ticking = false;
+  window.addEventListener('scroll', function() {
+    if (!ticking) {
+      window.requestAnimationFrame(function() {
+        var cur = window.pageYOffset || document.documentElement.scrollTop;
+        if (cur > last && cur > 60) {
+          h.classList.add('-translate-y-full');
+        } else if (cur < last) {
+          h.classList.remove('-translate-y-full');
+        }
+        last = cur;
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+})();
+</script>

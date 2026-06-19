@@ -1,0 +1,55 @@
+<!-- Expand/Collapse Charts — shared CSS + JS -->
+<style>
+  .chart-card { transition: opacity 0.2s ease; }
+  .chart-card.expanded {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 9999 !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    background: white !important;
+  }
+  .dark .chart-card.expanded {
+    background: rgb(30 41 59) !important;
+  }
+  .chart-card.expanded > div:first-child {
+    flex-shrink: 0 !important;
+  }
+  .chart-card.expanded > div:last-child {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+  }
+</style>
+<script>
+  function toggleExpand(id) {
+    var card = document.getElementById(id);
+    if (!card) return;
+    var isExpanded = card.classList.toggle('expanded');
+    var btn = card.querySelector('.expand-btn');
+    if (btn) {
+      btn.setAttribute('title', isExpanded ? 'Collapse' : 'Expand');
+      var expandIcon = btn.querySelector('.expand-icon');
+      var collapseIcon = btn.querySelector('.collapse-icon');
+      if (expandIcon) expandIcon.classList.toggle('hidden', isExpanded);
+      if (collapseIcon) collapseIcon.classList.toggle('hidden', !isExpanded);
+    }
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        if (id === 'sankey-card') {
+          var fn = window['_renderSankey_' + (document.getElementById('sankey-chart') ? 'sankey-chart' : '')];
+          if (fn) fn();
+        }
+        if (id === 'map-card') {
+          var fn = window['_renderMap_map-chart'];
+          if (fn) fn();
+        }
+      });
+    });
+  }
+</script>

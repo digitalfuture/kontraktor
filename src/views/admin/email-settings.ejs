@@ -1,0 +1,250 @@
+<%- include('_admin-layout', { activePage: 'email-settings' }) %>
+
+<!-- Title -->
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
+  <div>
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white leading-none"><%= t('email.settings') %></h1>
+    <p class="text-gray-500 dark:text-gray-300 mt-2 text-sm sm:text-base leading-none"><%= t('email.settingsSubtitle') %></p>
+  </div>
+  <a href="/admin/email" class="text-sm text-orange-600 hover:text-orange-700 dark:text-orange-400 font-medium">&larr; <%= t('email.backToEmail') %></a>
+</div>
+
+<!-- Settings Form -->
+<div class="bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700 mb-8">
+  <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-4"><%= t('email.smtpConfig') %></h2>
+  <form hx-post="/api/admin/email/settings/update" hx-trigger="submit" hx-swap="none" class="space-y-4 max-w-lg">
+
+    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= t('email.fromName') %></label>
+      <input type="text" name="from_name" value="<%= settings.from_name || '' %>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= t('email.fromEmail') %></label>
+      <input type="email" name="from_email" value="<%= settings.from_email || '' %>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= t('email.dailyQuota') %></label>
+      <input type="number" name="daily_quota" value="<%= settings.daily_quota || '300' %>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= t('email.rateLimit') %></label>
+      <input type="number" name="rate_limit_per_minute" value="<%= settings.rate_limit_per_minute || '10' %>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= t('email.adminBcc') %></label>
+      <input type="email" name="admin_bcc" value="<%= settings.admin_bcc || '' %>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+      <p class="text-xs text-gray-400 dark:text-gray-500 mt-1"><%= t('email.adminBccHint') %></p>
+    </div>
+
+    <div class="flex gap-2">
+      <button type="submit" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm font-medium">
+        <%= t('email.saveSettings') %>
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- System Templates -->
+<div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 mb-8 overflow-hidden">
+  <div class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+    <h2 class="text-base font-semibold text-gray-900 dark:text-white"><%= t('email.systemTemplates') %></h2>
+    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1"><%= t('email.systemTemplatesHint') %></p>
+  </div>
+  <div class="divide-y divide-gray-200 dark:divide-gray-700">
+    <% var templates = [
+      { key: 'magic_link', name: t('email.templateMagicLink'), desc: t('email.templateMagicLinkDesc') },
+      { key: 'welcome', name: t('email.templateWelcome'), desc: t('email.templateWelcomeDesc') },
+      { key: 'project_assigned', name: t('email.templateProjectAssigned'), desc: t('email.templateProjectAssignedDesc') },
+      { key: 'bid_received', name: t('email.templateBidReceived'), desc: t('email.templateBidReceivedDesc') },
+      { key: 'payment_receipt', name: t('email.templatePaymentReceipt'), desc: t('email.templatePaymentReceiptDesc') },
+    ]; %>
+    <% templates.forEach(function(tmpl) { %>
+      <div class="px-4 sm:px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/30">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0 flex-1">
+            <h3 class="text-sm font-medium text-gray-900 dark:text-white"><%= tmpl.name %></h3>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5"><%= tmpl.desc %></p>
+          </div>
+          <button type="button" onclick="openTemplateEditor('<%= tmpl.key %>')" class="shrink-0 px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-orange-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition cursor-pointer">
+            <%= t('email.edit') %>
+          </button>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+</div>
+
+<!-- Modal overlay -->
+<div id="template-modal" class="fixed inset-0 z-50 hidden bg-black/40 flex items-center justify-center p-4" onclick="if(event.target===this)closeTemplateEditor()">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-full max-w-2xl max-h-[90vh] flex flex-col" onclick="event.stopPropagation()">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+      <div>
+        <h3 id="modal-title" class="text-base font-semibold text-gray-900 dark:text-white"></h3>
+        <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5"><%= t('email.templateEditorHint') %></p>
+      </div>
+      <button type="button" onclick="closeTemplateEditor()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <!-- Body -->
+    <div class="flex-1 overflow-y-auto p-5 space-y-4">
+      <input type="hidden" id="edit-key" value="">
+      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= t('email.subject') %></label>
+        <input type="text" id="edit-subject" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= t('email.bodyHtml') %></label>
+        <!-- Toolbar -->
+        <div class="flex flex-wrap items-center gap-1 mb-2 p-1.5 bg-gray-50 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <!-- Bold -->
+          <button type="button" onclick="wrapSelection('edit-body', '<b>', '</b>')" class="px-2 py-1 text-xs font-bold bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 cursor-pointer transition" title="Bold">B</button>
+          <!-- Italic -->
+          <button type="button" onclick="wrapSelection('edit-body', '<i>', '</i>')" class="px-2 py-1 text-xs italic bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 cursor-pointer transition" title="Italic">I</button>
+          <span class="w-px h-5 bg-gray-300 dark:bg-gray-600 mx-1"></span>
+          <!-- Insert Link -->
+          <button type="button" onclick="insertLink()" class="px-2 py-1 text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 cursor-pointer transition" title="Insert Link">
+            <svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+            Link
+          </button>
+          <span class="w-px h-5 bg-gray-300 dark:border-gray-600 mx-1"></span>
+          <!-- Placeholders -->
+          <span class="text-xs text-gray-400 dark:text-gray-500 mr-1"><%= t('email.insertPlaceholder') %></span>
+          <button type="button" onclick="insertAtCursor('edit-body', '{{recipient_name}}')" class="px-2 py-1 text-xs font-mono bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 cursor-pointer transition"><%= t('email.recipientName') %></button>
+          <button type="button" onclick="insertAtCursor('edit-body', '{{company_name}}')" class="px-2 py-1 text-xs font-mono bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 cursor-pointer transition"><%= t('email.companyName') %></button>
+          <button type="button" onclick="insertAtCursor('edit-body', '{{login_url}}')" class="px-2 py-1 text-xs font-mono bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 cursor-pointer transition">Login URL</button>
+          <button type="button" onclick="insertAtCursor('edit-body', '{{project_title}}')" class="px-2 py-1 text-xs font-mono bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 cursor-pointer transition">Project</button>
+          <button type="button" onclick="insertAtCursor('edit-body', '{{amount}}')" class="px-2 py-1 text-xs font-mono bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 cursor-pointer transition">Amount</button>
+        </div>
+        <textarea id="edit-body" rows="12" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none font-mono"></textarea>
+      </div>
+    </div>
+    <!-- Footer -->
+    <div class="flex items-center justify-end gap-2 px-5 py-3 border-t border-gray-200 dark:border-gray-700">
+      <button type="button" onclick="closeTemplateEditor()" class="px-3 py-1.5 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 cursor-pointer transition"><%= t('email.cancel') %></button>
+      <button type="button" onclick="saveTemplate()" class="px-4 py-1.5 text-sm bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium cursor-pointer">
+        <%= t('email.saveTemplate') %>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Link modal -->
+<div id="link-modal" class="fixed inset-0 z-[60] hidden bg-black/40 flex items-center justify-center p-4" onclick="if(event.target===this)closeLinkModal()">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-full max-w-md p-5 space-y-4" onclick="event.stopPropagation()">
+    <h3 class="text-base font-semibold text-gray-900 dark:text-white"><%= t('email.insertLink') %></h3>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= t('email.linkText') %></label>
+      <input type="text" id="link-text" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">URL</label>
+      <input type="url" id="link-url" placeholder="https://..." class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+    </div>
+    <div class="flex justify-end gap-2">
+      <button type="button" onclick="closeLinkModal()" class="px-3 py-1.5 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer transition"><%= t('email.cancel') %></button>
+      <button type="button" onclick="applyLink()" class="px-4 py-1.5 text-sm bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium cursor-pointer">
+        <%= t('email.insertLink') %>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Modal management ──
+var currentTemplates = {};
+
+function openTemplateEditor(key) {
+  document.getElementById('edit-key').value = key;
+  document.getElementById('modal-title').textContent = document.querySelector('[onclick="openTemplateEditor(\'' + key + '\')"]').closest('.px-4').querySelector('h3').textContent;
+  document.getElementById('edit-subject').value = '';
+  document.getElementById('edit-body').value = '';
+  document.getElementById('template-modal').classList.remove('hidden');
+  // Try loading from server
+  fetch('/api/admin/email/system-templates/' + key + '/preview')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d && d.subject) document.getElementById('edit-subject').value = d.subject;
+      if (d && d.body_html) document.getElementById('edit-body').value = d.body_html;
+    })
+    .catch(function() {});
+}
+
+function closeTemplateEditor() {
+  document.getElementById('template-modal').classList.add('hidden');
+}
+
+function saveTemplate() {
+  var key = document.getElementById('edit-key').value;
+  var subject = document.getElementById('edit-subject').value;
+  var body = document.getElementById('edit-body').value;
+  if (!subject || !body) {
+    showNotification('Fill in both subject and body', 'error');
+    return;
+  }
+  var csrf = document.querySelector('#template-modal input[name="_csrf"]').value;
+  var form = new FormData();
+  form.append('_csrf', csrf);
+  form.append('subject', subject);
+  form.append('body_html', body);
+
+  fetch('/api/admin/email/system-templates/' + key + '/update', { method: 'POST', body: new URLSearchParams(form) })
+    .then(function() {
+      showNotification('Template saved', 'success');
+      closeTemplateEditor();
+    })
+    .catch(function() { showNotification('Failed to save', 'error'); });
+}
+
+// ── Editor helpers ──
+function insertAtCursor(id, text) {
+  var ta = document.getElementById(id);
+  if (!ta) return;
+  var start = ta.selectionStart, end = ta.selectionEnd;
+  ta.value = ta.value.substring(0, start) + text + ta.value.substring(end);
+  ta.selectionStart = ta.selectionEnd = start + text.length;
+  ta.focus();
+}
+
+function wrapSelection(id, before, after) {
+  var ta = document.getElementById(id);
+  if (!ta) return;
+  var start = ta.selectionStart, end = ta.selectionEnd;
+  var sel = ta.value.substring(start, end);
+  ta.value = ta.value.substring(0, start) + before + sel + after + ta.value.substring(end);
+  ta.selectionStart = start;
+  ta.selectionEnd = end + before.length + after.length;
+  ta.focus();
+}
+
+// ── Link modal ──
+function insertLink() {
+  var ta = document.getElementById('edit-body');
+  if (!ta) return;
+  var sel = ta.value.substring(ta.selectionStart, ta.selectionEnd);
+  document.getElementById('link-text').value = sel || '';
+  document.getElementById('link-url').value = '';
+  document.getElementById('link-modal').classList.remove('hidden');
+  document.getElementById('link-url').focus();
+}
+
+function closeLinkModal() {
+  document.getElementById('link-modal').classList.add('hidden');
+}
+
+function applyLink() {
+  var text = document.getElementById('link-text').value || 'link';
+  var url = document.getElementById('link-url').value;
+  if (!url) { showNotification('Enter a URL', 'error'); return; }
+  var html = '<a href="' + url.replace(/&/g,'&amp;').replace(/"/g,'&quot;') + '">' + text.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</a>';
+  insertAtCursor('edit-body', html);
+  closeLinkModal();
+}
+</script>
+
+<%- include('_admin-layout-close') %>

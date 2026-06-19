@@ -1,0 +1,31 @@
+<!-- Admin Stat Card — reusable dashboard metric card -->
+<%#
+  Params:
+    href          — link target
+    titleKey     — t() key for card title
+    labelKey     — t() key for subtitle
+    value        — numeric value
+    badge        — optional badge text (set to '' or omit for no badge)
+    color        — accent color: 'blue' | 'orange' | 'purple' | 'yellow' | 'green' | 'red'
+%>
+<%
+  var colorMap = {
+    blue:    { hover: 'border-blue-300',        text: 'group-hover:text-blue-600',      badgeBg: 'bg-blue-100 dark:bg-blue-900/40',  badgeText: 'text-blue-700 dark:text-blue-300' },
+    orange:  { hover: 'border-orange-300',      text: 'group-hover:text-orange-600',    badgeBg: 'bg-orange-100 dark:bg-orange-900/40', badgeText: 'text-orange-700 dark:text-orange-300' },
+    purple:  { hover: 'border-purple-300',      text: 'group-hover:text-purple-600',    badgeBg: 'bg-purple-100 dark:bg-purple-900/40', badgeText: 'text-purple-700 dark:text-purple-300' },
+    yellow:  { hover: 'border-yellow-300',      text: 'group-hover:text-yellow-600',    badgeBg: 'bg-yellow-100 dark:bg-yellow-900/40', badgeText: 'text-yellow-700 dark:text-yellow-300' },
+    green:   { hover: 'border-green-300',       text: 'group-hover:text-green-600',     badgeBg: 'bg-green-100 dark:bg-green-900/40',   badgeText: 'text-green-700 dark:text-green-300' },
+    red:     { hover: 'border-red-300',         text: 'group-hover:text-red-600',       badgeBg: 'bg-red-100 dark:bg-red-900/40',       badgeText: 'text-red-700 dark:text-red-300' }
+  };
+  var c = colorMap[locals.color] || colorMap.blue;
+%>
+<a href="<%= href %>" class="block bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700 transition hover:scale-[1.02] hover:shadow-card-hover hover:border-<%= c.hover %> group">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300 <%= c.text %> transition"><%= t(titleKey) %></h3>
+    <% if (typeof badge !== 'undefined' && badge && badge !== '') { %>
+    <span class="<%= c.badgeBg %> <%= c.badgeText %> text-xs px-2 py-1 rounded-full font-medium"><%= badge %></span>
+    <% } %>
+  </div>
+  <p class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"><%= value %></p>
+  <p class="text-sm text-gray-500 dark:text-gray-300 mt-1"><%= t(labelKey) %></p>
+</a>

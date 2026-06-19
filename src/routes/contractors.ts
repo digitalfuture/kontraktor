@@ -1,16 +1,19 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
 import db from '../db';
+import * as seoLib from '../lib/seo';
 import { optionalAuth, requireAuth } from '../middleware/auth';
 import { upload, deleteFile, processAndSaveImage } from '../lib/upload';
-
-const router: express.Router = express.Router();
 
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 50;
 
+// ── Pages ──
+
+export const pageRouter: express.Router = express.Router();
+
 // Contractors list with search and filters
-router.get('/', (req: Request, res: Response): void => {
+pageRouter.get('/', (req: Request, res: Response): void => {
   const search = (req.query.search as string || '').trim();
   const specialty = (req.query.specialty as string || '').trim();
   const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
@@ -20,36 +23,39 @@ router.get('/', (req: Request, res: Response): void => {
   let sql = `
     SELECT c.*, 
       (SELECT COUNT(*) FROM reviews WHERE contractor_id = c.id AND is_approved = 1) as review_count,
-      (SELECT COALESCE(AVG(rating), 0) FROM reviews WHERE contractor_id = c.id AND is_approved = 1) as avg_rating
+      (SELECT COALESCE(AVG(rating), 0) FROM reviews WHERE contractor_id = c.id AND is_approved = 1) as avg_rating,
+      (SELECT GROUP_CONCAT(cat.name, ', ') FROM contractor_services cs JOIN categories cat ON cs.category_id = cat.id WHERE cs.contractor_id = c.id AND cs.is_active = 1) as active_services
     FROM contractors c
     WHERE c.is_active = 1
   `;
   const params: any[] = [];
 
   if (search) {
-    sql += ` AND (c.name LIKE ? OR c.bio LIKE ? OR c.specialty LIKE ?)`;
-    params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    sql += ` AND (c.name LIKE ? OR c.bio LIKE ? OR EXISTS (SELECT 1 FROM contractor_services cs JOIN categories cat ON cs.category_id = cat.id WHERE cs.contractor_id = c.id AND (cat.name LIKE ? OR cat.name_id LIKE ? OR cat.name_en LIKE ?)))`;
+    params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
   }
   if (specialty) {
-    sql += ` AND c.specialty = ?`;
+    sql += ` AND EXISTS (SELECT 1 FROM contractor_services cs WHERE cs.contractor_id = c.id AND cs.category_id = (SELECT id FROM categories WHERE slug = ?) AND cs.is_active = 1)`;
     params.push(specialty);
   }
 
   // Count total for pagination
   const countResult = db.prepare(`
-    SELECT COUNT(*) as total FROM contractors c WHERE c.is_active = 1${search ? ` AND (c.name LIKE ? OR c.bio LIKE ? OR c.specialty LIKE ?)` : ''}${specialty ? ` AND c.specialty = ?` : ''}
+    SELECT COUNT(*) as total FROM contractors c WHERE c.is_active = 1${search ? ` AND (c.name LIKE ? OR c.bio LIKE ? OR EXISTS (SELECT 1 FROM contractor_services cs JOIN categories cat ON cs.category_id = cat.id WHERE cs.contractor_id = c.id AND (cat.name LIKE ? OR cat.name_id LIKE ? OR cat.name_en LIKE ?)))` : ''}${specialty ? ` AND EXISTS (SELECT 1 FROM contractor_services cs WHERE cs.contractor_id = c.id AND cs.category_id = (SELECT id FROM categories WHERE slug = ?) AND cs.is_active = 1)` : ''}
   `).get(...params) as { total: number };
 
   sql += ` ORDER BY c.rating DESC, c.completed_projects DESC LIMIT ? OFFSET ?`;
 
   const contractors = db.prepare(sql).all(...params, limit, offset) as any[];
 
-  // Get all specialties for filter dropdown
-  const specialties = db.prepare(`SELECT DISTINCT specialty FROM contractors WHERE is_active = 1 AND specialty != '' ORDER BY specialty`).all() as any[];
+  // Get all categories for filter dropdown (used as specialties)
+  const specialties = db.prepare(`SELECT DISTINCT c.slug, c.name FROM categories c WHERE c.is_active = 1 AND EXISTS (SELECT 1 FROM contractor_services cs JOIN contractors ct ON cs.contractor_id = ct.id WHERE cs.category_id = c.id AND ct.is_active = 1) ORDER BY c.name`).all() as any[];
 
   const totalPages = Math.ceil(countResult.total / limit);
 
+  const locale = (res.locals.locale as string) || 'en';
   res.render('contractors-list', {
+    seo: seoLib.contractorsListSeo(locale as 'en' | 'id'),
     title: 'Find Contractors — Kontraktor',
     contractors,
     specialties,
@@ -67,82 +73,24 @@ router.get('/', (req: Request, res: Response): void => {
 });
 
 // Registration page
-router.get('/register', optionalAuth, (req: Request, res: Response): void => {
+pageRouter.get('/register', optionalAuth, (req: Request, res: Response): void => {
   const locale = (res.locals.locale as string) || 'en';
-  const categories = db.prepare('SELECT id, name, slug, name_en, name_id FROM categories WHERE is_active = 1 ORDER BY name').all();
+  const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
 
   res.render('contractor-register', {
+    seo: seoLib.contractorRegisterSeo(locale as 'en' | 'id'),
     title: locale === 'id' ? 'Daftar sebagai Kontraktor' : 'Register as Contractor',
     categories: categories.map((c: any) => ({
       ...c,
-      display_name: (locale === 'id' && c.name_id) ? c.name_id : (locale === 'en' && c.name_en) ? c.name_en : c.name
+      display_name: c.name
     })),
     formData: null,
     errors: null,
   });
 });
 
-// Handle registration
-router.post('/register', optionalAuth, (req: Request, res: Response): void => {
-  const locale = (res.locals.locale as string) || 'en';
-  const errors: string[] = [];
-  const formData = {
-    name: (req.body.name || '').trim(),
-    email: (req.body.email || '').trim(),
-    phone: (req.body.phone || '').trim(),
-    specialty: req.body.specialty || '',
-    experience: req.body.experience || '',
-    bio: (req.body.bio || '').trim(),
-  };
-
-  if (!formData.name) errors.push('Name is required');
-  if (!formData.email) errors.push('Email is required');
-  if (!formData.specialty) errors.push('Specialty is required');
-
-  if (errors.length > 0) {
-    const categories = db.prepare('SELECT id, name, slug, name_en, name_id FROM categories WHERE is_active = 1 ORDER BY name').all();
-    res.render('contractor-register', {
-      title: locale === 'id' ? 'Daftar sebagai Kontraktor' : 'Register as Contractor',
-      categories: categories.map((c: any) => ({
-        ...c,
-        display_name: (locale === 'id' && c.name_id) ? c.name_id : (locale === 'en' && c.name_en) ? c.name_en : c.name
-      })),
-      formData,
-      errors,
-    });
-    return;
-  }
-
-  const existing = db.prepare('SELECT id FROM contractors WHERE email = ?').get(formData.email) as any;
-  if (existing) {
-    errors.push('This email is already registered as a contractor');
-    const categories = db.prepare('SELECT id, name, slug, name_en, name_id FROM categories WHERE is_active = 1 ORDER BY name').all();
-    res.render('contractor-register', {
-      title: locale === 'id' ? 'Daftar sebagai Kontraktor' : 'Register as Contractor',
-      categories: categories.map((c: any) => ({
-        ...c,
-        display_name: (locale === 'id' && c.name_id) ? c.name_id : (locale === 'en' && c.name_en) ? c.name_en : c.name
-      })),
-      formData,
-      errors,
-    });
-    return;
-  }
-
-  const result = db.prepare(`
-    INSERT INTO contractors (email, name, phone, specialty, experience, bio, is_verified, is_active)
-    VALUES (?, ?, ?, ?, ?, ?, 0, 1)
-  `).run(formData.email, formData.name, formData.phone, formData.specialty, parseInt(formData.experience) || 0, formData.bio);
-
-  if (req.user) {
-    db.prepare("UPDATE users SET role = 'contractor' WHERE email = ?").run(req.user.email);
-  }
-
-  res.redirect(`/contractors/${result.lastInsertRowid}`);
-});
-
 // Contractor dashboard: my bids
-router.get('/dashboard', optionalAuth, (req: Request, res: Response): void => {
+pageRouter.get('/dashboard', optionalAuth, (req: Request, res: Response): void => {
   const user = (req as any).user;
   const locale = (res.locals.locale as string) || 'en';
 
@@ -160,7 +108,7 @@ router.get('/dashboard', optionalAuth, (req: Request, res: Response): void => {
   // All bids by this contractor
   const bids = db.prepare(`
     SELECT b.*, p.title as project_title, p.status as project_status, p.category,
-      p.client_email, c.name_en as category_name_en, c.name_id as category_name_id
+      p.client_email
     FROM bids b
     JOIN projects p ON b.project_id = p.id
     LEFT JOIN categories c ON p.category = c.slug
@@ -170,7 +118,7 @@ router.get('/dashboard', optionalAuth, (req: Request, res: Response): void => {
 
   // Localize category names
   bids.forEach((bid: any) => {
-    bid.category_display = (locale === 'id' && bid.category_name_id) ? bid.category_name_id : (locale === 'en' && bid.category_name_en) ? bid.category_name_en : bid.category;
+    bid.category_display = bid.category;
   });
 
   // Stats
@@ -181,12 +129,30 @@ router.get('/dashboard', optionalAuth, (req: Request, res: Response): void => {
     rejected: bids.filter((b: any) => b.status === 'rejected').length,
   };
 
+  const paidModeRow = db.prepare("SELECT value FROM settings WHERE key = 'paid_mode'").get() as any;
+  const paidMode = paidModeRow?.value === 'true';
+
+  // Load contractor services with category names
+  const services = db.prepare(`
+    SELECT cs.id, cs.is_active, cs.created_at, c.id as category_id, c.name, c.slug
+    FROM contractor_services cs
+    JOIN categories c ON cs.category_id = c.id
+    WHERE cs.contractor_id = ?
+    ORDER BY c.name
+  `).all(contractor.id) as any[];
+  services.forEach((svc: any) => {
+    svc.display_name = svc.name;
+  });
+
   res.render('contractor-dashboard', {
     title: locale === 'id' ? 'Dashboard Kontraktor' : 'Contractor Dashboard',
     contractor,
+    services,
     bids,
     stats,
     locale,
+    paidMode,
+    userCredits: contractor.credits || 0,
     success: req.query.success as string,
     error: req.query.error as string,
     photos: db.prepare('SELECT id, filename, original_name, caption, file_size, created_at FROM photos WHERE contractor_id = ? AND is_portfolio = 1 ORDER BY created_at DESC').all(contractor.id) as any[],
@@ -194,7 +160,7 @@ router.get('/dashboard', optionalAuth, (req: Request, res: Response): void => {
 });
 
 // Contractor profile page
-router.get('/:id', (req: Request, res: Response): void => {
+pageRouter.get('/:id', (req: Request, res: Response): void => {
   const id = parseInt(req.params.id as string, 10);
   if (isNaN(id)) { res.status(404).render('error', { title: 'Not Found' }); return; }
 
@@ -224,7 +190,9 @@ router.get('/:id', (req: Request, res: Response): void => {
     WHERE contractor_id = ? AND is_approved = 1
   `).get(id) as any;
 
+  const locale = (res.locals.locale as string) || 'en';
   res.render('contractor-profile', {
+    seo: seoLib.contractorProfileSeo(contractor.name, contractor.bio || '', stats?.avg_rating || null, stats?.total_reviews || 0, locale as 'en' | 'id', id),
     title: `${contractor.name} — Kontraktor`,
     contractor,
     reviews,
@@ -233,10 +201,80 @@ router.get('/:id', (req: Request, res: Response): void => {
   });
 });
 
-// === Photo Upload Routes ===
+// ── API ──
+
+export const apiRouter: express.Router = express.Router();
+
+// Handle registration
+apiRouter.post('/register', optionalAuth, (req: Request, res: Response): void => {
+  const locale = (res.locals.locale as string) || 'en';
+  const errors: string[] = [];
+  const formData = {
+    name: (req.body.name || '').trim(),
+    email: (req.body.email || '').trim(),
+    phone: (req.body.phone || '').trim(),
+    specialty: req.body.specialty || '',
+    experience: req.body.experience || '',
+    bio: (req.body.bio || '').trim(),
+  };
+
+  if (!formData.name) errors.push('Name is required');
+  if (!formData.email) errors.push('Email is required');
+  const selectedCategories = Array.isArray(formData.specialty) ? formData.specialty : (formData.specialty ? [formData.specialty] : []);
+  if (selectedCategories.length === 0) errors.push('At least one specialty/category is required');
+
+  if (errors.length > 0) {
+    const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
+    res.render('contractor-register', {
+      title: locale === 'id' ? 'Daftar sebagai Kontraktor' : 'Register as Contractor',
+      categories: categories.map((c: any) => ({
+        ...c,
+        display_name: c.name
+      })),
+      formData,
+      errors,
+    });
+    return;
+  }
+
+  const existing = db.prepare('SELECT id FROM contractors WHERE email = ?').get(formData.email) as any;
+  if (existing) {
+    errors.push('This email is already registered as a contractor');
+    const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
+    res.render('contractor-register', {
+      title: locale === 'id' ? 'Daftar sebagai Kontraktor' : 'Register as Contractor',
+      categories: categories.map((c: any) => ({
+        ...c,
+        display_name: c.name
+      })),
+      formData,
+      errors,
+    });
+    return;
+  }
+
+  const result = db.prepare(`
+    INSERT INTO contractors (email, name, phone, specialty, experience, bio, is_verified, is_active)
+    VALUES (?, ?, ?, ?, ?, ?, 0, 1)
+  `).run(formData.email, formData.name, formData.phone, selectedCategories[0] || '', parseInt(formData.experience) || 0, formData.bio);
+
+  const contractorId = result.lastInsertRowid;
+
+  // Insert into contractor_services for each selected category
+  const insertService = db.prepare('INSERT OR IGNORE INTO contractor_services (contractor_id, category_id) VALUES (?, (SELECT id FROM categories WHERE slug = ?))');
+  for (const catSlug of selectedCategories) {
+    insertService.run(contractorId, catSlug);
+  }
+
+  if (req.user) {
+    db.prepare("UPDATE users SET role = 'contractor' WHERE email = ?").run(req.user.email);
+  }
+
+  res.redirect(`/contractors/${result.lastInsertRowid}`);
+});
 
 // Upload avatar (single image)
-router.post('/dashboard/avatar', requireAuth, upload.single('avatar'), async (req: Request, res: Response): Promise<void> => {
+apiRouter.post('/dashboard/avatar', requireAuth, upload.single('avatar'), async (req: Request, res: Response): Promise<void> => {
   const user = (req as any).user;
   if (!req.file) {
     res.redirect('/contractors/dashboard?error=no_file');
@@ -266,7 +304,7 @@ router.post('/dashboard/avatar', requireAuth, upload.single('avatar'), async (re
 });
 
 // Upload portfolio photos (multiple)
-router.post('/dashboard/portfolio', requireAuth, upload.array('photos', 10), async (req: Request, res: Response): Promise<void> => {
+apiRouter.post('/dashboard/portfolio', requireAuth, upload.array('photos', 10), async (req: Request, res: Response): Promise<void> => {
   const user = (req as any).user;
   const files = req.files as Express.Multer.File[];
 
@@ -307,7 +345,7 @@ router.post('/dashboard/portfolio', requireAuth, upload.array('photos', 10), asy
 });
 
 // Delete portfolio photo
-router.post('/dashboard/photo/:photoId/delete', requireAuth, (req: Request, res: Response): void => {
+apiRouter.post('/dashboard/photo/:photoId/delete', requireAuth, (req: Request, res: Response): void => {
   const user = (req as any).user;
   const photoId = parseInt(req.params.photoId as string, 10);
 
@@ -335,10 +373,8 @@ router.post('/dashboard/photo/:photoId/delete', requireAuth, (req: Request, res:
   res.redirect('/contractors/dashboard?success=photo_deleted');
 });
 
-export default router;
-
 // Request credits (contractor requests free credits)
-router.post('/request-credits', requireAuth, (req: Request, res: Response): void => {
+apiRouter.post('/request-credits', requireAuth, (req: Request, res: Response): void => {
   const user = (req as any).user;
   
   const contractor = db.prepare('SELECT id, credits FROM contractors WHERE email = ?').get(user.email) as any;
@@ -353,3 +389,40 @@ router.post('/request-credits', requireAuth, (req: Request, res: Response): void
   res.redirect('/contractors/dashboard?success=credits_granted');
 });
 
+// Toggle contractor active/inactive status (self-service)
+apiRouter.post('/dashboard/toggle-active', requireAuth, (req: Request, res: Response): void => {
+  const user = (req as any).user;
+
+  const contractor = db.prepare('SELECT id, is_active FROM contractors WHERE email = ?').get(user.email) as any;
+  if (!contractor) {
+    res.redirect('/contractors/dashboard?error=not_contractor');
+    return;
+  }
+
+  db.prepare('UPDATE contractors SET is_active = NOT is_active WHERE id = ?').run(contractor.id);
+  res.redirect('/contractors/dashboard');
+});
+
+// Toggle individual contractor_service (self-service)
+apiRouter.post('/dashboard/services/:serviceId/toggle', requireAuth, (req: Request, res: Response): void => {
+  const user = (req as any).user;
+  const serviceId = parseInt(req.params.serviceId as string, 10);
+
+  const contractor = db.prepare('SELECT id FROM contractors WHERE email = ?').get(user.email) as any;
+  if (!contractor) {
+    res.redirect('/contractors/dashboard?error=not_contractor');
+    return;
+  }
+
+  // Ensure the service belongs to this contractor
+  const service = db.prepare('SELECT id FROM contractor_services WHERE id = ? AND contractor_id = ?').get(serviceId, contractor.id) as any;
+  if (!service) {
+    res.redirect('/contractors/dashboard?error=service_not_found');
+    return;
+  }
+
+  db.prepare('UPDATE contractor_services SET is_active = NOT is_active WHERE id = ?').run(serviceId);
+  res.redirect('/contractors/dashboard');
+});
+
+export default pageRouter;

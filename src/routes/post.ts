@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import db from '../db';
+import * as seoLib from '../lib/seo';
 import { optionalAuth } from '../middleware/auth';
 import districtsData from '../data/districts.json';
 import { getDistrictDisplay } from '../lib/districts';
@@ -7,28 +8,27 @@ import { requireAuth } from '../middleware/auth';
 import { sendNewBidNotification, sendBidAcceptedNotification } from '../lib/telegram';
 import { sendNewBidEmail, sendBidAcceptedEmail, sendProjectCompletedEmail, isEmailConfigured } from '../lib/email';
 
-const router: express.Router = express.Router();
+// ── Pages ──
 
-// === GET routes ===
+export const pageRouter: express.Router = express.Router();
 
-router.get('/', (req: Request, res: Response): void => {
+pageRouter.get('/', (req: Request, res: Response): void => {
   const locale = (res.locals.locale as string) || 'en';
-  const categories = db.prepare('SELECT id, name, slug, name_en, name_id FROM categories WHERE is_active = 1 ORDER BY name').all();
+  const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
 
   res.render('post', {
+    seo: seoLib.postProjectSeo(locale as 'en' | 'id'),
     title: locale === 'id' ? 'Pasang Proyek — Kontraktor' : 'Post a Project — Kontraktor',
     categories: categories.map((c: any) => ({
       ...c,
-      display_name: (locale === 'id' && c.name_id) ? c.name_id : (locale === 'en' && c.name_en) ? c.name_en : c.name
+      display_name: c.name
     })),
     districtsData: districtsData,
   });
 });
 
-// === EDIT ROUTES (must be before /:id) ===
-
 // Edit form (GET)
-router.get('/:id/edit', requireAuth, (req: any, res: Response): void => {
+pageRouter.get('/:id/edit', requireAuth, (req: any, res: Response): void => {
   const locale = (res.locals.locale as string) || 'en';
   const t = (res.locals.t as (key: string) => string) || ((key: string) => key);
   const id = parseInt(req.params.id, 10);
@@ -49,7 +49,7 @@ router.get('/:id/edit', requireAuth, (req: any, res: Response): void => {
     return;
   }
 
-  const categories = db.prepare('SELECT id, name, slug, name_en, name_id FROM categories WHERE is_active = 1 ORDER BY name').all();
+  const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
   project.district_display = getDistrictDisplay(project.district, locale);
 
   // Map DB fields to formData format for the template
@@ -69,7 +69,7 @@ router.get('/:id/edit', requireAuth, (req: any, res: Response): void => {
     title: locale === 'id' ? 'Edit Proyek — Kontraktor' : 'Edit Project — Kontraktor',
     categories: (categories as any[]).map((c: any) => ({
       ...c,
-      display_name: (locale === 'id' && c.name_id) ? c.name_id : (locale === 'en' && c.name_en) ? c.name_en : c.name
+      display_name: c.name
     })),
     districtsData,
     editMode: true,
@@ -78,135 +78,16 @@ router.get('/:id/edit', requireAuth, (req: any, res: Response): void => {
   });
 });
 
-// Edit form (POST)
-router.post('/:id/edit', requireAuth, (req: any, res: Response): void => {
-  const locale = (res.locals.locale as string) || 'en';
-  const t = (res.locals.t as (key: string) => string) || ((key: string) => key);
-  const id = parseInt(req.params.id, 10);
-  const user = req.user;
-
-  const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as any;
-  if (!project) { res.status(404).render('error', { title: 'Not Found', message: 'Project not found' }); return; }
-  if (project.client_email !== user.email) {
-    res.status(403).render('error', { title: 'Forbidden', message: 'You can only edit your own projects' });
-    return;
-  }
-  if (project.assigned_contractor_id) {
-    res.status(403).render('error', { title: 'Forbidden', message: t('projects.editLocked') });
-    return;
-  }
-
-  const errors: string[] = [];
-  const formData = {
-    title: (req.body.title || '').trim(),
-    description: (req.body.description || '').trim(),
-    category: req.body.category || '',
-    subcategory: req.body.subcategory || '',
-    contactName: (req.body.contactName || '').trim(),
-    contactPhone: (req.body.contactPhone || '').trim(),
-    district: (req.body.district || '').trim(),
-    district_en: (req.body.district_en || '').trim(),
-    address: (req.body.address || '').trim(),
-  };
-
-  if (!formData.title) errors.push(t('post.titleRequired'));
-  if (!formData.description) errors.push(t('post.descriptionRequired'));
-  if (!formData.category) errors.push(t('post.categoryRequired'));
-  if (!formData.contactName) errors.push(t('post.nameRequired'));
-  if (!formData.contactPhone) errors.push(t('post.phoneRequired'));
-  if (!formData.district) errors.push(t('post.districtRequired'));
-
-  if (errors.length > 0) {
-    const categories = db.prepare('SELECT id, name, slug, name_en, name_id FROM categories WHERE is_active = 1 ORDER BY name').all();
-    project.district_display = getDistrictDisplay(project.district, locale);
-    res.render('post', {
-      title: locale === 'id' ? 'Edit Proyek — Kontraktor' : 'Edit Project — Kontraktor',
-      categories: (categories as any[]).map((c: any) => ({
-        ...c,
-        display_name: (locale === 'id' && c.name_id) ? c.name_id : (locale === 'en' && c.name_en) ? c.name_en : c.name
-      })),
-      districtsData,
-      editMode: true,
-      project: { ...project, ...formData },
-      errors,
-    });
-    return;
-  }
-
-  db.prepare(`
-    UPDATE projects SET title = ?, description = ?, category = ?, subcategory = ?,
-      contact_name = ?, contact_phone = ?, district = ?, address = ?
-    WHERE id = ?
-  `).run(formData.title, formData.description, formData.category, formData.subcategory || null,
-    formData.contactName, formData.contactPhone, formData.district_en || formData.district,
-    formData.address || null, id);
-
-  res.redirect(`/post/${id}?lang=${locale}`);
-});
-
-// HTMX endpoint: get subcategories for a category (MUST be before /:id)
-router.get('/subcategories', (req: Request, res: Response): void => {
-  const locale = (res.locals.locale as string) || 'en';
-  const categorySlug = req.query.category as string;
-
-  if (!categorySlug) {
-    res.status(400).send('');
-    return;
-  }
-
-  const category = db.prepare('SELECT id FROM categories WHERE slug = ?').get(categorySlug) as { id: number } | undefined;
-  if (!category) {
-    res.status(404).send('');
-    return;
-  }
-
-  const subcategories = db.prepare('SELECT id, name, slug, name_en, name_id FROM subcategories WHERE category_id = ? ORDER BY name').all(category.id) as any[];
-
-  const t = (res.locals.t as (key: string) => string) || ((key: string) => key);
-
-  const subcategoryLabel = t('post.subcategoryLabel');
-  const selectPlaceholder = 'Select subcategory';
-
-  res.setHeader('Content-Type', 'text/html');
-  res.send(`
-    <div class="mb-6" id="subcategory-group">
-      <label for="subcategory" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">${subcategoryLabel}</label>
-      <select id="subcategory" name="subcategory" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
-        <option value="">${selectPlaceholder}</option>
-        ${subcategories.map((sub: any) => {
-          const name = (locale === 'id' && sub.name_id) ? sub.name_id : (locale === 'en' && sub.name_en) ? sub.name_en : sub.name;
-          return `<option value="${sub.slug}">${name}</option>`;
-        }).join('')}
-      </select>
-    </div>
-  `);
-});
-
-// HTMX endpoint: search district/city
-router.get('/district-search', (req: Request, res: Response): void => {
-  const q = ((req.query.q as string) || '').toLowerCase().trim();
-  if (!q || q.length < 2) { res.send(''); return; }
-
-  const results = (districtsData as any[])
-    .filter(k => k.name.toLowerCase().includes(q))
-    .slice(0, 15);
-
-  res.setHeader('Content-Type', 'text/html');
-  res.send(results.map(k =>
-    `<option value="${k.name}">${k.name}, ${k.province}</option>`
-  ).join(''));
-});
-
 // Project detail page
-router.get('/:id', optionalAuth, (req: Request, res: Response): void => {
+pageRouter.get('/:id', optionalAuth, (req: Request, res: Response): void => {
   const locale = (res.locals.locale as string) || 'en';
   const id = parseInt(req.params.id as string, 10);
   if (isNaN(id)) { res.status(404).render('error', { title: 'Not Found' }); return; }
 
   const project = db.prepare(`
     SELECT p.*, 
-      c.name_en as category_name_en, c.name_id as category_name_id, c.slug as category_slug,
-      s.name_en as subcategory_name_en, s.name_id as subcategory_name_id, s.slug as subcategory_slug,
+      c.name as category_slug,
+      s.slug as subcategory_slug,
       con.name as contractor_name, con.id as contractor_id, con.rating as contractor_rating,
       con.phone as contractor_phone, con.specialty as contractor_specialty,
       con.completed_projects as contractor_completed, con.is_verified as contractor_verified,
@@ -221,8 +102,8 @@ router.get('/:id', optionalAuth, (req: Request, res: Response): void => {
   if (!project) { res.status(404).render('error', { title: 'Not Found' }); return; }
 
   // Localize category/subcategory names
-  project.category_display = (locale === 'id' && project.category_name_id) ? project.category_name_id : (locale === 'en' && project.category_name_en) ? project.category_name_en : project.category_slug;
-  project.subcategory_display = project.subcategory_slug ? ((locale === 'id' && project.subcategory_name_id) ? project.subcategory_name_id : (locale === 'en' && project.subcategory_name_en) ? project.subcategory_name_en : project.subcategory_slug) : null;
+  project.category_display = project.category_slug;
+  project.subcategory_display = project.subcategory_slug || null;
   project.district_display = getDistrictDisplay(project.district, locale);
 
   // Get bids for this project
@@ -255,6 +136,7 @@ router.get('/:id', optionalAuth, (req: Request, res: Response): void => {
   let hasBid = false;
   let isContractor = false;
   let userCredits = 0;
+  let paidMode = false;
   if ((req as any).user) {
     const contractor = db.prepare('SELECT id, credits FROM contractors WHERE email = ?').get((req as any).user.email) as any;
     if (contractor) {
@@ -263,24 +145,153 @@ router.get('/:id', optionalAuth, (req: Request, res: Response): void => {
       hasBid = !!db.prepare('SELECT id FROM bids WHERE project_id = ? AND contractor_id = ?').get(id, contractor.id) as any;
     }
   }
+  const paidModeRow = db.prepare("SELECT value FROM settings WHERE key = 'paid_mode'").get() as any;
+  paidMode = paidModeRow?.value === 'true';
 
+  const seo = seoLib.projectDetailSeo(project.title, project.description || '', project.category_display || project.category || '', project.created_at || new Date().toISOString(), locale as 'en' | 'id', id);
   res.render('project-detail', {
+    seo,
     title: `${project.title} — Kontraktor`,
     project,
     bids,
     reviews,
     locale,
     user: (req as any).user || null,
+    query: req.query,
     isOwner,
     isContractor,
     hasBid,
     userCredits,
+    paidMode,
     editable: isOwner && !project.assigned_contractor_id,
   });
 });
 
+// ── API ──
+
+export const apiRouter: express.Router = express.Router();
+
+// Edit form (POST)
+apiRouter.post('/:id/edit', requireAuth, (req: any, res: Response): void => {
+  const locale = (res.locals.locale as string) || 'en';
+  const t = (res.locals.t as (key: string) => string) || ((key: string) => key);
+  const id = parseInt(req.params.id, 10);
+  const user = req.user;
+
+  const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as any;
+  if (!project) { res.status(404).render('error', { title: 'Not Found', message: 'Project not found' }); return; }
+  if (project.client_email !== user.email) {
+    res.status(403).render('error', { title: 'Forbidden', message: 'You can only edit your own projects' });
+    return;
+  }
+  if (project.assigned_contractor_id) {
+    res.status(403).render('error', { title: 'Forbidden', message: t('projects.editLocked') });
+    return;
+  }
+
+  const errors: string[] = [];
+  const formData = {
+    title: (req.body.title || '').trim(),
+    description: (req.body.description || '').trim(),
+    category: req.body.category || '',
+    subcategory: req.body.subcategory || '',
+    contactName: (req.body.contactName || '').trim(),
+    contactPhone: (req.body.contactPhone || '').trim(),
+    district: (req.body.district || '').trim(),
+    district_en: (req.body.district_en || '').trim(),
+    address: (req.body.address || '').trim(),
+  };
+
+  if (!formData.title) errors.push(t('post.titleRequired'));
+  if (!formData.description) errors.push(t('post.descriptionRequired'));
+  if (!formData.category) errors.push(t('post.categoryRequired'));
+  if (!formData.contactName) errors.push(t('post.nameRequired'));
+  if (!formData.contactPhone) errors.push(t('post.phoneRequired'));
+  if (!formData.district) errors.push(t('post.districtRequired'));
+
+  if (errors.length > 0) {
+    const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
+    project.district_display = getDistrictDisplay(project.district, locale);
+    res.render('post', {
+      title: locale === 'id' ? 'Edit Proyek — Kontraktor' : 'Edit Project — Kontraktor',
+      categories: (categories as any[]).map((c: any) => ({
+        ...c,
+        display_name: c.name
+      })),
+      districtsData,
+      editMode: true,
+      project: { ...project, ...formData },
+      errors,
+    });
+    return;
+  }
+
+  db.prepare(`
+    UPDATE projects SET title = ?, description = ?, category = ?, subcategory = ?,
+      contact_name = ?, contact_phone = ?, district = ?, address = ?
+    WHERE id = ?
+  `).run(formData.title, formData.description, formData.category, formData.subcategory || null,
+    formData.contactName, formData.contactPhone, formData.district_en || formData.district,
+    formData.address || null, id);
+
+  res.redirect(`/post/${id}?lang=${locale}`);
+});
+
+// HTMX endpoint: get subcategories for a category
+apiRouter.get('/subcategories', (req: Request, res: Response): void => {
+  const locale = (res.locals.locale as string) || 'en';
+  const categorySlug = req.query.category as string;
+
+  if (!categorySlug) {
+    res.status(400).send('');
+    return;
+  }
+
+  const category = db.prepare('SELECT id FROM categories WHERE slug = ?').get(categorySlug) as { id: number } | undefined;
+  if (!category) {
+    res.status(404).send('');
+    return;
+  }
+
+  const subcategories = db.prepare('SELECT id, name, slug FROM subcategories WHERE category_id = ? ORDER BY name').all(category.id) as any[];
+
+  const t = (res.locals.t as (key: string) => string) || ((key: string) => key);
+
+  const subcategoryLabel = t('post.subcategoryLabel');
+  const selectPlaceholder = 'Select subcategory';
+
+  res.setHeader('Content-Type', 'text/html');
+  res.send(`
+    <div class="mb-6" id="subcategory-group">
+      <label for="subcategory" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">${subcategoryLabel}</label>
+      <select id="subcategory" name="subcategory" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+        <option value="">${selectPlaceholder}</option>
+        ${subcategories.map((sub: any) => {
+          const name = sub.name;
+          return `<option value="${sub.slug}">${name}</option>`;
+        }).join('')}
+      </select>
+    </div>
+  `);
+});
+
+// HTMX endpoint: search district/city
+apiRouter.get('/district-search', (req: Request, res: Response): void => {
+  const q = ((req.query.q as string) || '').toLowerCase().trim();
+  if (!q || q.length < 2) { res.send(''); return; }
+
+  const results = (districtsData as any[])
+    .filter(k => k.name.toLowerCase().includes(q))
+    .slice(0, 15);
+
+  res.setHeader('Content-Type', 'text/html');
+  res.send(results.map(k =>
+    `<option value="${k.name}">${k.name}, ${k.province}</option>`
+  ).join(''));
+});
+
 // HTMX endpoint: get bids list partial for real-time auto-polling (owner only)
-router.get('/:id/bids-partial', optionalAuth, (req: Request, res: Response): void => {
+apiRouter.get('/:id/bids-partial', optionalAuth, (req: Request, res: Response): void => {
   const locale = (res.locals.locale as string) || 'en';
   const id = parseInt(req.params.id as string, 10);
   if (isNaN(id)) { res.status(400).send('Invalid Project ID'); return; }
@@ -309,10 +320,8 @@ router.get('/:id/bids-partial', optionalAuth, (req: Request, res: Response): voi
   });
 });
 
-
-// === POST routes ===
-
-router.post('/', optionalAuth, (req: Request, res: Response): void => {
+// Post a new project
+apiRouter.post('/', optionalAuth, (req: Request, res: Response): void => {
   const errors: string[] = [];
   const formData = {
     title: (req.body.title || '').trim(),
@@ -337,12 +346,13 @@ router.post('/', optionalAuth, (req: Request, res: Response): void => {
   if (!formData.district) errors.push(t('post.districtRequired'));
 
   if (errors.length > 0) {
-    const categories = db.prepare('SELECT id, name, slug, name_en, name_id FROM categories WHERE is_active = 1 ORDER BY name').all();
-    res.render('post', {
-      title: locale === 'id' ? 'Pasang Proyek — Kontraktor' : 'Post a Project — Kontraktor',
+    const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
+  res.render('post', {
+    seo: seoLib.postProjectSeo(locale as 'en' | 'id'),
+    title: locale === 'id' ? 'Pasang Proyek — Kontraktor' : 'Post a Project — Kontraktor',
       categories: (categories as any[]).map((c: any) => ({
         ...c,
-        display_name: (locale === 'id' && c.name_id) ? c.name_id : (locale === 'en' && c.name_en) ? c.name_en : c.name
+        display_name: c.name
       })),
       districtsData,
       formData,
@@ -352,6 +362,35 @@ router.post('/', optionalAuth, (req: Request, res: Response): void => {
   }
 
   const clientEmail = req.user?.email || null;
+
+  // Project limit check: when free_mode is OFF, limit to 1 active project per user
+  if (clientEmail) {
+    const freeModeRow = db.prepare("SELECT value FROM settings WHERE key = 'free_mode'").get() as any;
+    const isFree = freeModeRow?.value !== 'false';
+    if (!isFree) {
+      const activeCount = db.prepare(
+        "SELECT COUNT(*) as c FROM projects WHERE client_email = ? AND (status = 'pending' OR status = 'active')"
+      ).get(clientEmail) as { c: number };
+      if (activeCount.c >= 1) {
+        errors.push(locale === 'id'
+          ? 'Anda sudah memiliki proyek aktif. Selesaikan proyek yang ada sebelum membuat yang baru, atau hubungi kami untuk paket yang lebih besar.'
+          : 'You already have an active project. Complete your existing project before creating a new one, or contact us for larger plans.');
+        const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
+        res.render('post', {
+          seo: seoLib.postProjectSeo(locale as 'en' | 'id'),
+          title: locale === 'id' ? 'Pasang Proyek — Kontraktor' : 'Post a Project — Kontraktor',
+          categories: (categories as any[]).map((c: any) => ({
+            ...c,
+            display_name: c.name
+          })),
+          districtsData,
+          formData,
+          errors,
+        });
+        return;
+      }
+    }
+  }
 
   db.prepare(`
     INSERT INTO projects (title, description, category, subcategory, contact_name, contact_phone, district, address, client_email, status)
@@ -367,10 +406,8 @@ router.post('/', optionalAuth, (req: Request, res: Response): void => {
   });
 });
 
-// === BID ROUTES ===
-
 // Submit a bid on a project (contractors only)
-router.post('/:projectId/bid', optionalAuth, (req: Request, res: Response): void => {
+apiRouter.post('/:projectId/bid', optionalAuth, (req: Request, res: Response): void => {
   const projectId = parseInt(req.params.projectId as string, 10);
   const user = (req as any).user;
   const locale = (res.locals.locale as string) || 'en';
@@ -381,9 +418,16 @@ router.post('/:projectId/bid', optionalAuth, (req: Request, res: Response): void
   }
 
   // Must be registered as contractor
-  const contractor = db.prepare('SELECT id FROM contractors WHERE email = ?').get(user.email) as any;
+  const contractor = db.prepare('SELECT id, is_active FROM contractors WHERE email = ?').get(user.email) as any;
   if (!contractor) {
     res.redirect('/contractors/register');
+    return;
+  }
+
+  // Must be active (not disabled services)
+  if (!contractor.is_active) {
+    const msg = locale === 'id' ? 'Layanan Anda sedang dihentikan. Aktifkan di dashboard untuk menawar.' : 'Your services are paused. Enable them in your dashboard to bid.';
+    res.redirect(`/post/${projectId}?error=${encodeURIComponent(msg)}`);
     return;
   }
 
@@ -412,26 +456,29 @@ router.post('/:projectId/bid', optionalAuth, (req: Request, res: Response): void
   }
 
   const { price, description, estimated_days } = req.body;
-  const errors: string[] = [];
+  const bidErrors: string[] = [];
 
-  if (!description || !description.trim()) errors.push(locale === 'id' ? 'Deskripsi penawaran diperlukan' : 'Bid description is required');
-  if (price && isNaN(Number(price))) errors.push(locale === 'id' ? 'Harga harus berupa angka' : 'Price must be a number');
-  if (estimated_days && isNaN(Number(estimated_days))) errors.push(locale === 'id' ? 'Estimasi hari harus berupa angka' : 'Estimated days must be a number');
+  if (!description || !description.trim()) bidErrors.push(locale === 'id' ? 'Deskripsi penawaran diperlukan' : 'Bid description is required');
+  if (price && isNaN(Number(price))) bidErrors.push(locale === 'id' ? 'Harga harus berupa angka' : 'Price must be a number');
+  if (estimated_days && isNaN(Number(estimated_days))) bidErrors.push(locale === 'id' ? 'Estimasi hari harus berupa angka' : 'Estimated days must be a number');
 
-  if (errors.length > 0) {
-    res.redirect(`/post/${projectId}?errors=${encodeURIComponent(errors.join('|'))}`);
+  if (bidErrors.length > 0) {
+    res.redirect(`/post/${projectId}?errors=${encodeURIComponent(bidErrors.join('|'))}`);
     return;
   }
 
-  // Check contractor has credits (3 free bids per month, then pay)
-  const contractorInfo = db.prepare('SELECT credits FROM contractors WHERE id = ?').get(contractor.id) as any;
-  if (contractorInfo.credits <= 0) {
-    res.redirect(`/post/${projectId}?error=no_credits`);
-    return;
-  }
+  // Credit check: if paid mode is enabled, deduct 1 credit per bid
+  const paidModeRow = db.prepare("SELECT value FROM settings WHERE key = 'paid_mode'").get() as any;
+  const isPaid = paidModeRow?.value === 'true';
 
-  // Deduct 1 credit
-  db.prepare('UPDATE contractors SET credits = credits - 1 WHERE id = ?').run(contractor.id);
+  if (isPaid) {
+    const creditRow = db.prepare('SELECT credits FROM contractors WHERE id = ?').get(contractor.id) as any;
+    if (!creditRow || (creditRow.credits || 0) < 1) {
+      res.redirect(`/post/${projectId}?error=${encodeURIComponent(locale === 'id' ? 'Kredit tidak mencukupi. Beli kredit untuk menawar.' : 'Insufficient credits. Buy credits to bid.')}`);
+      return;
+    }
+    db.prepare('UPDATE contractors SET credits = credits - 1 WHERE id = ?').run(contractor.id);
+  }
 
   db.prepare(`
     INSERT INTO bids (project_id, contractor_id, price, description, estimated_days, status)
@@ -458,7 +505,7 @@ router.post('/:projectId/bid', optionalAuth, (req: Request, res: Response): void
 });
 
 // Accept a bid (project owner only)
-router.post('/:projectId/bids/:bidId/accept', optionalAuth, (req: Request, res: Response): void => {
+apiRouter.post('/:projectId/bids/:bidId/accept', optionalAuth, (req: Request, res: Response): void => {
   const projectId = parseInt(req.params.projectId as string, 10);
   const bidId = parseInt(req.params.bidId as string, 10);
   const user = (req as any).user;
@@ -511,7 +558,7 @@ router.post('/:projectId/bids/:bidId/accept', optionalAuth, (req: Request, res: 
 });
 
 // Reject a bid (project owner only)
-router.post('/:projectId/bids/:bidId/reject', optionalAuth, (req: Request, res: Response): void => {
+apiRouter.post('/:projectId/bids/:bidId/reject', optionalAuth, (req: Request, res: Response): void => {
   const projectId = parseInt(req.params.projectId as string, 10);
   const bidId = parseInt(req.params.bidId as string, 10);
   const user = (req as any).user;
@@ -531,10 +578,8 @@ router.post('/:projectId/bids/:bidId/reject', optionalAuth, (req: Request, res: 
   res.redirect(`/post/${projectId}`);
 });
 
-// === PROJECT STATUS ROUTES ===
-
 // Change project status (owner only)
-router.post('/:projectId/status', optionalAuth, (req: Request, res: Response): void => {
+apiRouter.post('/:projectId/status', optionalAuth, (req: Request, res: Response): void => {
   const projectId = parseInt(req.params.projectId as string, 10);
   const { status } = req.body;
   const user = (req as any).user;
@@ -580,10 +625,8 @@ router.post('/:projectId/status', optionalAuth, (req: Request, res: Response): v
   res.redirect(`/post/${projectId}`);
 });
 
-// === REVIEW ROUTES ===
-
 // Submit review for a contractor
-router.post('/:projectId/review', optionalAuth, (req: Request, res: Response): void => {
+apiRouter.post('/:projectId/review', optionalAuth, (req: Request, res: Response): void => {
   const projectId = parseInt(req.params.projectId as string, 10);
   const { rating, comment, contractor_id } = req.body;
   const authorEmail = req.user?.email || null;
@@ -634,7 +677,13 @@ router.post('/:projectId/review', optionalAuth, (req: Request, res: Response): v
     UPDATE contractors SET rating = ?, reviews_count = ? WHERE id = ?
   `).run(stats.avg_rating, stats.total, contractor_id);
 
+  // Auto-verify on first positive review (rating >= 4)
+  if (parseInt(rating) >= 4) {
+    db.prepare('UPDATE contractors SET is_verified = 1 WHERE id = ? AND is_verified = 0')
+      .run(contractor_id);
+  }
+
   res.redirect(`/post/${projectId}`);
 });
 
-export default router;
+export default pageRouter;

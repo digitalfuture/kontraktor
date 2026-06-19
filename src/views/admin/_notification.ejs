@@ -1,0 +1,227 @@
+<!-- Custom notification modal component -->
+<!-- Include once in the layout, provides showNotification() and showConfirm() -->
+<style>
+/* HTMX swap animation for delete rows */
+tr.htmx-swapping {
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+}
+</style>
+<div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="window._closeConfirmModal && window._closeConfirmModal(false)"></div>
+  <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl shadow-black/20 max-w-sm w-full p-6 transform transition-all duration-200 scale-95 opacity-0" id="confirm-modal-content">
+    <!-- Icon -->
+    <div class="mx-auto w-12 h-12 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center mb-4">
+      <svg class="w-6 h-6 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+    </div>
+    <!-- Message -->
+    <p id="confirm-modal-msg" class="text-center text-gray-800 dark:text-gray-200 text-sm leading-relaxed mb-6"></p>
+    <!-- Buttons -->
+    <div class="flex gap-3 justify-center">
+      <button id="confirm-modal-cancel" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors cursor-pointer"><%= typeof t !== 'undefined' ? t('admin.cancel') : 'Cancel' %></button>
+      <button id="confirm-modal-ok" class="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors cursor-pointer"><%= typeof t !== 'undefined' ? t('admin.delete') : 'Delete' %></button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notification (auto-hide) -->
+<div id="notification-toast" class="fixed top-4 right-4 z-50 hidden">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg shadow-black/10 border border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center gap-3 max-w-sm transform transition-all duration-300 translate-x-full opacity-0" id="notification-toast-content">
+    <div id="notification-icon" class="flex-shrink-0">
+      <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+    </div>
+    <p id="notification-text" class="text-sm text-gray-800 dark:text-gray-200 flex-1"></p>
+    <button onclick="document.getElementById('notification-toast').classList.add('hidden')" class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+(function() {
+  let confirmResolver = null;
+
+  function showConfirm(msg) {
+    return new Promise(function(resolve) {
+      var modal = document.getElementById('confirm-modal');
+      var content = document.getElementById('confirm-modal-content');
+      var msgEl = document.getElementById('confirm-modal-msg');
+      var okBtn = document.getElementById('confirm-modal-ok');
+      var cancelBtn = document.getElementById('confirm-modal-cancel');
+
+      msgEl.textContent = msg;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      // animate in
+      requestAnimationFrame(function() {
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
+      });
+
+      confirmResolver = resolve;
+
+      // Cleanup old listeners
+      var newOk = okBtn.cloneNode(true);
+      okBtn.parentNode.replaceChild(newOk, okBtn);
+      var newCancel = cancelBtn.cloneNode(true);
+      cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+
+      newOk.addEventListener('click', function() {
+        _closeConfirmModal(true);
+      });
+      newCancel.addEventListener('click', function() {
+        _closeConfirmModal(false);
+      });
+    });
+  }
+
+  window._closeConfirmModal = function(result) {
+    var modal = document.getElementById('confirm-modal');
+    var content = document.getElementById('confirm-modal-content');
+    content.classList.add('scale-95', 'opacity-0');
+    content.classList.remove('scale-100', 'opacity-100');
+    setTimeout(function() {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }, 150);
+    if (confirmResolver) {
+      confirmResolver(result);
+      confirmResolver = null;
+    }
+  };
+
+  function showNotification(msg, type) {
+    type = type || 'success';
+    var toast = document.getElementById('notification-toast');
+    var content = document.getElementById('notification-toast-content');
+    var text = document.getElementById('notification-text');
+    var icon = document.getElementById('notification-icon');
+
+    text.textContent = msg;
+
+    var colors = {
+      success: 'text-green-500',
+      error: 'text-red-500',
+      info: 'text-blue-500',
+      warning: 'text-yellow-500'
+    };
+    var paths = {
+      success: 'M5 13l4 4L19 7',
+      error: 'M6 18L18 6M6 6l12 12',
+      info: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+      warning: 'M12 9v2m0 4h.01M10.29 3.86l-8.02 14.1A2 2 0 004.02 21h15.96a2 2 0 001.87-2.63l-8.02-14.1a2 2 0 00-3.54 0z'
+    };
+
+    icon.innerHTML = '<svg class="w-5 h-5 ' + (colors[type] || colors.success) + '" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="' + (paths[type] || paths.success) + '"></path></svg>';
+
+    toast.classList.remove('hidden');
+    // animate in
+    requestAnimationFrame(function() {
+      content.classList.remove('translate-x-full', 'opacity-0');
+      content.classList.add('translate-x-0', 'opacity-100');
+    });
+
+    // auto-hide
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(function() {
+      content.classList.remove('translate-x-0', 'opacity-100');
+      content.classList.add('translate-x-full', 'opacity-0');
+      setTimeout(function() {
+        toast.classList.add('hidden');
+      }, 300);
+    }, 3000);
+  }
+
+  // Intercept HTMX hx-confirm
+  // NOTE: HTMX v2 fires htmx:confirm for ALL requests (not just hx-confirm).
+  // Only show the custom modal when there's an actual question to ask.
+  document.addEventListener('htmx:confirm', function(e) {
+    e.preventDefault();
+    if (!e.detail.question) {
+      // No confirmation needed — let the request proceed immediately
+      e.detail.issueRequest(true);
+      return;
+    }
+    showConfirm(e.detail.question).then(function(confirmed) {
+      if (confirmed) {
+        e.detail.issueRequest(true);
+      }
+    });
+  });
+
+  // Expose globally
+  window.showConfirm = showConfirm;
+  window.showNotification = showNotification;
+
+  // Update CSRF tokens after any HTMX request (token rotation)
+  document.body.addEventListener('htmx:afterRequest', function(evt) {
+    var xhr = evt.detail.xhr;
+    if (xhr && xhr.getResponseHeader('X-CSRF-Token')) {
+      var newToken = xhr.getResponseHeader('X-CSRF-Token');
+      document.querySelectorAll('input[name="_csrf"]').forEach(function(input) {
+        input.value = newToken;
+      });
+    }
+  });
+
+  // Handle HX-Trigger events from server
+  document.addEventListener('showNotification', function(e) {
+    var detail = e.detail;
+    showNotification(detail.msg || 'Done', detail.type || 'success');
+  });
+
+  // Support for data-confirm on forms (non-HTMX only)
+  // NOTE: HTMX v2 fires htmx:confirm for ALL hx-* requests with data-confirm.
+  // This handler is only for vanilla forms — if we also handle HTMX forms here,
+  // both htmx:confirm AND this handler fire duplicate confirm dialogs.
+  document.addEventListener('submit', function(e) {
+    var form = e.target;
+    var confirmMsg = form.getAttribute('data-confirm');
+    // Skip HTMX forms — htmx:confirm (above) already handles data-confirm
+    if (form.hasAttribute('hx-post') || form.hasAttribute('hx-delete') || form.hasAttribute('hx-put') || form.hasAttribute('hx-patch')) {
+      return;
+    }
+    if (confirmMsg) {
+      e.preventDefault();
+      showConfirm(confirmMsg).then(function(confirmed) {
+        if (confirmed) {
+          form.removeAttribute('data-confirm');
+          // Use htmx trigger for HTMX forms, native submit for regular forms
+          if (form.getAttribute('hx-post') || form.getAttribute('hx-delete')) {
+            htmx.trigger(form, 'submit');
+          } else {
+            form.submit();
+          }
+        }
+      });
+    }
+  });
+
+  // Also catch button clicks with data-confirm (outside forms or standalone)
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-confirm]');
+    if (btn) {
+      var form = btn.closest('form');
+      if (form && form.getAttribute('data-confirm')) return; // already handled by submit
+      e.preventDefault();
+      var msg = btn.getAttribute('data-confirm') || 'Are you sure?';
+      showConfirm(msg).then(function(confirmed) {
+        if (confirmed) {
+          if (form) {
+            if (form.getAttribute('hx-post')) {
+              htmx.trigger(form, 'submit');
+            } else {
+              form.removeAttribute('data-confirm');
+              form.submit();
+            }
+          }
+        }
+      });
+    }
+  });
+})();
+</script>

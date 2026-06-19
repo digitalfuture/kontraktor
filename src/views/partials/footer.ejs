@@ -1,21 +1,21 @@
-<footer class="bg-gray-900 dark:bg-gray-950 text-gray-400 py-12" role="contentinfo">
+<footer class="bg-gray-900 dark:bg-gray-950 text-gray-400 py-6" role="contentinfo">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
       <!-- About -->
       <section aria-label="About Kontraktor">
-        <h3 class="text-2xl font-bold text-white mb-4">Kontraktor</h3>
+        <h3 class="text-2xl font-bold text-white mb-3">Kontraktor</h3>
         <p class="text-sm"><%= t('footer.aboutText') %></p>
       </section>
       
       <!-- Services -->
       <nav aria-label="Services">
-        <h4 class="text-white font-semibold mb-3"><%= t('footer.services') %></h4>
-        <ul class="space-y-2 text-sm">
+        <h4 class="text-white font-semibold mb-2"><%= t('footer.services') %></h4>
+        <ul class="space-y-1 text-sm">
           <% const services = [
-            { href: '/services', key: 'remont-kvartir' },
-            { href: '/services', key: 'elektromontazh' },
-            { href: '/services', key: 'santehnika' },
-            { href: '/services', key: 'stroitelstvo' }
+            { href: '/services', key: 'apartment-renovation' },
+            { href: '/services', key: 'electrical-work' },
+            { href: '/services', key: 'plumbing' },
+            { href: '/services', key: 'construction' }
           ]; %>
           <% services.forEach(function(s) { %>
             <li><a href="<%= s.href %>" class="hover:text-white transition focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2 focus:ring-offset-gray-900 rounded px-1 -mx-1"><%= t('categories.' + s.key) %></a></li>
@@ -25,8 +25,8 @@
       
       <!-- Links -->
       <nav aria-label="Site links">
-        <h4 class="text-white font-semibold mb-3"><%= t('footer.links') %></h4>
-        <ul class="space-y-2 text-sm">
+        <h4 class="text-white font-semibold mb-2"><%= t('footer.links') %></h4>
+        <ul class="space-y-1 text-sm">
           <li><a href="/services" class="hover:text-white transition focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2 focus:ring-offset-gray-900 rounded px-1 -mx-1"><%= t('footer.services') %></a></li>
           <li><a href="/contractors" class="hover:text-white transition focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2 focus:ring-offset-gray-900 rounded px-1 -mx-1"><%= t('footer.forProfessionals') %></a></li>
           <li><a href="/post" class="hover:text-white transition focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2 focus:ring-offset-gray-900 rounded px-1 -mx-1"><%= t('footer.postProject') %></a></li>
@@ -36,19 +36,25 @@
         </ul>
       </nav>
       
-      <!-- Contact form (logged-in users only) -->
+      <!-- Contact form (logged-in users = real form, others = placeholder) -->
       <section aria-label="Contact us">
-        <h4 class="text-white font-semibold mb-3"><%= t('footer.contact') %></h4>
+        <h4 class="text-white font-semibold mb-2"><%= t('footer.contact') %></h4>
         <% if (typeof user !== 'undefined' && user) { %>
           <%- include('_contact-form', { csrfToken: typeof csrfToken !== 'undefined' ? csrfToken : '' }) %>
         <% } else { %>
-          <p class="text-sm text-gray-300 dark:text-gray-200"><%= t('contact.loginRequired') %></p>
-          <a href="/auth/login" class="inline-block mt-2 text-orange-500 hover:text-orange-400 text-sm font-medium transition"><%= t('nav.login') %> →</a>
+          <div class="space-y-2 opacity-60 pointer-events-none">
+            <input type="text" value="" placeholder="<%= t('contact.name') %>" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-400 placeholder-gray-500" disabled>
+            <input type="email" value="" placeholder="<%= t('contact.email') %>" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-400 placeholder-gray-500" disabled>
+            <textarea rows="3" placeholder="<%= t('contact.message') %>" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-400 placeholder-gray-500 resize-none" disabled></textarea>
+            <a href="/auth/login" class="block w-full bg-gray-700 text-gray-400 px-4 py-2 rounded-lg text-sm font-medium text-center cursor-default">
+              <%= t('contact.loginRequired') %>
+            </a>
+          </div>
         <% } %>
       </section>
     </div>
     
-    <div class="mt-8 pt-8 border-t border-gray-800 text-center text-sm">
+    <div class="mt-6 pt-6 border-t border-gray-800 text-center text-sm">
       <p>&copy; <span id="footer-year">2026</span> Kontraktor. <%= t('footer.rights') %></p>
     </div>
   </div>

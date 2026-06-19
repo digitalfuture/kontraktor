@@ -31,8 +31,9 @@
         </form>
 
         <!-- Payments Table -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <table class="w-full text-sm">
+        <div id="paginated-list">
+          <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <table class="w-full text-sm">
             <thead>
               <tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
                 <th class="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">ID</th>
@@ -77,7 +78,7 @@
         <% if (payments.length > 0) { %>
         <%- include('_pagination', { pagination: pagination }) %>
         <% } %>
-      </div>
+        </div>
 
 <%- include('_admin-layout-close') %>
 <%- include('../partials/_expandable-rows') %>

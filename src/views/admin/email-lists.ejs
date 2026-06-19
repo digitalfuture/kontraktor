@@ -1,0 +1,92 @@
+<%- include('_admin-layout', { activePage: 'email' }) %>
+
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
+  <div>
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white leading-none"><%= typeof t !== 'undefined' ? t('email.mailingLists') : 'Mailing Lists' %></h1>
+    <p class="text-gray-500 dark:text-gray-300 mt-2 text-sm sm:text-base leading-none"><%= typeof t !== 'undefined' ? t('email.subtitle') : 'Manage external contact lists for campaigns' %></p>
+  </div>
+  <%
+    const backLabel = typeof t !== 'undefined' ? t('email.backToEmail') : 'Back to Email';
+  %>
+  <%- include('partials/_back-link', { href: '/admin/email', label: backLabel }) %>
+</div>
+
+<!-- Create List -->
+<div class="bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700 mb-6">
+  <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-4"><%= typeof t !== 'undefined' ? t('email.createMailingList') : 'Create Mailing List' %></h2>
+  <form method="POST" action="/api/admin/email/lists/create" class="flex flex-col sm:flex-row gap-3">
+    <div class="flex-1">
+      <input type="text" name="name" placeholder="<%= typeof t !== 'undefined' ? t('email.newListName') : 'List name' %>" required
+        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+    </div>
+    <div class="flex-1">
+      <input type="text" name="description" placeholder="<%= typeof t !== 'undefined' ? t('email.description') : 'Description (optional)' %>"
+        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+    </div>
+    <button type="submit" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm font-medium whitespace-nowrap">
+      + <%= typeof t !== 'undefined' ? t('email.createCampaign') : 'Create' %>
+    </button>
+  </form>
+</div>
+
+<!-- Lists Table -->
+<div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="bg-gray-50 dark:bg-gray-800/50">
+          <th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.name') : 'Name' %></th>
+          <th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.description_short') : 'Description' %></th>
+          <th class="text-right px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.contacts') : 'Contacts' %></th>
+          <th class="text-center px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('admin.activeInCampaign') : 'Active Campaign' %></th>
+          <th class="text-right px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('status.time') : 'Created' %></th>
+          <th class="text-center px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.actions') : 'Actions' %></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+        <% if (lists.length === 0) { %>
+                <tr><td colspan="5" class="text-center py-8 text-gray-400 dark:text-gray-500"><%= typeof t !== 'undefined' ? t('email.noLists') : 'No mailing lists' %></td></tr>
+        <% } else { lists.forEach(function(l) { %>
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+          <td class="px-4 sm:px-6 py-3 font-medium">
+            <span id="list-name-<%= l.id %>">
+              <a href="/admin/email/lists/<%= l.id %>" class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300"><%= l.name %></a>
+            </span>
+          </td>
+          <td class="px-4 sm:px-6 py-3 text-gray-500 dark:text-gray-400"><%= l.description || '-' %></td>
+          <td class="px-4 sm:px-6 py-3 text-right"><%= l.contact_count || 0 %></td>
+          <td class="px-4 sm:px-6 py-3 text-center">
+            <% if (l.active_campaign_status) { %>
+              <span class="px-2 py-1 rounded-full text-xs font-medium <%= l.active_campaign_status === 'sending' ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300' %>">
+                <%= typeof t !== 'undefined' ? t('admin.activeInCampaign') : 'Active in campaign' %>: <%= l.active_campaign_name %>
+              </span>
+            <% } else { %>
+              <span class="text-gray-400 dark:text-gray-500 text-xs"><%= typeof t !== 'undefined' ? t('status.none') : '—' %></span>
+            <% } %>
+          </td>
+          <td class="px-4 sm:px-6 py-3 text-right text-gray-500 dark:text-gray-400 text-xs"><%= l.created_at %></td>
+          <td class="px-4 sm:px-6 py-3 text-center">
+            <div class="flex items-center justify-center gap-2">
+              <button type="button" class="text-gray-400 hover:text-orange-600 dark:text-gray-500 dark:hover:text-orange-400 p-1 rounded transition" hx-get="/api/admin/email/lists/<%= l.id %>/edit-name" hx-target="#list-name-<%= l.id %>" hx-swap="outerHTML" title="<%= typeof t !== 'undefined' ? t('email.edit') : 'Edit' %>">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+        </svg>
+      </button>
+              <form hx-post="/api/admin/email/lists/<%= l.id %>/delete" hx-target="closest tr" hx-swap="outerHTML swap:300ms" style="display:inline" data-confirm="<%= typeof t !== 'undefined' ? t('email.confirmDeleteList') : 'Delete this list and all its contacts?' %>">
+                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                <button class="text-sm px-2 py-1 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        <% }); } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('_admin-layout-close') %>

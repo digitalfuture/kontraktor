@@ -9,39 +9,10 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          <a href="/admin/projects" class="block bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700 transition hover:scale-[1.02] hover:shadow-card-hover hover:border-blue-300 dark:hover:border-blue-900/50 group">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition"><%= t('admin.projects') %></h3>
-              <span class="bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs px-2 py-1 rounded-full font-medium"><%= stats.pendingProjects %> <%= t("admin.new") %></span>
-            </div>
-            <p class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"><%= stats.totalProjects %></p>
-            <p class="text-sm text-gray-500 dark:text-gray-300 mt-1"><%= t('admin.totalProjects') %></p>
-          </a>
-
-          <a href="/admin/contractors" class="block bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700 transition hover:scale-[1.02] hover:shadow-card-hover hover:border-orange-300 dark:hover:border-orange-900/50 group">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition"><%= t('admin.contractors') %></h3>
-            </div>
-            <p class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"><%= stats.totalContractors %></p>
-            <p class="text-sm text-gray-500 dark:text-gray-300 mt-1"><%= t('admin.totalContractors') %></p>
-          </a>
-
-          <a href="/admin/users" class="block bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700 transition hover:scale-[1.02] hover:shadow-card-hover hover:border-purple-300 dark:hover:border-purple-900/50 group">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition"><%= t('admin.clients') %></h3>
-            </div>
-            <p class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"><%= stats.totalClients %></p>
-            <p class="text-sm text-gray-500 dark:text-gray-300 mt-1"><%= t('admin.totalInSystem') %></p>
-          </a>
-
-          <a href="/admin/reviews" class="block bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700 transition hover:scale-[1.02] hover:shadow-card-hover hover:border-yellow-300 dark:hover:border-yellow-900/50 group">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300 group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition"><%= t('admin.reviews') %></h3>
-              <span class="bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300 text-xs px-2 py-1 rounded-full font-medium"><%= stats.unmoderatedReviews %> <%= t('admin.pending') %></span>
-            </div>
-            <p class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"><%= stats.totalReviews %></p>
-            <p class="text-sm text-gray-500 dark:text-gray-300 mt-1"><%= t('admin.totalReviews') %></p>
-          </a>
+          <%- include('../partials/_admin-stat-card', { href: '/admin/projects', titleKey: 'admin.projects', labelKey: 'admin.totalProjects', value: stats.totalProjects, badge: stats.pendingProjects + ' ' + t('admin.new'), color: 'blue' }) %>
+          <%- include('../partials/_admin-stat-card', { href: '/admin/contractors', titleKey: 'admin.contractors', labelKey: 'admin.totalContractors', value: stats.totalContractors, color: 'orange' }) %>
+          <%- include('../partials/_admin-stat-card', { href: '/admin/users', titleKey: 'admin.clients', labelKey: 'admin.totalInSystem', value: stats.totalClients, color: 'purple' }) %>
+          <%- include('../partials/_admin-stat-card', { href: '/admin/reviews', titleKey: 'admin.reviews', labelKey: 'admin.totalReviews', value: stats.totalReviews, badge: stats.unmoderatedReviews + ' ' + t('admin.pending'), color: 'yellow' }) %>
         </div>
 
         <!-- === ANALYTICAL CHARTS === -->
@@ -338,62 +309,7 @@
     });
   </script>
 
-  <!-- Expand/Collapse Charts -->
-  <style>
-    .chart-card { transition: opacity 0.2s ease; }
-    .chart-card.expanded {
-      position: fixed !important;
-      inset: 0 !important;
-      z-index: 9999 !important;
-      border-radius: 0 !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      width: 100vw !important;
-      height: 100vh !important;
-      display: flex !important;
-      flex-direction: column !important;
-      background: white !important;
-    }
-    .dark .chart-card.expanded {
-      background: rgb(30 41 59) !important;
-    }
-    .chart-card.expanded > div:first-child {
-      flex-shrink: 0 !important;
-    }
-    .chart-card.expanded > div:last-child {
-      flex: 1 1 0 !important;
-      min-height: 0 !important;
-      height: auto !important;
-    }
-  </style>
-  <script>
-    function toggleExpand(id) {
-      var card = document.getElementById(id);
-      if (!card) return;
-      var isExpanded = card.classList.toggle('expanded');
-      var btn = card.querySelector('.expand-btn');
-      if (btn) {
-        btn.setAttribute('title', isExpanded ? 'Collapse' : 'Expand');
-        var expandIcon = btn.querySelector('.expand-icon');
-        var collapseIcon = btn.querySelector('.collapse-icon');
-        if (expandIcon) expandIcon.classList.toggle('hidden', isExpanded);
-        if (collapseIcon) collapseIcon.classList.toggle('hidden', !isExpanded);
-      }
-      // Re-render after layout
-      requestAnimationFrame(function() {
-        requestAnimationFrame(function() {
-          if (id === 'sankey-card') {
-            var fn = window['_renderSankey_sankey-chart'];
-            if (fn) fn();
-          }
-          if (id === 'map-card') {
-            var fn = window['_renderMap_map-chart'];
-            if (fn) fn();
-          }
-        });
-      });
-    }
-  </script>
+  <%- include('../partials/_chart-expand') %>
 
   <!-- Indonesia Map (D3) -->
   <%- include('../partials/_admin_map') %>

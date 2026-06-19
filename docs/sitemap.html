@@ -3,345 +3,224 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kontraktor — Site Structure & User Flow</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<title>Kontraktor — Pages</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: #0f172a;
-    color: #e2e8f0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    padding: 2rem;
-    min-height: 100vh;
+  html, body { min-height: 100%; background: #f8fafc; color: #111827; font-family: system-ui, -apple-system, sans-serif; }
+  body { padding-top: 52px; }
+  #header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+    padding: 0.75rem 1.25rem; background: #ffffff; border-bottom: 1px solid #e5e7eb;
+    display: flex; align-items: center; gap: 0.75rem; height: 52px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   }
-  h1 { font-size: 1.5rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem; }
-  h1 small { font-size: 0.8rem; color: #64748b; font-weight: normal; }
-  .meta { font-size: 0.85rem; color: #64748b; margin-bottom: 2rem; }
-  .legend {
-    display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem;
-    padding: 1rem; background: #1e293b; border-radius: 0.5rem; border: 1px solid #334155;
+  #header h1 { font-size: 1rem; font-weight: 700; white-space: nowrap; color: #ea580c; letter-spacing: -0.01em; }
+  #breadcrumb { display: flex; align-items: center; gap: 0.2rem; font-size: 0.8125rem; color: #6b7280; flex-wrap: wrap; }
+  #breadcrumb .crumb { cursor: pointer; padding: 0.15rem 0.4rem; border-radius: 4px; transition: all 0.15s; }
+  #breadcrumb .crumb:hover { background: #fff7ed; color: #ea580c; }
+  #breadcrumb .sep { color: #d1d5db; cursor: default; }
+  #breadcrumb .here { color: #ea580c; font-weight: 600; }
+  #viz { min-height: 350px; display: flex; align-items: center; justify-content: center; }
+  #viz svg { display: block; width: 100%; max-width: 1200px; height: auto; }
+  .link { fill: none; stroke: #d1d5db; stroke-width: 1.5; stroke-opacity: 0.5; }
+  .node-group circle { transition: r 0.15s, stroke-width 0.15s; }
+  .node-group:hover circle { stroke-width: 3; }
+  .node-group.nodrill:hover circle { stroke-width: 1.5; }
+  .node-count { pointer-events: none; }
+  .hint {
+    position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); z-index: 10;
+    background: #ffffff; color: #6b7280; font-size: 0.75rem;
+    padding: 0.5rem 1rem; border-radius: 8px; pointer-events: none;
+    border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   }
-  .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; }
-  .legend-dot { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
-  #diagram {
-    background: #1e293b;
-    border-radius: 0.75rem;
-    padding: 2rem;
-    border: 1px solid #334155;
-    overflow-x: auto;
+  @media (prefers-color-scheme: dark) {
+    body { background: #0f172a; color: #e2e8f0; }
+    #header { background: #1e293b; border-bottom-color: #334155; }
+    #header h1 { color: #fb923c; }
+    #breadcrumb { color: #94a3b8; }
+    #breadcrumb .crumb:hover { background: rgba(251,146,60,0.08); color: #fb923c; }
+    #breadcrumb .sep { color: #475569; }
+    #breadcrumb .here { color: #fb923c; }
+    .link { stroke: #475569; stroke-opacity: 0.6; }
+    .node-label { fill: #e2e8f0; }
+    .node-count { fill: #64748b; }
+    .hint { background: #1e293b; color: #94a3b8; border-color: #334155; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
   }
-  #diagram svg { max-width: 100%; height: auto; }
-  .controls { margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center; }
-  .controls button {
-    background: #334155; color: #e2e8f0; border: none;
-    padding: 0.4rem 1rem; border-radius: 0.3rem; cursor: pointer; font-size: 0.85rem;
-  }
-  .controls button:hover { background: #475569; }
-  .footer { margin-top: 2rem; font-size: 0.75rem; color: #475569; text-align: center; }
 </style>
 </head>
 <body>
 
-<h1>🧭 Kontraktor — Site Structure & User Flow <small>auto-generated from routes</small></h1>
-
-<div class="legend">
-  <span class="legend-item"><span class="legend-dot" style="background:#ea580c"></span> Entry</span>
-  <span class="legend-item"><span class="legend-dot" style="background:#1e40af"></span> Admin</span>
-  <span class="legend-item"><span class="legend-dot" style="background:#7c3aed"></span> Auth</span>
-  <span class="legend-item"><span class="legend-dot" style="background:#059669"></span> Account</span>
-  <span class="legend-item"><span class="legend-dot" style="background:#d97706"></span> Payments</span>
-  <span class="legend-item"><span class="legend-dot" style="background:#4b5563"></span> Public</span>
-  <span class="legend-item">📄 GET &nbsp; ➕ POST &nbsp; 📝 PUT &nbsp; 🗑️ DELETE</span>
-  <span class="legend-item">🛡️ middleware &nbsp; 🎨 view template &nbsp; ↪️ redirect</span>
+<div id="header">
+  <h1>🧭 Kontraktor</h1>
+  <div id="breadcrumb"></div>
+</div>
+<div id="viz">
+  <svg viewBox="0 0 1000 400"></svg>
+  <div class="hint">клик на 📁 → провалиться • клик на фон → назад</div>
 </div>
 
-<div class="controls">
-  <button onclick="location.reload()">🔄 Regenerate</button>
-</div>
-
-<div id="diagram">
-  <pre class="mermaid" style="background:transparent;text-align:center;">
-graph TB
-
-  root["🏠 Kontraktor"]
-  style root fill:#ea580c,color:#fff,font-weight:bold
-
-  m0["/services"]
-  style m0 fill:#4b5563,color:#fff
-  root --> m0
-
-  e1["📄 GET /"]
-  style e1 fill:#4b5563,color:#fff
-  m0 --> e1
-  e2["📄 GET /:slug"]
-  style e2 fill:#4b5563,color:#fff
-  m0 --> e2
-  m3["/projects<br/><small>🛡️Auth</small>"]
-  style m3 fill:#4b5563,color:#fff
-  root --> m3
-
-  e4["📄 GET /"]
-  style e4 fill:#4b5563,color:#fff
-  m3 --> e4
-  m5["/sitemap.xml"]
-  style m5 fill:#4b5563,color:#fff
-  root --> m5
-
-  e6["📄 GET /"]
-  style e6 fill:#4b5563,color:#fff
-  m5 --> e6
-  m7["/contractors"]
-  style m7 fill:#4b5563,color:#fff
-  root --> m7
-
-  e8["📄 GET /"]
-  style e8 fill:#4b5563,color:#fff
-  m7 --> e8
-  e9["📄 GET /register"]
-  style e9 fill:#4b5563,color:#fff
-  m7 --> e9
-  e10["➕ POST /register"]
-  style e10 fill:#4b5563,color:#fff
-  m7 --> e10
-  e11["📄 GET /dashboard"]
-  style e11 fill:#4b5563,color:#fff
-  m7 --> e11
-  e12["📄 GET /:id"]
-  style e12 fill:#4b5563,color:#fff
-  m7 --> e12
-  e13["➕ POST /dashboard/avatar"]
-  style e13 fill:#4b5563,color:#fff
-  m7 --> e13
-  e14["➕ POST /dashboard/portfolio"]
-  style e14 fill:#4b5563,color:#fff
-  m7 --> e14
-  e15["➕ POST /dashboard/photo/:photoId/delete"]
-  style e15 fill:#4b5563,color:#fff
-  m7 --> e15
-  e16["➕ POST /request-credits"]
-  style e16 fill:#4b5563,color:#fff
-  m7 --> e16
-  m17["/post"]
-  style m17 fill:#4b5563,color:#fff
-  root --> m17
-
-  e18["📄 GET /"]
-  style e18 fill:#4b5563,color:#fff
-  m17 --> e18
-  e19["📄 GET /:id/edit"]
-  style e19 fill:#4b5563,color:#fff
-  m17 --> e19
-  e20["➕ POST /:id/edit"]
-  style e20 fill:#4b5563,color:#fff
-  m17 --> e20
-  e21["📄 GET /subcategories"]
-  style e21 fill:#4b5563,color:#fff
-  m17 --> e21
-  e22["📄 GET /district-search"]
-  style e22 fill:#4b5563,color:#fff
-  m17 --> e22
-  e23["📄 GET /:id"]
-  style e23 fill:#4b5563,color:#fff
-  m17 --> e23
-  e24["📄 GET /:id/bids-partial"]
-  style e24 fill:#4b5563,color:#fff
-  m17 --> e24
-  e25["➕ POST /"]
-  style e25 fill:#4b5563,color:#fff
-  m17 --> e25
-  e26["➕ POST /:projectId/bid"]
-  style e26 fill:#4b5563,color:#fff
-  m17 --> e26
-  e27["➕ POST /:projectId/bids/:bidId/accept"]
-  style e27 fill:#4b5563,color:#fff
-  m17 --> e27
-  e28["➕ POST /:projectId/bids/:bidId/reject"]
-  style e28 fill:#4b5563,color:#fff
-  m17 --> e28
-  e29["➕ POST /:projectId/status"]
-  style e29 fill:#4b5563,color:#fff
-  m17 --> e29
-  e30["➕ POST /:projectId/review"]
-  style e30 fill:#4b5563,color:#fff
-  m17 --> e30
-  m31["/auth"]
-  style m31 fill:#7c3aed,color:#fff
-  root --> m31
-
-  e32["📄 GET /login"]
-  style e32 fill:#7c3aed,color:#fff
-  m31 --> e32
-  e33["➕ POST /login"]
-  style e33 fill:#7c3aed,color:#fff
-  m31 --> e33
-  e34["📄 GET /verify"]
-  style e34 fill:#7c3aed,color:#fff
-  m31 --> e34
-  e35["📄 GET /logout"]
-  style e35 fill:#7c3aed,color:#fff
-  m31 --> e35
-  m36["/account"]
-  style m36 fill:#059669,color:#fff
-  root --> m36
-
-  e37["📄 GET /"]
-  style e37 fill:#059669,color:#fff
-  m36 --> e37
-  m38["/contact"]
-  style m38 fill:#4b5563,color:#fff
-  root --> m38
-
-  e39["➕ POST /"]
-  style e39 fill:#4b5563,color:#fff
-  m38 --> e39
-  m40["/payments"]
-  style m40 fill:#d97706,color:#fff
-  root --> m40
-
-  e41["📄 GET /buy"]
-  style e41 fill:#d97706,color:#fff
-  m40 --> e41
-  e42["➕ POST /create-invoice"]
-  style e42 fill:#d97706,color:#fff
-  m40 --> e42
-  e43["➕ POST /webhook"]
-  style e43 fill:#d97706,color:#fff
-  m40 --> e43
-  m44["/admin<br/><small>🛡️Auth<br/>🛡️Admin</small>"]
-  style m44 fill:#1e40af,color:#fff
-  root --> m44
-
-  e45["📄 GET /"]
-  style e45 fill:#1e40af,color:#fff
-  m44 --> e45
-  e46["📄 GET /projects"]
-  style e46 fill:#1e40af,color:#fff
-  m44 --> e46
-  e47["📄 GET /contractors"]
-  style e47 fill:#1e40af,color:#fff
-  m44 --> e47
-  e48["📄 GET /categories"]
-  style e48 fill:#1e40af,color:#fff
-  m44 --> e48
-  e49["📄 GET /reviews"]
-  style e49 fill:#1e40af,color:#fff
-  m44 --> e49
-  e50["➕ POST /projects/:id/status"]
-  style e50 fill:#1e40af,color:#fff
-  m44 --> e50
-  e51["➕ POST /projects/:id/assign"]
-  style e51 fill:#1e40af,color:#fff
-  m44 --> e51
-  e52["➕ POST /reviews/:id/moderate"]
-  style e52 fill:#1e40af,color:#fff
-  m44 --> e52
-  e53["➕ POST /reviews/:id/delete"]
-  style e53 fill:#1e40af,color:#fff
-  m44 --> e53
-  e54["➕ POST /categories/create"]
-  style e54 fill:#1e40af,color:#fff
-  m44 --> e54
-  e55["➕ POST /categories/:id/update"]
-  style e55 fill:#1e40af,color:#fff
-  m44 --> e55
-  e56["➕ POST /categories/:id/toggle"]
-  style e56 fill:#1e40af,color:#fff
-  m44 --> e56
-  e57["➕ POST /categories/:id/delete"]
-  style e57 fill:#1e40af,color:#fff
-  m44 --> e57
-  e58["📄 GET /trash"]
-  style e58 fill:#1e40af,color:#fff
-  m44 --> e58
-  e59["➕ POST /categories/:id/restore"]
-  style e59 fill:#1e40af,color:#fff
-  m44 --> e59
-  e60["➕ POST /categories/:id/force-delete"]
-  style e60 fill:#1e40af,color:#fff
-  m44 --> e60
-  e61["➕ POST /contractors/:id/toggle-verified"]
-  style e61 fill:#1e40af,color:#fff
-  m44 --> e61
-  e62["➕ POST /contractors/:id/toggle-active"]
-  style e62 fill:#1e40af,color:#fff
-  m44 --> e62
-  e63["➕ POST /contractors/:id/add-credits"]
-  style e63 fill:#1e40af,color:#fff
-  m44 --> e63
-  e64["📄 GET /users"]
-  style e64 fill:#1e40af,color:#fff
-  m44 --> e64
-  e65["➕ POST /users/:id/update-role"]
-  style e65 fill:#1e40af,color:#fff
-  m44 --> e65
-  e66["➕ POST /users/:id/delete"]
-  style e66 fill:#1e40af,color:#fff
-  m44 --> e66
-  e67["➕ POST /users/:id/restore"]
-  style e67 fill:#1e40af,color:#fff
-  m44 --> e67
-  e68["➕ POST /users/:id/force-delete"]
-  style e68 fill:#1e40af,color:#fff
-  m44 --> e68
-  e69["📄 GET /payments"]
-  style e69 fill:#1e40af,color:#fff
-  m44 --> e69
-  e70["📄 GET /payments/settings"]
-  style e70 fill:#1e40af,color:#fff
-  m44 --> e70
-  e71["➕ POST /payments/settings"]
-  style e71 fill:#1e40af,color:#fff
-  m44 --> e71
-  e72["📄 GET /api/sankey"]
-  style e72 fill:#1e40af,color:#fff
-  m44 --> e72
-  e73["📄 GET /api/sankey-category-status"]
-  style e73 fill:#1e40af,color:#fff
-  m44 --> e73
-  e74["📄 GET /api/map"]
-  style e74 fill:#1e40af,color:#fff
-  m44 --> e74
-  e75["📄 GET /api/network-graph"]
-  style e75 fill:#1e40af,color:#fff
-  m44 --> e75
-  e76["📄 GET /diagrams"]
-  style e76 fill:#1e40af,color:#fff
-  m44 --> e76
-  e77["📄 GET /diagrams/sitemap-content"]
-  style e77 fill:#1e40af,color:#fff
-  m44 --> e77
-  </pre>
-</div>
-
-<div class="footer">
-  Generated 2026-05-28 at 12:48 ·
-  Run <code>npm run generate-sitemap</code> to refresh
-</div>
-
+<script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-  mermaid.initialize({
-    startOnLoad: true,
-    theme: 'dark',
-    themeVariables: {
-      fontFamily: 'system-ui',
-      fontSize: '13px',
-      primaryColor: '#334155',
-      primaryTextColor: '#e2e8f0',
-      primaryBorderColor: '#475569',
-      lineColor: '#64748b',
-      secondaryColor: '#1e293b',
-      tertiaryColor: '#0f172a',
-      clusterBkg: '#1e293b',
-      clusterBorder: '#334155',
-    },
-    flowchart: {
-      useMaxWidth: true,
-      htmlLabels: true,
-      curve: 'basis',
-      padding: 12,
-    }
+const data = {"name":"🏠 Kontraktor","category":"root","children":[{"name":"Contractors","category":"public","middleware":"","children":[{"name":"/contractors/","value":1,"category":"public","leaf":true},{"name":"/contractors/register","value":1,"category":"public","leaf":true},{"name":"/contractors/dashboard","value":1,"category":"public","leaf":true},{"name":"/contractors/:id","value":1,"category":"public","leaf":true}],"value":4},{"name":"Post","category":"public","middleware":"","children":[{"name":"/post/","value":1,"category":"public","leaf":true},{"name":"/post/:id/edit","value":1,"category":"public","leaf":true},{"name":"/post/:id","value":1,"category":"public","leaf":true}],"value":3},{"name":"Auth","category":"auth","middleware":"","children":[{"name":"/auth/login","value":1,"category":"auth","leaf":true},{"name":"/auth/verify","value":1,"category":"auth","leaf":true}],"value":2},{"name":"Payments","category":"payments","middleware":"","children":[{"name":"/payments/buy","value":1,"category":"payments","leaf":true}],"value":1}]};
+
+const color = d3.scaleOrdinal()
+  .domain(['root','admin','auth','account','payments','public'])
+  .range(['#ea580c','#2563eb','#7c3aed','#059669','#d97706','#6b7280']);
+
+const svg = d3.select('svg');
+const g = svg.append('g');
+
+const nodeSepY = 22;
+const nodeSepX = 140;
+
+let zoomStack = [];
+let isLoading = false;
+
+function isEmpty(node) { return !node.children || node.children.length === 0; }
+
+function breadcrumb() {
+  const bc = d3.select('#breadcrumb');
+  bc.html('');
+  zoomStack.forEach((d, i) => {
+    if (i > 0) bc.append('span').attr('class','sep').text(' › ');
+    const label = d.data.name.length > 28 ? d.data.name.slice(0,25)+'…' : d.data.name;
+    const span = bc.append('span').attr('class','crumb').text(label);
+    span.attr('class', i === zoomStack.length - 1 ? 'crumb here' : 'crumb');
+    if (i < zoomStack.length - 1) span.on('click', () => { zoomToCrumb(i); });
   });
+}
+
+function zoomToCrumb(idx) {
+  if (isLoading) return;
+  zoomStack.splice(idx + 1);
+  draw(zoomStack[idx]);
+}
+
+function draw(node) {
+  isLoading = true;
+  g.selectAll('*').remove();
+
+  const root = d3.hierarchy(node.data);
+  if (!root.children) { isLoading = false; return; }
+
+  const treeLayout = d3.tree()
+    .nodeSize([nodeSepY, nodeSepX])
+    .separation(() => 1);
+  treeLayout(root);
+
+  // Only 2 levels
+  const visibleNodes = root.descendants().filter(d => d.depth <= 1);
+  const visibleLinks = root.links().filter(l => l.target.depth <= 1);
+
+  // Compute bounds with room for labels
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  visibleNodes.forEach(d => {
+    // Left side for parent label (depth 0)
+    const leftW = d.depth === 0 ? d.data.name.length * 10 + 20 : 0;
+    // Right side for child label (depth 1)
+    const rightW = d.depth > 0 ? d.data.name.length * 8 + 30 : 0;
+    if (d.y - leftW - 16 < x0) x0 = d.y - leftW - 16;
+    if (d.y + rightW + 16 > x1) x1 = d.y + rightW + 16;
+    if (d.x < y0) y0 = d.x;
+    if (d.x > y1) y1 = d.x;
+  });
+
+  const padY = 30;
+  const vw = Math.max(x1 - x0, 500);
+  const vh = Math.max(y1 - y0 + padY * 2, 250);
+  svg.attr('viewBox', [x0, y0 - padY, vw, vh]);
+
+  // ── LINKS ──
+  const linkGen = d3.linkHorizontal().x(d => d[0]).y(d => d[1]);
+  g.selectAll('path')
+    .data(visibleLinks)
+    .join('path')
+    .attr('class', 'link')
+    .attr('d', d => linkGen({ source: [d.source.y, d.source.x], target: [d.target.y, d.target.x] }));
+
+  // ── NODES ──
+  const nodeG = g.selectAll('g.node-group')
+    .data(visibleNodes)
+    .join('g')
+    .attr('class', d => 'node-group' + (isEmpty(d.data) ? ' nodrill' : ''));
+
+  // Circle
+  nodeG.append('circle')
+    .attr('cx', d => d.y)
+    .attr('cy', d => d.x)
+    .attr('r', d => d.data.leaf ? 4 : 6)
+    .attr('fill', d => color(d.data.category || 'public'))
+    .attr('stroke', d => d3.color(color(d.data.category || 'public')).darker(0.4))
+    .attr('stroke-width', 1.5);
+
+  // Label — parent on LEFT, children on RIGHT
+  nodeG.append('text')
+    .attr('class', 'node-label')
+    .attr('text-anchor', d => d.depth === 0 ? 'end' : 'start')
+    .attr('x', d => d.depth === 0 ? d.y - 14 : d.y + 14)
+    .attr('y', d => d.x + 5)
+    .attr('font-size', d => d.depth === 0 ? '17px' : (d.data.leaf ? '12px' : '14px'))
+    .attr('font-weight', d => d.depth === 0 ? '700' : '500')
+    .attr('fill', d => {
+      if (d.depth === 0) return '#ea580c';
+      if (d.data.leaf) return '#9ca3af';
+      try { return window.matchMedia('(prefers-color-scheme: dark)').matches ? '#e2e8f0' : '#1f2937'; }
+      catch(e) { return '#1f2937'; }
+    })
+    .text(d => {
+      if (d.depth === 0) return d.data.name;
+      let icon = d.data.leaf ? '📄' : '📁';
+      return icon + ' ' + d.data.name;
+    });
+
+  // Child count badge
+  nodeG.filter(d => !isEmpty(d.data) && d.depth > 0).append('text')
+    .attr('class', 'node-count')
+    .attr('text-anchor', 'start')
+    .attr('x', d => d.y + 14)
+    .attr('y', d => d.x + 19)
+    .attr('font-size', '10px')
+    .attr('fill', '#9ca3af')
+    .text(d => {
+      const count = d.data.children ? d.data.children.length : 0;
+      return count > 0 ? count + ' page' + (count > 1 ? 's' : '') : '';
+    });
+
+  // Click handler
+  nodeG.filter(d => !isEmpty(d.data))
+    .style('cursor', 'pointer')
+    .on('click', function(event, d) {
+      if (isLoading) return;
+      event.stopPropagation();
+      zoomTo(d);
+    });
+
+  nodeG.filter(d => isEmpty(d.data))
+    .style('cursor', 'default');
+
+  breadcrumb();
+  isLoading = false;
+}
+
+function zoomTo(node) {
+  zoomStack.push(node);
+  draw(node);
+}
+
+// Click on SVG background → zoom out
+svg.on('click', (event) => {
+  if (event.target === svg.node() && zoomStack.length > 1) {
+    zoomStack.pop();
+    draw(zoomStack[zoomStack.length - 1]);
+  }
+});
+
+// ── Init ──
+zoomStack = [d3.hierarchy(data)];
+draw(zoomStack[0]);
 </script>
 
+<!-- JSON data for admin page sitemap loader -->
+<script id="sitemap-data" type="application/json">{"name":"🏠 Kontraktor","category":"root","children":[{"name":"Contractors","category":"public","middleware":"","children":[{"name":"/contractors/","value":1,"category":"public","leaf":true},{"name":"/contractors/register","value":1,"category":"public","leaf":true},{"name":"/contractors/dashboard","value":1,"category":"public","leaf":true},{"name":"/contractors/:id","value":1,"category":"public","leaf":true}],"value":4},{"name":"Post","category":"public","middleware":"","children":[{"name":"/post/","value":1,"category":"public","leaf":true},{"name":"/post/:id/edit","value":1,"category":"public","leaf":true},{"name":"/post/:id","value":1,"category":"public","leaf":true}],"value":3},{"name":"Auth","category":"auth","middleware":"","children":[{"name":"/auth/login","value":1,"category":"auth","leaf":true},{"name":"/auth/verify","value":1,"category":"auth","leaf":true}],"value":2},{"name":"Payments","category":"payments","middleware":"","children":[{"name":"/payments/buy","value":1,"category":"payments","leaf":true}],"value":1}]}</script>
 </body>
 </html>

@@ -1,0 +1,35 @@
+<!-- Admin User Actions - reusable role selector + delete -->
+<%#
+  Params:
+    user — user object with .id, .role
+%>
+<form action="/api/admin/users/<%= user.id %>/update-role" method="POST" class="flex items-center gap-1.5 whitespace-nowrap">
+<%- include('../partials/csrf-field') %>
+  <!-- Compact select -->
+  <select name="role" onchange="this.form.submit()" class="hidden min-[1600px]:inline-block text-xs px-2 py-1 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-gray-900 dark:text-white cursor-pointer">
+    <option value="client" <%= user.role === 'client' ? 'selected' : '' %>><%= t('admin.client') %></option>
+    <option value="contractor" <%= user.role === 'contractor' ? 'selected' : '' %>><%= t('admin.contractor') %></option>
+    <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>><%= t('admin.admin') %></option>
+  </select>
+  <!-- Full select (mobile/tablet) -->
+  <select name="role" onchange="this.form.submit()" class="min-[1600px]:hidden text-xs px-2.5 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white cursor-pointer">
+    <option value="client" <%= user.role === 'client' ? 'selected' : '' %>><%= t('admin.client') %></option>
+    <option value="contractor" <%= user.role === 'contractor' ? 'selected' : '' %>><%= t('admin.contractor') %></option>
+    <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>><%= t('admin.admin') %></option>
+  </select>
+</form>
+<form action="/api/admin/users/<%= user.id %>/delete" method="POST" class="inline" data-confirm="<%= typeof t !== 'undefined' ? t('admin.deleteUserConfirm') : 'Delete this user?' %>">
+<%- include('../partials/csrf-field') %>
+  <!-- Compact delete -->
+  <button type="submit" title="<%= t('admin.delete') %>" class="hidden min-[1600px]:inline-flex text-xs px-2 py-1 rounded bg-gray-50 dark:bg-gray-800 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 border border-gray-300 dark:border-gray-600 hover:border-red-200 dark:hover:border-red-900/50 transition cursor-pointer whitespace-nowrap">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+    </svg>
+  </button>
+  <!-- Full delete (mobile/tablet) -->
+  <button type="submit" title="<%= t('admin.delete') %>" class="min-[1600px]:hidden text-xs px-3 py-1.5 bg-white dark:bg-gray-800 text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 transition cursor-pointer whitespace-nowrap">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+    </svg>
+  </button>
+</form>

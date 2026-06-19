@@ -1,0 +1,51 @@
+<!-- Expandable Chart Card - Reusable wrapper -->
+<!--
+  Usage:
+    &lt;%- include('../partials/_admin_chart_card', {
+      cardId: 'sankey-card',
+      chartId: 'sankey-chart',
+      loadingId: 'sankey-loading',
+      title: t('admin.sankeyTitle'),
+      desc: t('admin.sankeyDesc'),
+      chartType: 'canvas',     // optional: 'div' (default) or 'canvas'
+      headerButtons: ''        // optional: extra header buttons HTML
+    }) %&gt;
+-->
+<%
+  var cardId = typeof cardId !== 'undefined' ? cardId : 'chart-card';
+  var chartId = typeof chartId !== 'undefined' ? chartId : 'chart';
+  var loadingId = typeof loadingId !== 'undefined' ? loadingId : 'chart-loading';
+  var title = typeof title !== 'undefined' ? title : 'Chart';
+  var desc = typeof desc !== 'undefined' ? desc : '';
+  var chartType = typeof chartType !== 'undefined' ? chartType : 'div';
+  var headerButtons = typeof headerButtons !== 'undefined' ? headerButtons : '';
+%>
+<div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden chart-card" id="<%= cardId %>">
+  <div class="p-4 sm:p-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+    <div>
+      <h3 class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white"><%= title %></h3>
+      <% if (desc) { %>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"><%= desc %></p>
+      <% } %>
+    </div>
+    <div class="flex gap-2 items-center">
+      <%- headerButtons %>
+      <button onclick="toggleExpand('<%= cardId %>')" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer expand-btn" title="Expand">
+        <svg class="w-4 h-4 expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+        <svg class="w-4 h-4 collapse-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="relative w-full h-[280px] sm:h-[400px] bg-slate-50 dark:bg-slate-900/50 overflow-hidden">
+    <% if (chartType === 'canvas') { %>
+    <canvas id="<%= chartId %>" class="w-full h-full"></canvas>
+    <% } else { %>
+    <div id="<%= chartId %>" class="w-full h-full"></div>
+    <% } %>
+    <% if (loadingId && loadingId !== '') { %>
+    <div id="<%= loadingId %>" class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+      <span class="text-gray-500 dark:text-gray-400 font-medium animate-pulse text-sm"><%= typeof t !== 'undefined' ? t('admin.loadingGraph') : 'Loading graph...' %></span>
+    </div>
+    <% } %>
+  </div>
+</div>

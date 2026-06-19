@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import db from '../db';
 import { serviceIcons, defaultServiceIcon } from '../config/service-icons';
+import * as seoLib from '../lib/seo';
 
 const router: express.Router = express.Router();
 
@@ -10,10 +11,6 @@ interface DbCategory {
   slug: string;
   description: string;
   icon: string;
-  name_en: string | null;
-  name_id: string | null;
-  description_en: string | null;
-  description_id: string | null;
 }
 
 interface DbSubcategory {
@@ -23,8 +20,6 @@ interface DbSubcategory {
   slug: string;
   price_from: string;
   contractors_count: number;
-  name_en: string | null;
-  name_id: string | null;
 }
 
 /** Get localized name from DB record */
@@ -49,9 +44,9 @@ function localizedDescription(
 router.get('/', (req: Request, res: Response): void => {
   const locale = (res.locals.locale as string) || 'en';
 
-  const categories = db.prepare('SELECT id, name, slug, description, icon, name_en, name_id, description_en, description_id, is_active FROM categories WHERE is_active = 1 ORDER BY name').all() as DbCategory[];
+  const categories = db.prepare('SELECT id, name, slug, description, icon, is_active FROM categories WHERE is_active = 1 ORDER BY name').all() as DbCategory[];
 
-  const subcategories = db.prepare('SELECT id, category_id, name, slug, price_from, contractors_count, name_en, name_id FROM subcategories ORDER BY category_id, name').all() as DbSubcategory[];
+  const subcategories = db.prepare('SELECT id, category_id, name, slug, price_from, contractors_count FROM subcategories ORDER BY category_id, name').all() as DbSubcategory[];
 
   // Build subcategories map
   const subMap = new Map<number, DbSubcategory[]>();
@@ -67,15 +62,15 @@ router.get('/', (req: Request, res: Response): void => {
     const marketPrice = subs.length > 0 ? (subs[0].price_from || '') : '';
     const hasContractors = (db.prepare('SELECT COUNT(*) as count FROM contractors WHERE category_id = ? AND is_approved = 1 AND is_active = 1').get(cat.id) as { count: number }).count > 0;
     return {
-      name: localizedName(cat, locale),
+      name: cat.name,
       slug: cat.slug,
       icon: cat.icon,
-      description: localizedDescription(cat, locale),
+      description: cat.description,
       totalContractors: (db.prepare('SELECT COUNT(*) as count FROM contractors WHERE category_id = ? AND is_approved = 1 AND is_active = 1').get(cat.id) as { count: number }).count,
       marketPrice,
       hasContractors,
       subcategories: subs.map((sub) => ({
-        name: localizedName(sub, locale),
+        name: sub.name,
         slug: sub.slug,
         count: sub.contractors_count,
         priceFrom: sub.price_from || '',
@@ -84,6 +79,7 @@ router.get('/', (req: Request, res: Response): void => {
   });
 
   res.render('services', {
+    seo: seoLib.servicesPageSeo(locale as 'en' | 'id'),
     title: locale === 'id' ? 'Layanan — Kontraktor' : 'Services — Kontraktor',
     services,
     iconMap: serviceIcons,
@@ -95,7 +91,7 @@ router.get('/:slug', (req: Request, res: Response, _next: NextFunction): void =>
   const locale = (res.locals.locale as string) || 'en';
   const { slug } = req.params;
 
-  const category = db.prepare('SELECT id, name, slug, description, icon, name_en, name_id, description_en, description_id FROM categories WHERE slug = ? AND is_active = 1').get(slug) as DbCategory | undefined;
+  const category = db.prepare('SELECT id, name, slug, description, icon FROM categories WHERE slug = ? AND is_active = 1').get(slug) as DbCategory | undefined;
 
   if (!category) {
     res.status(404);
@@ -103,7 +99,7 @@ router.get('/:slug', (req: Request, res: Response, _next: NextFunction): void =>
     return;
   }
 
-  const subcategories = db.prepare('SELECT id, category_id, name, slug, price_from, contractors_count, name_en, name_id FROM subcategories WHERE category_id = ? ORDER BY name').all(category.id) as DbSubcategory[];
+  const subcategories = db.prepare('SELECT id, category_id, name, slug, price_from, contractors_count FROM subcategories WHERE category_id = ? ORDER BY name').all(category.id) as DbSubcategory[];
 
   const contractors = db.prepare(`
     SELECT c.id, c.name, c.avatar_url, c.specialty, c.rating, c.reviews_count, c.completed_projects
@@ -122,13 +118,14 @@ router.get('/:slug', (req: Request, res: Response, _next: NextFunction): void =>
   }>;
 
   const service = {
-    name: localizedName(category, locale),
+    name: category.name,
     slug: category.slug,
     icon: serviceIcons[category.slug] || defaultServiceIcon,
-    description: localizedDescription(category, locale),
+    description: category.description,
     totalContractors: (db.prepare('SELECT COUNT(*) as count FROM contractors WHERE category_id = ? AND is_approved = 1 AND is_active = 1').get(category.id) as { count: number }).count,
+    hasVerifiedContractors: (db.prepare("SELECT COUNT(*) as count FROM contractors WHERE category_id = ? AND is_approved = 1 AND is_active = 1 AND reviews_count > 0").get(category.id) as { count: number }).count > 0,
     subcategories: subcategories.map((sub) => ({
-      name: localizedName(sub, locale),
+      name: sub.name,
       slug: sub.slug,
       count: sub.contractors_count,
       priceFrom: sub.price_from || '',
@@ -145,6 +142,7 @@ router.get('/:slug', (req: Request, res: Response, _next: NextFunction): void =>
   };
 
   res.render('service-detail', {
+    seo: seoLib.serviceCategorySeo(slug as string, localizedName(category, locale), localizedDescription(category, locale), locale as 'en' | 'id'),
     title: `${service.name} — Kontraktor`,
     service,
     contractors: service.contractors,
