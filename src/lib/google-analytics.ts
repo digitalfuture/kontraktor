@@ -2,9 +2,9 @@ import path from 'path';
 import fs from 'fs';
 import { google } from 'googleapis';
 
-const PROPERTY_ID = '538731523';
-const CREDENTIALS_PATH = path.join(__dirname, '../../credentials/ga-oauth.json');
-const TOKENS_PATH = path.join(__dirname, '../../credentials/ga-oauth-tokens.json');
+const PROPERTY_ID = process.env.GA_PROPERTY_ID || '';
+const CREDENTIALS_PATH = process.env.GA_CREDENTIALS_PATH || '';
+const TOKENS_PATH = process.env.GA_TOKENS_PATH || '';
 
 // Cache last fetch results to avoid repeated API calls
 let lastFetch = {
