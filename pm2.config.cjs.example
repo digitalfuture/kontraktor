@@ -1,0 +1,35 @@
+/**
+ * PM2 config template — copy to pm2.config.cjs and fill in your secrets.
+ *
+ * The actual pm2.config.cjs is gitignored and NEVER committed.
+ */
+module.exports = {
+  apps: [
+    {
+      name: 'kontraktor-prod',
+      script: 'dist/index.js',
+      instances: 1,
+      exec_mode: 'fork',
+      env: {
+        NODE_ENV: 'production',
+        PORT: 8080,
+        BASE_URL: 'https://kontraktor.app',
+        SMTP_HOST: 'smtp-relay.brevo.com',
+        SMTP_PORT: '2525',
+        SMTP_SECURE: 'false',
+        SMTP_USER: '<your-brevo-smtp-login>',
+        SMTP_PASS: '<your-brevo-smtp-key>',
+        SMTP_FROM: 'noreply@kontraktor.app',
+        CF_API_TOKEN: '<your-cloudflare-api-token>',
+        GA_TRACKING_ID: 'G-XXXXXXXXXX'
+      },
+      autorestart: true,
+      max_restarts: 10,
+      restart_delay: 4000,
+      log_date_format: 'YYYY-MM-DD HH:mm:ss',
+      error_file: '/var/log/kontraktor/prod_error.log',
+      out_file: '/var/log/kontraktor/prod_out.log',
+      max_memory_restart: '256M'
+    }
+  ]
+};
