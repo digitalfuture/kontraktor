@@ -903,7 +903,7 @@
     "sentToday": "Sent Today",
     "failedToday": "Failed Today",
     "quotaRemaining": "Quota Remaining ({quota}/day)",
-    "sendTestEmail": "Send Test Email",
+    "sendTestEmail": "Send Email",
     "sendTestSubtitle": "Send a single email to any address for testing",
     "recipientEmail": "Recipient Email",
     "subject": "Subject",

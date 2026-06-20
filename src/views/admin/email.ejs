@@ -39,10 +39,10 @@
         <!-- Two-column layout -->
         <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
 
-          <!-- LEFT: Send Test Email -->
+          <!-- LEFT: Send Email -->
           <div class="bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700">
-            <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-4"><%= typeof t !== 'undefined' ? t('email.sendTestEmail') : 'Send Test Email' %></h2>
-            <form method="POST" action="/api/admin/email/send-test" class="space-y-3">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-4"><%= typeof t !== 'undefined' ? t('email.sendTestEmail') : 'Send Email' %></h2>
+            <form method="POST" action="/api/admin/email/send" class="space-y-3">
               <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= typeof t !== 'undefined' ? t('email.recipientEmail') : 'Recipient Email' %></label>
@@ -330,11 +330,12 @@
                   <th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.subject') : 'Subject' %></th>
                   <th class="text-center px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('email.status') : 'Status' %></th>
                   <th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('errors') : 'Error' %></th>
+                  <th class="text-center px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400">—</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                 <% if (recentLog.length === 0) { %>
-                <tr><td colspan="5" class="text-center py-8 text-gray-400 dark:text-gray-500"><%= typeof t !== 'undefined' ? t('email.noActivity') : 'No email activity yet' %></td></tr>
+                <tr><td colspan="6" class="text-center py-8 text-gray-400 dark:text-gray-500"><%= typeof t !== 'undefined' ? t('email.noActivity') : 'No email activity yet' %></td></tr>
                 <% } else { recentLog.forEach(function(log) { %>
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                   <td class="px-4 sm:px-6 py-3 text-gray-500 dark:text-gray-400 text-xs"><%= log.created_at %></td>
@@ -346,12 +347,47 @@
                     <% if (log.status === 'pending') { %><span class="text-gray-400 dark:text-gray-500"><%= typeof t !== 'undefined' ? t('email.pending') : 'Pending' %></span><% } %>
                   </td>
                   <td class="px-4 sm:px-6 py-3 text-red-500 dark:text-red-400 text-xs max-w-[200px] truncate"><%= log.error || '' %></td>
+                  <td class="px-4 sm:px-6 py-3 text-center">
+                    <button onclick="openReply(<%= log.id %>, '<%= (log.recipient_email || '').replace(/'/g, '\\\\x27') %>', '<%= (log.subject || '').replace(/'/g, '\\\\x27') %>')"
+                      class="text-xs px-2 py-1 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition cursor-pointer">Reply</button>
+                  </td>
                 </tr>
                 <% }); } %>
               </tbody>
             </table>
           </div>
         </div>
+
+<!-- Reply Modal (hidden by default) -->
+<div id="reply-modal" class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center" style="display:none">
+  <div class="bg-white dark:bg-gray-800 rounded-card shadow-xl border border-gray-200 dark:border-gray-700 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+      <h3 class="text-base font-semibold text-gray-900 dark:text-white">Reply</h3>
+      <button onclick="closeReply()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-xl leading-none cursor-pointer">&times;</button>
+    </div>
+    <form id="reply-form" method="POST" action="/api/admin/email/reply" class="space-y-4 p-6">
+      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+      <input type="hidden" name="parent_log_id" id="reply-parent-id" value="">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">To</label>
+        <input type="email" name="to" id="reply-to" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Subject</label>
+        <input type="text" name="subject" id="reply-subject" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Body</label>
+        <textarea name="html" id="reply-body" rows="6" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none font-mono"></textarea>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button type="button" onclick="closeReply()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm font-medium">Send Reply</button>
+      </div>
+    </form>
+    <div id="reply-result" class="px-6 pb-4 hidden"></div>
+  </div>
+</div>
 
 <%- include('_admin-layout-close') %>
   <script>
@@ -464,4 +500,45 @@
         document.getElementById('hidden-list').value = val.replace('list:', '');
       }
     }
+    // Reply modal functions
+    function openReply(id, email, subject) {
+      document.getElementById('reply-parent-id').value = id;
+      document.getElementById('reply-to').value = email;
+      document.getElementById('reply-subject').value = subject.startsWith('Re:') ? subject : 'Re: ' + subject;
+      document.getElementById('reply-body').value = '';
+      document.getElementById('reply-result').className = 'px-6 pb-4 hidden';
+      document.getElementById('reply-modal').style.display = 'flex';
+      document.getElementById('reply-body').focus();
+    }
+    function closeReply() {
+      document.getElementById('reply-modal').style.display = 'none';
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+      var form = document.getElementById('reply-form');
+      if (!form) return;
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var btn = form.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
+        var data = new FormData(form);
+        fetch(form.action, { method: 'POST', body: data, headers: { 'Accept': 'application/json' } })
+          .then(function(r) { return r.json(); })
+          .then(function(r) {
+            if (r.ok) {
+              document.getElementById('reply-result').textContent = '✓ Sent (messageId: ' + r.messageId + ')';
+              document.getElementById('reply-result').className = 'px-6 pb-4 block text-sm text-green-600 dark:text-green-400';
+              setTimeout(closeReply, 2000);
+            } else {
+              document.getElementById('reply-result').textContent = '✗ ' + (r.detail || r.error || 'Failed');
+              document.getElementById('reply-result').className = 'px-6 pb-4 block text-sm text-red-600 dark:text-red-400';
+            }
+          })
+          .catch(function(err) {
+            document.getElementById('reply-result').textContent = '✗ Network error: ' + err.message;
+            document.getElementById('reply-result').className = 'px-6 pb-4 block text-sm text-red-600 dark:text-red-400';
+          })
+          .finally(function() { btn.disabled = false; btn.textContent = 'Send Reply'; });
+      });
+    });
   </script>

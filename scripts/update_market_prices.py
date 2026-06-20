@@ -1,68 +1,124 @@
 #!/usr/bin/env python3
-"""Fetch market prices from external sources and update database."""
+"""Update market prices in ALL databases under the data directory.
+
+Replaced single-DB script (was hardcoded to kontraktor.dev.db only).
+Now globs all *.db files so prod, dev, staging all stay in sync.
+"""
 import sqlite3
-import requests
-import re
+import sys
 from datetime import datetime
 from pathlib import Path
 
-DB_PATH = Path('/root/kontraktor/data/kontraktor.dev.db')
+# ── Configuration ──────────────────────────────────────────────────
+DATA_DIR = Path('/root/kontraktor/data')
 
-# Market price sources (Indonesian construction pricing)
-# In real implementation, these would be actual APIs or scraped sources
+# Canonical market price data — all prices in Indonesian Rupiah format
 MARKET_PRICE_DATA = {
-    'cosmetic': {'price': '150K Rp/m²', 'source': 'market'},
-    'capital': {'price': '300K Rp/m²', 'source': 'market'},
-    'turnkey': {'price': '500K Rp/m²', 'source': 'market'},
-    'design': {'price': '800K Rp/m²', 'source': 'market'},
-    'wiring': {'price': '50K Rp/point', 'source': 'market'},
-    'sockets': {'price': '30K Rp/pcs', 'source': 'market'},
-    'lighting': {'price': '80K Rp/point', 'source': 'market'},
-    'panels': {'price': '300K Rp', 'source': 'market'},
-    'install': {'price': '200K Rp/m²', 'source': 'market'},
-    'pipes': {'price': '50K Rp/m', 'source': 'market'},
-    'repair': {'price': '200K Rp/m²', 'source': 'market'},
-    'water-heater': {'price': '100K Rp', 'source': 'market'},
-    'wallpaper': {'price': '40K Rp/m²', 'source': 'market'},
-    'painting': {'price': '35K Rp/m²', 'source': 'market'},
-    'tiles': {'price': '80K Rp/m²', 'source': 'market'},
-    'ceilings': {'price': '150K Rp/m²', 'source': 'market'},
-    'frame': {'price': '1500K Rp/m²', 'source': 'market'},
-    'brick': {'price': '1800K Rp/m²', 'source': 'market'},
-    'blocks': {'price': '1600K Rp/m²', 'source': 'market'},
-    'saunas': {'price': '2500K Rp/m²', 'source': 'market'},
-    'insulation': {'price': '200K Rp/m²', 'source': 'market'},
-    'drainage': {'price': '300K Rp/m', 'source': 'market'},
-    'plaster': {'price': '300K Rp/m²', 'source': 'market'},
-    'siding': {'price': '250K Rp/m²', 'source': 'market'},
-    'stone': {'price': '500K Rp/m²', 'source': 'market'},
-    'fences': {'price': '150K Rp/m', 'source': 'market'},
-    'paths': {'price': '200K Rp/m²', 'source': 'market'},
-    'greening': {'price': '100K Rp/m²', 'source': 'market'},
-    'walls': {'price': '200K Rp', 'source': 'market'},
-    'floor': {'price': '180K Rp/m²', 'source': 'market'},
-    'disposal': {'price': '200K Rp', 'source': 'market'},
-    'buildings': {'price': '800K Rp', 'source': 'market'},
+    'cosmetic': '150K Rp/m²',
+    'capital': '300K Rp/m²',
+    'turnkey': '500K Rp/m²',
+    'design': '800K Rp/m²',
+    'wiring': '50K Rp/point',
+    'sockets': '30K Rp/pcs',
+    'lighting': '80K Rp/point',
+    'panels': '300K Rp',
+    'install': '200K Rp/m²',
+    'pipes': '50K Rp/m',
+    'repair': '200K Rp/m²',
+    'water-heater': '100K Rp',
+    'wallpaper': '40K Rp/m²',
+    'painting': '35K Rp/m²',
+    'tiles': '80K Rp/m²',
+    'ceilings': '150K Rp/m²',
+    'frame': '1500K Rp/m²',
+    'brick': '1800K Rp/m²',
+    'blocks': '1600K Rp/m²',
+    'saunas': '2500K Rp/m²',
+    'insulation': '200K Rp/m²',
+    'drainage': '300K Rp/m',
+    'plaster': '300K Rp/m²',
+    'siding': '250K Rp/m²',
+    'stone': '500K Rp/m²',
+    'fences': '150K Rp/m',
+    'paths': '200K Rp/m²',
+    'greening': '100K Rp/m²',
+    'walls': '200K Rp',
+    'floor': '180K Rp/m²',
+    'disposal': '200K Rp',
+    'buildings': '800K Rp',
 }
 
-def update_market_prices():
-    """Update subcategories with market prices."""
-    conn = sqlite3.connect(DB_PATH)
+
+def update_database(db_path: Path) -> dict:
+    """Update all matching slugs in one database. Returns update stats."""
+    conn = sqlite3.connect(str(db_path))
     cur = conn.cursor()
-    
+
+    # Check the table exists
+    try:
+        cur.execute("SELECT COUNT(*) FROM subcategories")
+    except sqlite3.OperationalError:
+        conn.close()
+        return {'status': 'skipped', 'reason': 'no subcategories table', 'updated': 0}
+
     updated = 0
-    for slug, data in MARKET_PRICE_DATA.items():
+    missed = []
+
+    for slug, price in MARKET_PRICE_DATA.items():
         cur.execute(
             'UPDATE subcategories SET price_from = ? WHERE slug = ?',
-            (data['price'], slug)
+            (price, slug)
         )
         if cur.rowcount > 0:
-            updated += 1
-    
+            updated += cur.rowcount
+        else:
+            missed.append(slug)
+
     conn.commit()
+
+    # Gather coverage stats
+    cur.execute("SELECT COUNT(*) FROM subcategories")
+    total_rows = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(*) FROM subcategories WHERE price_from IS NOT NULL")
+    with_prices = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(*) FROM subcategories WHERE price_from IS NULL")
+    without_prices = cur.fetchone()[0]
+
     conn.close()
-    print(f"[{datetime.now().isoformat()}] Updated {updated} market prices")
-    return updated
+
+    return {
+        'status': 'ok',
+        'updated': updated,
+        'total_rows': total_rows,
+        'with_prices': with_prices,
+        'without_prices': without_prices,
+        'missed': missed,
+    }
+
+
+def main():
+    db_paths = sorted(DATA_DIR.glob('*.db'))
+    if not db_paths:
+        print(f"[{datetime.now().isoformat()}] No databases found in {DATA_DIR}")
+        sys.exit(0)
+
+    print(f"[{datetime.now().isoformat()}] Found {len(db_paths)} database(s): {', '.join(p.name for p in db_paths)}")
+    print(f"[{datetime.now().isoformat()}] Updating {len(MARKET_PRICE_DATA)} market price keys")
+
+    for db_path in db_paths:
+        result = update_database(db_path)
+        if result['status'] == 'skipped':
+            print(f"  {db_path.name}: ⏭️  Skipped — {result['reason']}")
+            continue
+        if result['missed']:
+            print(f"  {db_path.name}: ⚠️  {result['updated']} rows, MISSED slugs: {result['missed']}")
+        else:
+            print(f"  {db_path.name}: ✅ {result['updated']} rows updated "
+                  f"({result['with_prices']}/{result['total_rows']} with prices, "
+                  f"{result['without_prices']} without)")
+
+    print(f"[{datetime.now().isoformat()}] Done")
+
 
 if __name__ == '__main__':
-    update_market_prices()
+    main()

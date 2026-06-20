@@ -192,7 +192,7 @@ export function getQueueItems(
 
 // ── Transporter ──
 
-function createTransporter() {
+export function createTransporter() {
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: parseInt(process.env.SMTP_PORT || '587', 10),
@@ -206,7 +206,7 @@ function createTransporter() {
   });
 }
 
-const fromEmail = process.env.SMTP_FROM || 'noreply@kontraktor.id';
+export const fromEmail = process.env.SMTP_FROM || 'noreply@kontraktor.id';
 const isDev = process.env.NODE_ENV !== 'production';
 
 // ── Queue Processor ──

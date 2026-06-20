@@ -14,6 +14,7 @@ import {
   EmailNameRow,
 } from '../../types/email';
 import { makeT, getPagination, localizedName, PAGE_SIZE, csvUpload } from './helpers';
+import { createTransporter, fromEmail } from '../../lib/email-queue';
 
 // Bring in EmailSetting type
 interface EmailSetting { key: string; value: string; updated_at: string; }
@@ -130,18 +131,85 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
 
   // ── EMAIL API ──
 
-  apiRouter.post('/email/send-test', (req: Request, res: Response): void => {
-    const to = req.body.to as string;
-    const subject = req.body.subject as string;
-    const body = req.body.body as string;
-    if (!to || !subject || !body) {
+  apiRouter.post('/email/send', async (req: Request, res: Response): Promise<void> => {
+    const to = (req.body.to as string | undefined)?.trim() || '';
+    const subject = (req.body.subject as string | undefined)?.trim() || '';
+    const html = (req.body.body as string | undefined) || '';
+    if (!to || !subject || !html) {
       res.status(400).json({ error: 'Missing required fields: to, subject, body' });
       return;
     }
-    const { sendWithQuota } = require('../../lib/email-campaign');
-    sendWithQuota(to, subject, body).then((result: { sent: boolean; reason?: string }) => {
-      res.json(result);
-    });
+    const from = (req.body.from as string | undefined) || fromEmail;
+    try {
+      const info = await createTransporter().sendMail({ from, to, subject, html });
+      const messageId = typeof info === 'object' && info !== null ? (info as { messageId: string }).messageId || '' : '';
+      db.prepare(
+        "INSERT INTO email_log (from_email, recipient_email, subject, direction, status, message_id, sent_at, created_at) VALUES (?, ?, ?, 'outbound', 'sent', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+      ).run(from, to, subject, messageId);
+      res.json({ sent: true, messageId });
+    } catch (err: unknown) {
+      const errMsg = typeof err === 'object' && err !== null
+        ? String((err as { message?: string }).message ?? 'Unknown error').slice(0, 500)
+        : 'Unknown error';
+      db.prepare(
+        "INSERT INTO email_log (from_email, recipient_email, subject, direction, status, error, created_at) VALUES (?, ?, ?, 'outbound', 'failed', ?, CURRENT_TIMESTAMP)"
+      ).run(from, to, subject, errMsg);
+      console.error('[email] send failed:', errMsg);
+      res.status(502).json({ sent: false, reason: errMsg });
+    }
+  });
+
+  // ── INBOUND + REPLY ──
+  apiRouter.post('/email/inbound', express.json(), (req: Request, res: Response): void => {
+    const from = (req.body.from as string | undefined)?.trim();
+    const to = (req.body.to as string | undefined)?.trim();
+    const subject = (req.body.subject as string | undefined)?.trim() || '';
+    const body = (req.body.text || req.body.html || '') as string;
+    const messageId = (req.body.messageId as string | undefined)?.trim();
+    const inReplyTo = (req.body.inReplyTo as string | undefined)?.trim();
+    if (!from || !to) { res.status(400).json({ error: 'Missing from/to' }); return; }
+
+    db.prepare(
+      "INSERT INTO email_log (from_email, recipient_email, subject, direction, status, message_id, in_reply_to, body_html, sent_at, created_at) VALUES (?, ?, ?, 'inbound', 'sent', ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+    ).run(from, to, subject, messageId || null, inReplyTo || null, body);
+    res.json({ ok: true });
+  });
+
+  apiRouter.post('/email/reply', express.json(), async (req: Request, res: Response): Promise<void> => {
+    const parentId = parseInt(req.body.parent_log_id as string || '0', 10);
+    const to = (req.body.to as string | undefined)?.trim();
+    const subject = (req.body.subject as string | undefined)?.trim() || '';
+    const html = (req.body.html as string | undefined) || '';
+    if (!parentId || !to) { res.status(400).json({ error: 'Missing parent_log_id or to' }); return; }
+
+    const parent = db.prepare('SELECT * FROM email_log WHERE id = ?').get(parentId) as Record<string, unknown> | undefined;
+    if (!parent) { res.status(404).json({ error: 'Parent not found' }); return; }
+    const parentMessageId = (parent.message_id as string) || '';
+    const parentSubject = (parent.subject as string) || '';
+    const parentBody = (parent.body_html as string) || '';
+    const from = (req.body.from as string | undefined) || (parent.from_email as string) || fromEmail;
+    const finalSubject = subject.startsWith('Re:') ? subject : `Re: ${parentSubject}`;
+
+    const quoted = `<blockquote>${html || ''}</blockquote>`;
+    const wrapped = `<div>${html}</div><hr/><strong>On ${parent.created_at} ${parent.from_email || parent.recipient_email} wrote:</strong><br/>${quoted}`;
+
+    try {
+      const info = await createTransporter().sendMail({ from, to, subject: finalSubject, html: wrapped, text: html });
+      const messageId = typeof info === 'object' && info !== null ? (info as { messageId: string }).messageId || '' : '';
+      const refs = [parentMessageId, messageId].filter(Boolean).join(' ');
+      db.prepare(
+        "INSERT INTO email_log (from_email, recipient_email, subject, direction, status, message_id, in_reply_to, references, parent_log_id, body_html, sent_at, created_at) VALUES (?, ?, ?, 'outbound', 'sent', ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+      ).run(from, to, finalSubject, messageId, parentMessageId || null, refs || null, parentId, wrapped);
+      res.json({ ok: true, messageId, inReplyTo: parentMessageId, references: refs });
+    } catch (err: unknown) {
+      const errMsg = typeof err === 'object' && err !== null
+        ? String((err as { message?: string }).message ?? 'Unknown error').slice(0, 500)
+        : 'Unknown error';
+      db.prepare(
+        "INSERT INTO email_log (from_email, recipient_email, subject, direction, status, parent_log_id, error, created_at) VALUES (?, ?, ?, 'outbound', 'failed', ?, ?, CURRENT_TIMESTAMP)"
+      ).run(from, to, finalSubject, parentId, errMsg);
+      res.status(502).json({ error: 'Send failed', detail: errMsg });
+    }
   });
 
   apiRouter.post('/email/templates/create', (req: Request, res: Response): void => {

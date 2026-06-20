@@ -902,7 +902,7 @@
     "sentToday": "Terkirim Hari Ini",
     "failedToday": "Gagal Hari Ini",
     "quotaRemaining": "Sisa Kuota ({quota}/hari)",
-    "sendTestEmail": "Kirim Email Uji",
+    "sendTestEmail": "Kirim Email",
     "sendTestSubtitle": "Kirim satu email ke alamat mana pun untuk pengujian",
     "recipientEmail": "Email Penerima",
     "subject": "Subjek",

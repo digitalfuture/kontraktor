@@ -1,5 +1,6 @@
 import { enqueueEmail } from './email-queue';
 import * as nodemailer from 'nodemailer';
+import db from '../db';
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -36,15 +37,29 @@ export function sendMail(to: string, subject: string, html: string, _replyTo?: s
 /**
  * Direct send (bypasses queue) — used only for admin test emails.
  */
-export function sendMailDirect(to: string, subject: string, html: string): Promise<void> {
+export async function sendMailDirect(to: string, subject: string, html: string): Promise<void> {
   const finalSubject = isDev ? `[DEV] ${subject}` : subject;
-  return transporter.sendMail({
-    from: `"Kontraktor${isDev ? ' DEV' : ''}" <${fromEmail}>`,
-    to,
-    bcc: ADMIN_BCC,
-    subject: finalSubject,
-    html,
-  }).then(() => {});
+  try {
+    const info = await transporter.sendMail({
+      from: `"Kontraktor${isDev ? ' DEV' : ''}" <${fromEmail}>`,
+      to,
+      bcc: ADMIN_BCC,
+      subject: finalSubject,
+      html,
+    });
+    const messageId = typeof info === 'object' && info !== null ? (info as { messageId: string }).messageId || '' : '';
+    db.prepare(
+      "INSERT INTO email_log (recipient_email, subject, status, message_id, sent_at, created_at) VALUES (?, ?, 'sent', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+    ).run(to, finalSubject, messageId);
+  } catch (err) {
+    const errMsg = typeof err === 'object' && err !== null
+      ? String((err as { message?: string }).message ?? 'Unknown error').slice(0, 500)
+      : 'Unknown error';
+    db.prepare(
+      "INSERT INTO email_log (recipient_email, subject, status, error, created_at) VALUES (?, ?, 'failed', ?, CURRENT_TIMESTAMP)"
+    ).run(to, finalSubject, errMsg);
+    console.error('[email] sendMailDirect failed:', errMsg);
+  }
 }
 
 export function sendMagicLinkEmail(email: string, link: string): Promise<void> {

@@ -18,5 +18,11 @@ backups/
 
 # Scratch / temp
 scratch_*.js
+
+# Credentials & secrets
+credentials/
+*.tsbuildinfo
+cookies.txt
+*.sqlite
 scratch_*.py
 *.corrupted
