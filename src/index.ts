@@ -12,6 +12,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import compression from 'compression';
 import { serviceIcons, defaultServiceIcon } from './config/service-icons';
+import { renderJsonLd, renderAlternateLinks } from './lib/seo/render';
 
 // Initialize DB (creates tables + seeds data)
 import db from './db';
@@ -114,6 +115,11 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
     (req.headers['user-agent'] || '').startsWith('Kontraktor-Sitemap/')
   );
   res.locals.GA_DISABLED = isInternal || req.cookies?.ga_opt_out === '1';
+
+  // SEO render helpers for templates
+  res.locals.renderJsonLd = (seoData: any) => renderJsonLd(seoData);
+  res.locals.renderAlternateLinks = (seoData: any) => renderAlternateLinks(seoData);
+
   next();
 });
 

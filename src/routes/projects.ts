@@ -83,7 +83,7 @@ router.get('/', (req: any, res: Response): void => {
   });
 
   // Get categories for filter
-  const categories = db.prepare('SELECT slug, c.name, name FROM categories WHERE is_active = 1 ORDER BY name').all() as any[];
+  const categories = db.prepare('SELECT slug, name FROM categories WHERE is_active = 1 ORDER BY name').all() as any[];
 
   const totalPages = Math.ceil(countResult.total / limit);
 

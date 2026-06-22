@@ -80,18 +80,33 @@ export async function sendWithQuota(
 
 export async function sendCampaignEmails(
   campaignId: number,
-  recipients: Array<{ email: string; name?: string }>,
+  recipients: Array<{ email: string; name?: string; company?: string }>,
   subject: string,
   html: string,
   onProgress?: (sent: number, failed: number, total: number) => void
 ): Promise<{ sent: number; failed: number }> {
   const total = recipients.length;
-  const finalSubject = _isDev ? `[DEV] ${subject}` : subject;
+  const baseSubject = subject;
+  const baseHtml = html;
 
   for (let i = 0; i < recipients.length; i++) {
-    enqueueEmail(recipients[i].email, finalSubject, html, {
+    const r = recipients[i];
+    const safeName = r.name || '';
+    const safeCompany = r.company || '';
+
+    // Replace placeholders per-recipient
+    const personalizedSubject = baseSubject
+      .replace(/\{\{recipient_name\}\}/g, safeName)
+      .replace(/\{\{company_name\}\}/g, safeCompany);
+    const personalizedHtml = baseHtml
+      .replace(/\{\{recipient_name\}\}/g, safeName)
+      .replace(/\{\{company_name\}\}/g, safeCompany);
+
+    const finalSubject = _isDev ? `[DEV] ${personalizedSubject}` : personalizedSubject;
+
+    enqueueEmail(r.email, finalSubject, personalizedHtml, {
       campaignId,
-      recipientName: recipients[i].name || null,
+      recipientName: r.name || null,
     });
 
     if (onProgress) onProgress(i + 1, 0, total);

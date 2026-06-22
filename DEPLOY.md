@@ -8,7 +8,7 @@
 - **minor** (0.1.4 → 0.2.0) — новые фичи, изменения API, новые страницы
 - **major** (1.0.0) — breaking changes, смена стека, архитектурные изменения
 
-Версия хранится строго в `package.json`, поле `version`. Поднимается **перед** коммитом.
+Версия хранится строго в `package.json`, поле `version`.
 
 ## Правила коммитов
 
@@ -64,38 +64,59 @@ docs: add DEPLOY.md with commit and version rules
 - Скрипты для одноразовых задач
 - `tsconfig.tsbuildinfo`
 
+---
+
 ## Процесс деплоя
 
 ```bash
-# 0. Убедиться что pm2.config.cjs существует (он в .gitignore)
-#    cp pm2.config.cjs.example pm2.config.cjs  # первый раз — заполнить секреты
+# ─── Шаг 1: Собрать ──────────────────────────────────────────
 
-# 1. Поднять версию
-npm version patch -m "chore: bump version %s"
-
-# 2. Собрать
 npm run build
 
-# 3. Проверить билд
-node -e "console.log(require('./package.json').version)"  # должна быть новая
-ls dist/index.js 2>/dev/null && echo "✅ dist/index.js exists" || echo "❌ BUILD FAILED"
-
-# 4. Скопировать локали (если менялись)
+# Проверить билд
+ls dist/index.js 2>/dev/null && echo "✅ BUILD OK" || echo "❌ BUILD FAILED"
 cp -r src/locales/*.json dist/locales/
 
-# 5. Перезапустить
+# ─── Шаг 2: Деплой ─────────────────────────────────────────────
+
 pm2 restart kontraktor-prod --update-env
 
-# 6. Smoke test — проверить что админка не 500
-curl -s -o /dev/null -w "%{http_code}" -b "session_token=$TOKEN" http://localhost:8080/admin
+# ─── Шаг 3: Тестирование всех страниц ──────────────────────────
 
-# 7. Закоммитить
+# Открыть в браузере все admin-страницы и убедиться что нет
+# 500-х ошибок, пустых страниц или падения JS
+#
+# Список страниц:
+#   /admin
+#   /admin/email
+#   /admin/email/lists
+#   /admin/email/lists/<id>
+#   /admin/email/settings
+#   /admin/contractors
+#   /admin/projects
+#   /admin/trash
+#   /admin/analytics
+#
+# Проверить что скрипты и стили грузятся (нет 404 на main.js, tailwind.css)
+# Проверить HTMX-секции: в админке все hx-get/hx-post запросы отвечают
+
+# ─── Шаг 4: Коммит изменений ───────────────────────────────────
+
+# 4.1. Убедиться что build-артефакты в актуальном состоянии
+npm run build
+cp -r src/locales/*.json dist/locales/
+
+# 4.2. Закоммитить ВСЕ изменения (без поднятия версии)
 git add -A
-git commit -m "feat: ..."
+git commit -m "feat: ... (или fix, refactor)"
 
-# 8. Запушить в GitHub (только если все тесты пройдены)
+# ─── Шаг 5: Отдельный коммит — версия + пуш ────────────────────
+
+npm version patch -m "chore: bump version %s"
 git push origin main
 ```
+
+---
 
 ## Проверка версии при билде
 

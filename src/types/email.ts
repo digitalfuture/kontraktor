@@ -106,6 +106,7 @@ export interface QueueStats {
 export interface CampaignRecipient {
   email: string;
   name?: string;
+  company?: string;
 }
 
 /** Recipient status row shown in list detail */

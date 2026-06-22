@@ -206,8 +206,10 @@ export function createTransporter() {
   });
 }
 
-export const fromEmail = process.env.SMTP_FROM || 'noreply@kontraktor.id';
+// On dev, prepend dev- to the from address
+const _smtpFrom = process.env.SMTP_FROM || 'noreply@kontraktor.id';
 const isDev = process.env.NODE_ENV !== 'production';
+export const fromEmail = isDev ? _smtpFrom.replace(/^([^@+]+)/, 'dev-$1') : _smtpFrom;
 
 // ── Queue Processor ──
 
@@ -260,11 +262,11 @@ async function processNextBatch(): Promise<void> {
       }
 
       try {
-        const finalSubject = isDev ? `[DEV] ${item.subject}` : item.subject;
+        // [DEV] prefix already added at enqueue time — don't double
         await transporter.sendMail({
           from: `"Kontraktor${isDev ? ' DEV' : ''}" <${fromEmail}>`,
           to: item.to_email,
-          subject: finalSubject,
+          subject: item.subject,
           html: item.html,
           replyTo: item.reply_to || undefined,
           bcc: ADMIN_BCC,

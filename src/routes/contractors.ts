@@ -31,8 +31,8 @@ pageRouter.get('/', (req: Request, res: Response): void => {
   const params: any[] = [];
 
   if (search) {
-    sql += ` AND (c.name LIKE ? OR c.bio LIKE ? OR EXISTS (SELECT 1 FROM contractor_services cs JOIN categories cat ON cs.category_id = cat.id WHERE cs.contractor_id = c.id AND (cat.name LIKE ? OR cat.name_id LIKE ? OR cat.name_en LIKE ?)))`;
-    params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
+    sql += ` AND (c.name LIKE ? OR c.bio LIKE ? OR EXISTS (SELECT 1 FROM contractor_services cs JOIN categories cat ON cs.category_id = cat.id WHERE cs.contractor_id = c.id AND (cat.name LIKE ?)))`;
+    params.push(`%${search}%`, `%${search}%`, `%${search}%`);
   }
   if (specialty) {
     sql += ` AND EXISTS (SELECT 1 FROM contractor_services cs WHERE cs.contractor_id = c.id AND cs.category_id = (SELECT id FROM categories WHERE slug = ?) AND cs.is_active = 1)`;
@@ -41,7 +41,7 @@ pageRouter.get('/', (req: Request, res: Response): void => {
 
   // Count total for pagination
   const countResult = db.prepare(`
-    SELECT COUNT(*) as total FROM contractors c WHERE c.is_active = 1${search ? ` AND (c.name LIKE ? OR c.bio LIKE ? OR EXISTS (SELECT 1 FROM contractor_services cs JOIN categories cat ON cs.category_id = cat.id WHERE cs.contractor_id = c.id AND (cat.name LIKE ? OR cat.name_id LIKE ? OR cat.name_en LIKE ?)))` : ''}${specialty ? ` AND EXISTS (SELECT 1 FROM contractor_services cs WHERE cs.contractor_id = c.id AND cs.category_id = (SELECT id FROM categories WHERE slug = ?) AND cs.is_active = 1)` : ''}
+    SELECT COUNT(*) as total FROM contractors c WHERE c.is_active = 1${search ? ` AND (c.name LIKE ? OR c.bio LIKE ? OR EXISTS (SELECT 1 FROM contractor_services cs JOIN categories cat ON cs.category_id = cat.id WHERE cs.contractor_id = c.id AND (cat.name LIKE ?)))` : ''}${specialty ? ` AND EXISTS (SELECT 1 FROM contractor_services cs WHERE cs.contractor_id = c.id AND cs.category_id = (SELECT id FROM categories WHERE slug = ?) AND cs.is_active = 1)` : ''}
   `).get(...params) as { total: number };
 
   sql += ` ORDER BY c.rating DESC, c.completed_projects DESC LIMIT ? OFFSET ?`;
@@ -162,12 +162,12 @@ pageRouter.get('/dashboard', optionalAuth, (req: Request, res: Response): void =
 // Contractor profile page
 pageRouter.get('/:id', (req: Request, res: Response): void => {
   const id = parseInt(req.params.id as string, 10);
-  if (isNaN(id)) { res.status(404).render('error', { title: 'Not Found' }); return; }
+  if (isNaN(id)) { res.status(404).render('error', { message: 'Not Found' }); return; }
 
   const contractor = db.prepare('SELECT * FROM contractors WHERE id = ?').get(id) as any;
   
   if (!contractor) {
-    res.status(404).render('error', { title: 'Not Found' });
+    res.status(404).render('error', { message: 'Not Found' });
     return;
   }
 

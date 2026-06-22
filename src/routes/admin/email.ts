@@ -135,13 +135,15 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
     const to = (req.body.to as string | undefined)?.trim() || '';
     const subject = (req.body.subject as string | undefined)?.trim() || '';
     const html = (req.body.body as string | undefined) || '';
+    const isDev = process.env.NODE_ENV !== 'production';
+    const finalSubject = isDev ? `[DEV] ${subject}` : subject;
     if (!to || !subject || !html) {
       res.status(400).json({ error: 'Missing required fields: to, subject, body' });
       return;
     }
     const from = (req.body.from as string | undefined) || fromEmail;
     try {
-      const info = await createTransporter().sendMail({ from, to, subject, html });
+      const info = await createTransporter().sendMail({ from, to, subject: finalSubject, html });
       const messageId = typeof info === 'object' && info !== null ? (info as { messageId: string }).messageId || '' : '';
       db.prepare(
         "INSERT INTO email_log (from_email, recipient_email, subject, direction, status, message_id, sent_at, created_at) VALUES (?, ?, ?, 'outbound', 'sent', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
@@ -188,18 +190,20 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
     const parentSubject = (parent.subject as string) || '';
     const parentBody = (parent.body_html as string) || '';
     const from = (req.body.from as string | undefined) || (parent.from_email as string) || fromEmail;
+    const isDev = process.env.NODE_ENV !== 'production';
     const finalSubject = subject.startsWith('Re:') ? subject : `Re: ${parentSubject}`;
+    const devSubject = isDev ? `[DEV] ${finalSubject}` : finalSubject;
 
     const quoted = `<blockquote>${html || ''}</blockquote>`;
     const wrapped = `<div>${html}</div><hr/><strong>On ${parent.created_at} ${parent.from_email || parent.recipient_email} wrote:</strong><br/>${quoted}`;
 
     try {
-      const info = await createTransporter().sendMail({ from, to, subject: finalSubject, html: wrapped, text: html });
+      const info = await createTransporter().sendMail({ from, to, subject: devSubject, html: wrapped, text: html });
       const messageId = typeof info === 'object' && info !== null ? (info as { messageId: string }).messageId || '' : '';
       const refs = [parentMessageId, messageId].filter(Boolean).join(' ');
       db.prepare(
         "INSERT INTO email_log (from_email, recipient_email, subject, direction, status, message_id, in_reply_to, references, parent_log_id, body_html, sent_at, created_at) VALUES (?, ?, ?, 'outbound', 'sent', ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
-      ).run(from, to, finalSubject, messageId, parentMessageId || null, refs || null, parentId, wrapped);
+      ).run(from, to, devSubject, messageId, parentMessageId || null, refs || null, parentId, wrapped);
       res.json({ ok: true, messageId, inReplyTo: parentMessageId, references: refs });
     } catch (err: unknown) {
       const errMsg = typeof err === 'object' && err !== null
@@ -207,7 +211,7 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
         : 'Unknown error';
       db.prepare(
         "INSERT INTO email_log (from_email, recipient_email, subject, direction, status, parent_log_id, error, created_at) VALUES (?, ?, ?, 'outbound', 'failed', ?, ?, CURRENT_TIMESTAMP)"
-      ).run(from, to, finalSubject, parentId, errMsg);
+      ).run(from, to, devSubject, parentId, errMsg);
       res.status(502).json({ error: 'Send failed', detail: errMsg });
     }
   });
@@ -310,7 +314,7 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
 
     if (campaign.mailing_list_id) {
       const contacts = db.prepare('SELECT email, name, company FROM mailing_list_contacts WHERE list_id = ? AND deleted_at IS NULL').all(campaign.mailing_list_id) as Pick<MailingListContact, 'email' | 'name' | 'company'>[];
-      recipients = contacts.map(c => ({ email: c.email, name: c.name || c.company || undefined }));
+      recipients = contacts.map(c => ({ email: c.email, name: c.name || undefined, company: c.company || undefined }));
     } else {
       if (campaign.recipient_filter === 'all' || campaign.recipient_filter === 'all_contractors') {
         const contractors = db.prepare('SELECT email, name FROM contractors WHERE is_active = 1').all() as EmailNameRow[];

@@ -14,9 +14,10 @@ const transporter = nodemailer.createTransport({
   socketTimeout: 10000,
 });
 
-const fromEmail = process.env.SMTP_FROM || 'noreply@kontraktor.id';
+const _fromEmail = process.env.SMTP_FROM || 'noreply@kontraktor.id';
 const baseUrl = process.env.BASE_URL || 'http://localhost:3002';
 const isDev = process.env.NODE_ENV !== 'production';
+const fromEmail = isDev ? _fromEmail.replace(/^([^@+]+)/, 'dev-$1') : _fromEmail;
 const ADMIN_BCC = process.env.ADMIN_BCC || 'pulauberapi@gmail.com';
 
 /**

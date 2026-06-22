@@ -33,7 +33,7 @@ router.get('/', requireAuth, (req: Request, res: Response): void => {
 
   // Bids placed by this contractor
   const bids = isContractor ? db.prepare(`
-    SELECT b.*, p.title as project_title, p.category_slug,
+    SELECT b.*, p.title as project_title, p.category as category_slug,
            c.name as category_display
     FROM bids b
     JOIN projects p ON b.project_id = p.id

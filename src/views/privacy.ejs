@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="<%= locale %>">
-  <%- include('partials/_head', { title: `${t('privacy.title')} — ${t('site.name')}`, description: typeof t('privacy.section1Text') === 'string' ? t('privacy.section1Text').substring(0, 150) + '...' : '' }) %>
+  <%- include('partials/_head') %>
 <body class="bg-gray-200 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
   <%- include('partials/_anti-flash') %>
   <%- include('partials/header') %>
