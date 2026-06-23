@@ -21,7 +21,7 @@ if (typeof htmx !== 'undefined') {
       document.addEventListener('click', (e) => {
         const btn = document.getElementById('mobile-menu-btn');
         const menu = document.getElementById('mobile-menu');
-        const aside = document.querySelector('aside');
+        const aside = document.querySelector('aside[data-admin-sidebar]');
 
         const target = e.target;
         const path = e.composedPath ? e.composedPath() : [];
