@@ -3,7 +3,10 @@
   <%= t("header.skipToMain") %>
 </a>
 
-<header class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50" role="banner">
+<header class="bg-white dark:bg-gray-900 sticky top-0 z-50" role="banner">
+  <!-- Thin gradient accent bar -->
+  <div class="h-0.5 bg-gradient-to-r from-orange-500 via-orange-400 to-amber-500"></div>
+  <div class="border-b border-gray-200 dark:border-gray-700">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <!-- Logo -->
@@ -61,7 +64,7 @@
         <% } else { %>
           <a href="/auth/login" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition font-medium"><%= t('nav.login') %></a>
         <% } %>
-        <a href="/post" class="bg-orange-700 text-white px-5 py-2 rounded-lg hover:bg-orange-800 transition font-medium focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2">
+        <a href="/post" class="bg-gradient-to-r from-orange-600 to-amber-500 text-white px-5 py-2 rounded-lg hover:from-orange-700 hover:to-amber-600 transition font-medium shadow-button hover:shadow-button-hover focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2">
           <%= t('nav.postOrder') %>
         </a>
       </div>
@@ -123,10 +126,11 @@
         <% } else { %>
           <a href="/auth/login" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition py-2 font-medium"><%= t('nav.login') %></a>
         <% } %>
-        <a href="/post" class="bg-orange-700 text-white px-5 py-2 rounded-lg hover:bg-orange-800 transition font-medium text-center focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2">
+        <a href="/post" class="bg-gradient-to-r from-orange-600 to-amber-500 text-white px-5 py-2 rounded-lg hover:from-orange-700 hover:to-amber-600 transition font-medium text-center shadow-button hover:shadow-button-hover focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2">
           <%= t('nav.postOrder') %>
         </a>
       </nav>
     </div>
   </div>
+  </div> <!-- /border-b -->
 </header>

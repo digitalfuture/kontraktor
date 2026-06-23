@@ -59,6 +59,7 @@ pageRouter.get('/:id/edit', requireAuth, (req: any, res: Response): void => {
     category: project.category || '',
     subcategory: project.subcategory || '',
     contactName: project.contact_name || '',
+    contactEmail: project.contact_email || '',
     contactPhone: project.contact_phone || '',
     district: getDistrictDisplay(project.district, locale) || '',
     district_en: project.district || '',
@@ -196,6 +197,7 @@ apiRouter.post('/:id/edit', requireAuth, (req: any, res: Response): void => {
     category: req.body.category || '',
     subcategory: req.body.subcategory || '',
     contactName: (req.body.contactName || '').trim(),
+    contactEmail: (req.body.contactEmail || '').trim(),
     contactPhone: (req.body.contactPhone || '').trim(),
     district: (req.body.district || '').trim(),
     district_en: (req.body.district_en || '').trim(),
@@ -228,10 +230,10 @@ apiRouter.post('/:id/edit', requireAuth, (req: any, res: Response): void => {
 
   db.prepare(`
     UPDATE projects SET title = ?, description = ?, category = ?, subcategory = ?,
-      contact_name = ?, contact_phone = ?, district = ?, address = ?
+      contact_name = ?, contact_email = ?, contact_phone = ?, district = ?, address = ?
     WHERE id = ?
   `).run(formData.title, formData.description, formData.category, formData.subcategory || null,
-    formData.contactName, formData.contactPhone, formData.district_en || formData.district,
+    formData.contactName, formData.contactEmail || null, formData.contactPhone, formData.district_en || formData.district,
     formData.address || null, id);
 
   res.redirect(`/post/${id}?lang=${locale}`);
@@ -329,6 +331,7 @@ apiRouter.post('/', optionalAuth, (req: Request, res: Response): void => {
     category: req.body.category || '',
     subcategory: req.body.subcategory || '',
     contactName: (req.body.contactName || '').trim(),
+    contactEmail: (req.body.contactEmail || '').trim(),
     contactPhone: (req.body.contactPhone || '').trim(),
     district: (req.body.district || '').trim(),
     district_en: (req.body.district_en || '').trim(),
@@ -393,9 +396,9 @@ apiRouter.post('/', optionalAuth, (req: Request, res: Response): void => {
   }
 
   db.prepare(`
-    INSERT INTO projects (title, description, category, subcategory, contact_name, contact_phone, district, address, client_email, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
-  `).run(formData.title, formData.description, formData.category, formData.subcategory || null, formData.contactName, formData.contactPhone, formData.district_en || formData.district, formData.address || null, clientEmail);
+    INSERT INTO projects (title, description, category, subcategory, contact_name, contact_email, contact_phone, district, address, client_email, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+  `).run(formData.title, formData.description, formData.category, formData.subcategory || null, formData.contactName, formData.contactEmail || null, formData.contactPhone, formData.district_en || formData.district, formData.address || null, clientEmail);
 
   // Localize district for display
   const storedDistrict = formData.district_en || formData.district;

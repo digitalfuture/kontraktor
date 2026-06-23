@@ -1,0 +1,11 @@
+require('ts-node').register({ project: '/root/kontraktor/tsconfig.json' });
+console.log('ts-node registered');
+console.log('loading db...');
+const db = require('./src/db');
+console.log('db loaded, tables:', Object.keys(db).join(', '));
+console.log('loading services...');
+require('./src/routes/services');
+console.log('services loaded');
+console.log('loading contractors...');
+require('./src/routes/contractors');
+console.log('contractors loaded');

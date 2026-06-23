@@ -1,0 +1,238 @@
+<%- include('./_admin-layout') %>
+<link rel="stylesheet" href="/assets/highlight.css">
+<%- include('./_admin-header', { title: 'Backup & Restore' }) %>
+
+<style>
+  .restore-point { transition: all .15s ease; }
+  .restore-point:hover { background: rgba(255,255,255,.03); }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .status-green { background: #22c55e; }
+  .status-yellow { background: #eab308; }
+  .status-gray { background: #6b7280; }
+  .status-red { background: #ef4444; }
+</style>
+
+<div class="max-w-5xl">
+  <h1 class="text-2xl font-bold mb-6">🔄 Backup & Restore</h1>
+
+  <!-- ── Status cards ── -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
+      <div class="flex items-center gap-2 text-sm text-gray-400 mb-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        Litestream
+      </div>
+      <div class="text-lg font-semibold">
+        <span class="status-dot <%= litestream.running ? 'status-green' : 'status-red' %>"></span>
+        <%= litestream.running ? 'Running' : 'Stopped' %>
+      </div>
+      <div class="text-xs text-gray-500 mt-1">
+        Archive: <%= litestream.archiveSize || '—' %>
+      </div>
+    </div>
+
+    <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
+      <div class="flex items-center gap-2 text-sm text-gray-400 mb-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        Maintenance
+      </div>
+      <div class="text-lg font-semibold">
+        <span class="status-dot <%= maintenance ? 'status-yellow' : 'status-green' %>"></span>
+        <%= maintenance ? 'Active' : 'Off' %>
+      </div>
+      <div class="text-xs text-gray-500 mt-1">
+        <%= maintenance ? 'Site is in maintenance mode' : 'Site is live' %>
+      </div>
+    </div>
+
+    <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
+      <div class="flex items-center gap-2 text-sm text-gray-400 mb-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        Restore Points
+      </div>
+      <div class="text-lg font-semibold"><%= points.length %> available</div>
+      <div class="text-xs text-gray-500 mt-1">
+        Archive: <%= points.filter(p => p.type === 'archive').length %> files
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Pending restore alert ── -->
+  <% if (pendingRequest) { %>
+  <div class="bg-yellow-900/30 border border-yellow-700/50 rounded-lg p-4 mb-6 flex items-start gap-3">
+    <svg class="w-5 h-5 text-yellow-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+    <div class="flex-1">
+      <p class="font-semibold text-yellow-300">⚠️ Restore in progress</p>
+      <p class="text-sm text-yellow-200/70 mt-1"><%= statusMessage %></p>
+      <p class="text-xs text-yellow-200/50 mt-1">
+        Target: <%= pendingRequest?.target || '—' %> &middot;
+        Requested: <%= pendingRequest?.requestedAt || '—' %>
+      </p>
+      <button class="btn-cancel-restore text-xs mt-2 px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 text-gray-300" data-target="<%= pendingRequest?.target || '' %>">
+        Cancel restore
+      </button>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- ── Last Restore + Undo ── -->
+  <% if (lastRestore) { %>
+  <div class="bg-gray-800/30 border border-gray-700/50 rounded-lg p-4 mb-6">
+    <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Last Restore</h3>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+      <div><span class="text-gray-500">Time:</span> <%= lastRestore.time || '—' %></div>
+      <div><span class="text-gray-500">Target:</span> <%= lastRestore.target_label || lastRestore.target || '—' %></div>
+      <div><span class="text-gray-500">Status:</span> <%= lastRestore.status || '—' %></div>
+      <div><span class="text-gray-500">By:</span> <%= lastRestore.requestedBy || '—' %></div>
+    </div>
+    <% if (lastRestore.pre_restore_file) { %>
+    <button class="btn-undo-restore mt-3 px-4 py-1.5 text-sm rounded-lg bg-red-800/50 hover:bg-red-700/50 text-red-300 border border-red-700/50 transition"
+            data-pre-file="<%= lastRestore.pre_restore_file %>"
+            data-target-label="<%= lastRestore.target_label || lastRestore.target || '' %>">
+      ↩ Undo Last Restore
+    </button>
+    <% } %>
+  </div>
+  <% } %>
+
+  <!-- ── Restore Points Table ── -->
+  <div class="bg-gray-900/40 rounded-lg border border-gray-800/60 overflow-hidden">
+    <div class="px-5 py-4 border-b border-gray-800/60 flex items-center justify-between">
+      <h2 class="font-semibold text-lg">📋 Restore Points</h2>
+      <button id="btn-refresh" class="text-sm px-3 py-1.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-400 transition">
+        ⟳ Refresh
+      </button>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left text-gray-400 border-b border-gray-800/60">
+            <th class="px-5 py-3 font-medium">Type</th>
+            <th class="px-5 py-3 font-medium">Description</th>
+            <th class="px-5 py-3 font-medium">Time</th>
+            <th class="px-5 py-3 font-medium">Size</th>
+            <th class="px-5 py-3 font-medium text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% points.forEach(function(p) { %>
+          <tr class="restore-point border-b border-gray-800/40 <%= p.id === 'latest' ? 'bg-blue-900/10' : '' %>">
+            <td class="px-5 py-3">
+              <% if (p.type === 'litestream') { %>
+                <span class="px-2 py-0.5 text-xs rounded bg-blue-900/40 text-blue-300">WAL</span>
+              <% } else { %>
+                <span class="px-2 py-0.5 text-xs rounded bg-gray-700/50 text-gray-300">Archive</span>
+              <% } %>
+            </td>
+            <td class="px-5 py-3 text-gray-200 font-medium"><%= p.label %></td>
+            <td class="px-5 py-3 text-gray-400"><%= p.time %></td>
+            <td class="px-5 py-3 text-gray-500"><%= p.size || '—' %></td>
+            <td class="px-5 py-3 text-right">
+              <% if (p.id === 'latest') { %>
+                <button class="btn-restore text-xs px-3 py-1.5 rounded bg-orange-700 hover:bg-orange-600 text-white transition"
+                        data-target="latest" data-label="<%= p.label %>"
+                        <%= pendingRequest ? 'disabled style="opacity:.5;cursor:not-allowed"' : '' %>>
+                  Restore
+                </button>
+              <% } else { %>
+                <button class="btn-restore text-xs px-3 py-1.5 rounded bg-gray-700 hover:bg-orange-700 text-gray-300 hover:text-white transition"
+                        data-target="archive:<%= p.id %>" data-label="<%= p.label %>"
+                        <%= pendingRequest ? 'disabled style="opacity:.5;cursor:not-allowed"' : '' %>>
+                  Restore
+                </button>
+              <% } %>
+            </td>
+          </tr>
+          <% }); %>
+          <% if (points.length === 0) { %>
+          <tr><td colspan="5" class="px-5 py-8 text-center text-gray-500">No restore points available yet.</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Scripts ── -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const BASE = '/api/admin/backup';
+
+  // Refresh
+  document.getElementById('btn-refresh')?.addEventListener('click', () => location.reload());
+
+  // ── Restore button ──
+  document.querySelectorAll('.btn-restore').forEach(btn => {
+    btn.addEventListener('click', async function() {
+      const target = this.dataset.target;
+      const label = this.dataset.label;
+      if (!confirm(`Are you sure you want to restore to "${label}"?\n\nThe site will enter maintenance mode during the restore.`)) return;
+      if (!confirm(`⚠️ This will replace the current database.\n\nMake sure you have a current backup.\n\nProceed with restore to "${label}"?`)) return;
+
+      try {
+        const resp = await fetch(BASE + '/restore', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target, label })
+        });
+        const data = await resp.json();
+        if (resp.ok) {
+          showToast('Restore requested. The site will enter maintenance mode shortly.', 'info');
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          showToast('Error: ' + (data.error || 'Unknown'), 'error');
+        }
+      } catch(e) {
+        showToast('Network error: ' + e.message, 'error');
+      }
+    });
+  });
+
+  // ── Undo ──
+  document.querySelector('.btn-undo-restore')?.addEventListener('click', async function() {
+    const label = this.dataset.targetLabel || 'previous state';
+    if (!confirm(`Undo the last restore? This will revert to the state saved before the last restore (${label}).`)) return;
+
+    try {
+      const resp = await fetch(BASE + '/undo', { method: 'POST' });
+      const data = await resp.json();
+      if (resp.ok) {
+        showToast('Undo requested. Reverting to pre-restore state...', 'info');
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        showToast('Error: ' + (data.error || 'Unknown'), 'error');
+      }
+    } catch(e) {
+      showToast('Network error: ' + e.message, 'error');
+    }
+  });
+
+  // ── Cancel restore ──
+  document.querySelector('.btn-cancel-restore')?.addEventListener('click', async function() {
+    try {
+      const resp = await fetch(BASE + '/cancel', { method: 'POST' });
+      if (resp.ok) {
+        showToast('Restore cancelled', 'info');
+        setTimeout(() => location.reload(), 1000);
+      }
+    } catch(e) {
+      showToast('Error: ' + e.message, 'error');
+    }
+  });
+});
+
+// ── Toast helper ──
+function showToast(msg, type) {
+  const el = document.createElement('div');
+  el.className = `fixed top-4 right-4 z-50 px-5 py-3 rounded-lg shadow-lg text-white text-sm ${
+    type === 'error' ? 'bg-red-700' : 'bg-blue-700'
+  } transition-all duration-300`;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 4000);
+}
+</script>
+
+<%- include('./_admin-footer') %>
+<%- include('./_admin-layout-close') %>

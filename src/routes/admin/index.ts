@@ -6,6 +6,7 @@ import { registerContentRoutes } from './content';
 import { registerAnalyticsRoutes } from './analytics';
 import { registerPaymentRoutes } from './payments';
 import { registerEmailRoutes } from './email';
+import { registerBackupRoutes } from './backup';
 
 export const pageRouter: express.Router = express.Router();
 export const apiRouter: express.Router = express.Router();
@@ -18,5 +19,6 @@ registerContentRoutes(pageRouter, apiRouter);
 registerPaymentRoutes(pageRouter, apiRouter);
 registerAnalyticsRoutes(pageRouter, apiRouter);
 registerEmailRoutes(pageRouter, apiRouter);
+registerBackupRoutes(pageRouter, apiRouter);
 
 export default pageRouter;

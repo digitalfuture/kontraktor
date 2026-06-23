@@ -70,6 +70,20 @@ app.use(express.static(path.join(__dirname, '../public'), {
   },
 }));
 app.use(compression()); // Gzip compression for all responses
+
+// ── Maintenance mode check (fallback for direct port access) ──
+// nginx handles this at proxy level too; this is a defense-in-depth layer.
+app.use((req, res, next) => {
+  // Skip health checks during maintenance
+  if (req.path === '/health' || req.path === '/maintenance.html') return next();
+  try {
+    if (require('fs').existsSync(path.join(__dirname, '../.maintenance'))) {
+      res.status(503).sendFile(path.join(__dirname, '../public/maintenance.html'));
+      return;
+    }
+  } catch { /* ignore fs errors */ }
+  next();
+});
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());

@@ -1,0 +1,13 @@
+# Kontraktor — Litestream Configuration
+# Continuous WAL replication for point-in-time recovery.
+# Litestream reads the WAL file and streams changes to local storage.
+# Restore: litestream restore -o kontraktor.prod.db backups/litestream/
+# PITR:    litestream restore -o kontraktor.prod.db -t "2026-06-23T12:00:00" backups/litestream/
+
+dbs:
+  - path: /root/kontraktor/data/kontraktor.prod.db
+    replicas:
+      - type: file
+        path: /root/kontraktor/backups/litestream/
+        snapshot-interval: 24h
+        retention: 168h  # Keep 7 days of WAL history
