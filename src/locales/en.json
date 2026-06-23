@@ -759,7 +759,7 @@
   "pagination": {
     "previous": "Previous",
     "next": "Next",
-    "pageInfo": "Page <%= page %> of <%= totalPages %> (<%= totalItems %> total)"
+    "pageInfo": "Page {page} of {totalPages} ({totalItems} total)"
   },
   "projectStatus": {
     "title": "Manage Project Status",

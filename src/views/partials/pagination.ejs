@@ -41,6 +41,6 @@ if (p && p.totalPages > 1) {
   <% } %>
 </nav>
 <p class="text-center text-sm text-gray-500 dark:text-gray-300 mt-2">
-  <%= t('pagination.pageInfo', { page: p.page, totalPages: p.totalPages, totalItems: p.totalItems }) %>
+  <% var pageInfoStr = t('pagination.pageInfo').replace('{page}', p.page).replace('{totalPages}', p.totalPages).replace('{totalItems}', p.totalItems); %><%= pageInfoStr %>
 </p>
 <% } %>

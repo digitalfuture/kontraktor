@@ -758,7 +758,7 @@
   "pagination": {
     "previous": "Sebelumnya",
     "next": "Selanjutnya",
-    "pageInfo": "Halaman <%= page %> dari <%= totalPages %> (total <%= totalItems %>)"
+    "pageInfo": "Halaman {page} dari {totalPages} (total {totalItems})"
   },
   "projectStatus": {
     "title": "Kelola Status Proyek",
