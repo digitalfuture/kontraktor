@@ -614,7 +614,10 @@
     "beFirst": "Jadilah yang pertama!",
     "noReviews": "Belum ada ulasan",
     "general": "Umum",
-    "verified": "Terverifikasi"
+    "verified": "Terverifikasi",
+    "sortBy": "Urutkan",
+    "sortProjects": "Proyek",
+    "sortName": "Nama"
   },
   "contractorProfile": {
     "projectsCompleted": "proyek selesai",

@@ -615,7 +615,10 @@
     "beFirst": "Be the first!",
     "noReviews": "No reviews yet",
     "general": "General",
-    "verified": "Verified"
+    "verified": "Verified",
+    "sortBy": "Sort by",
+    "sortProjects": "Projects",
+    "sortName": "Name"
   },
   "contractorProfile": {
     "projectsCompleted": "projects completed",

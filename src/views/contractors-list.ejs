@@ -35,9 +35,22 @@
         <%= t('contractors.search') %>
       </button>
       <% if (search || specialty) { %>
-      <a href="/contractors" class="text-sm text-gray-500 dark:text-gray-300 hover:text-orange-600 px-3 py-2.5"><%= t('contractors.clear') %></a>
+        <a href="/contractors" class="text-sm text-gray-500 dark:text-gray-300 hover:text-orange-600 px-3 py-2.5"><%= t('contractors.clear') %></a>
       <% } %>
-    </form>
+      </form>
+
+      <!-- Sort -->
+      <div class="flex items-center gap-2 mb-6 text-sm">
+        <span class="text-gray-500 dark:text-gray-300"><%= t('contractors.sortBy') %>:</span>
+        <a href="?sort=projects<%= search ? '&search=' + search : '' %><%= specialty ? '&specialty=' + specialty : '' %>"
+           class="px-3 py-1.5 rounded-lg transition <%= sort === 'projects' || !sort ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 font-medium' : 'text-gray-600 dark:text-gray-300 hover:text-orange-600' %>">
+          <%= t('contractors.sortProjects') %>
+        </a>
+        <a href="?sort=name<%= search ? '&search=' + search : '' %><%= specialty ? '&specialty=' + specialty : '' %>"
+           class="px-3 py-1.5 rounded-lg transition <%= sort === 'name' ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 font-medium' : 'text-gray-600 dark:text-gray-300 hover:text-orange-600' %>">
+          <%= t('contractors.sortName') %>
+        </a>
+      </div>
 
     <% if (contractors.length === 0) { %>
     <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
@@ -73,10 +86,11 @@
         <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
           <% var avg = parseFloat(c.avg_rating || 0); %>
           <% if (avg > 0) { %>
-          <span>⭐ <%= avg.toFixed(1) %> (<%= c.review_count %>)</span>
+          <span>⭐ <%= avg.toFixed(1) %></span>
           <% } else { %>
           <span class="text-gray-400"><%= t('contractors.noReviews') %></span>
           <% } %>
+          <span><%= c.completed_projects || 0 %> <%= t('contractorProfile.projectsCompleted') %></span>
         </div>
         <% if (c.bio) { %>
         <p class="text-sm text-gray-500 dark:text-gray-300 mt-3 line-clamp-2"><%= c.bio %></p>

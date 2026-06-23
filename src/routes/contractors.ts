@@ -16,6 +16,7 @@ export const pageRouter: express.Router = express.Router();
 pageRouter.get('/', (req: Request, res: Response): void => {
   const search = (req.query.search as string || '').trim();
   const specialty = (req.query.specialty as string || '').trim();
+  const sort = (req.query.sort as string || 'projects').trim();
   const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
   const limit = Math.min(MAX_LIMIT, Math.max(1, parseInt(req.query.limit as string, 10) || DEFAULT_LIMIT));
   const offset = (page - 1) * limit;
@@ -44,7 +45,13 @@ pageRouter.get('/', (req: Request, res: Response): void => {
     SELECT COUNT(*) as total FROM contractors c WHERE c.is_active = 1${search ? ` AND (c.name LIKE ? OR c.bio LIKE ? OR EXISTS (SELECT 1 FROM contractor_services cs JOIN categories cat ON cs.category_id = cat.id WHERE cs.contractor_id = c.id AND (cat.name LIKE ?)))` : ''}${specialty ? ` AND EXISTS (SELECT 1 FROM contractor_services cs WHERE cs.contractor_id = c.id AND cs.category_id = (SELECT id FROM categories WHERE slug = ?) AND cs.is_active = 1)` : ''}
   `).get(...params) as { total: number };
 
-  sql += ` ORDER BY c.rating DESC, c.completed_projects DESC LIMIT ? OFFSET ?`;
+  // Sort
+  if (sort === 'name') {
+    sql += ` ORDER BY c.name ASC`;
+  } else {
+    sql += ` ORDER BY c.completed_projects DESC, c.rating DESC, c.name ASC`;
+  }
+  sql += ` LIMIT ? OFFSET ?`;
 
   const contractors = db.prepare(sql).all(...params, limit, offset) as any[];
 
@@ -61,13 +68,14 @@ pageRouter.get('/', (req: Request, res: Response): void => {
     specialties,
     search,
     specialty,
+    sort,
     pagination: {
       page,
       totalPages,
       limit,
       totalItems: countResult.total,
       baseUrl: '/contractors',
-      params: { search: search || undefined, specialty: specialty || undefined },
+      params: { search: search || undefined, specialty: specialty || undefined, sort: sort !== 'projects' ? sort : undefined },
     },
   });
 });
