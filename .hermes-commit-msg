@@ -1,8 +1,0 @@
-feat: optional contact email on project post, fix title, gradients, system email template
-
-- fix-title: 'Project Title' → 'Post a Project' (en) / 'Pasang Proyek' (id)
-- add-email-col: contact_email TEXT column on projects (dev + prod DB)
-- add-email-form: optional email field on post.ejs, shown on project-detail
-- gradients: subtle orange-amber gradients on header, footer, hero, cta, services, how-it-works, reviews
-- system-email: contractor_invite editable template in /admin/email/settings
-- email.ts: removed hardcoded sendContractorInviteEmail, now reads from DB
