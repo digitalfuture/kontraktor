@@ -240,7 +240,7 @@
     "contractors": "kontraktor"
   },
   "post": {
-    "title": "Judul Proyek",
+    "title": "Pasang Proyek",
     "subtitle": "Jelaskan proyek Anda dan dapatkan penawaran dari profesional",
     "nameLabel": "Nama Anda",
     "namePlaceholder": "cth. Budi Santoso",
@@ -275,7 +275,9 @@
     "categoryRequired": "Kategori wajib dipilih",
     "nameRequired": "Nama wajib diisi",
     "phoneRequired": "Telepon wajib diisi",
-    "districtRequired": "Kabupaten/Kota wajib diisi"
+    "districtRequired": "Kabupaten/Kota wajib diisi",
+    "emailLabel": "Email (opsional)",
+    "emailPlaceholder": "cth. john@example.com"
   },
   "admin": {
     "dashboard": "Dasbor Admin",
@@ -1007,6 +1009,8 @@
     "templateProjectAssignedDesc": "Notifikasi ke kontraktor tentang proyek baru",
     "templateBidReceived": "Penawaran Diterima",
     "templateBidReceivedDesc": "Ke klien saat kontraktor mengirim penawaran",
+    "templateContractorInvite": "Undangan Kontraktor",
+    "templateContractorInviteDesc": "Undangan untuk kontraktor awal mendaftar",
     "templatePaymentReceipt": "Tanda Terima Pembayaran",
     "templatePaymentReceiptDesc": "Tanda terima setelah pembelian kredit berhasil",
     "templateEditorHint": "Gunakan {{recipient_name}} dan {{company_name}} sebagai placeholder",

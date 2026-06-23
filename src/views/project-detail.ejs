@@ -80,6 +80,7 @@
               <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase"><%= t('projectDetail.contact') %></p>
               <p class="text-gray-900 dark:text-white mt-1"><%= project.contact_name %></p>
               <% if (project.contact_phone) { %><p class="text-gray-500 dark:text-gray-300 text-sm"><%= project.contact_phone %></p><% } %>
+              <% if (project.contact_email) { %><p class="text-gray-500 dark:text-gray-300 text-sm"><%= project.contact_email %></p><% } %>
             </div>
             <% } else { %>
             <div>

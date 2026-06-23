@@ -238,7 +238,7 @@
     "contractors": "contractors"
   },
   "post": {
-    "title": "Project Title",
+    "title": "Post a Project",
     "subtitle": "Describe your project and get offers from professionals",
     "nameLabel": "Your Name",
     "namePlaceholder": "ex. John Smith",
@@ -276,7 +276,9 @@
     "categoryRequired": "Category is required",
     "nameRequired": "Name is required",
     "phoneRequired": "Phone is required",
-    "districtRequired": "Regency/City is required"
+    "districtRequired": "Regency/City is required",
+    "emailLabel": "Email (optional)",
+    "emailPlaceholder": "ex. john@example.com"
   },
   "admin": {
     "dashboard": "Admin Dashboard",
@@ -1008,6 +1010,8 @@
     "templateProjectAssignedDesc": "Notification to contractor about new project",
     "templateBidReceived": "Bid Received",
     "templateBidReceivedDesc": "To client when a contractor submits a bid",
+    "templateContractorInvite": "Contractor Invitation",
+    "templateContractorInviteDesc": "Invitation for early contractors to register",
     "templatePaymentReceipt": "Payment Receipt",
     "templatePaymentReceiptDesc": "Receipt after successful credit purchase",
     "templateEditorHint": "Use {{recipient_name}} and {{company_name}} placeholders",
