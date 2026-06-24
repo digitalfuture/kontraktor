@@ -64,7 +64,7 @@
               <img src="<%= ctr.avatarUrl %>" alt="<%= ctr.name %>" class="w-12 h-12 rounded-full object-cover border border-gray-200 dark:border-gray-600" loading="lazy" width="48" height="48" />
               <div class="flex-1 min-w-0">
                 <h3 class="font-semibold text-gray-900 dark:text-white truncate group-hover:text-orange-600 transition"><%= ctr.name %></h3>
-                <% if (ctr.specialty) { %><p class="text-sm text-gray-500 dark:text-gray-300 truncate"><%= ctr.specialty %></p><% } %>
+                <% if (ctr.specialty) { %><p class="text-sm text-gray-500 dark:text-gray-300 truncate"><% const _cat2 = t('categories.' + ctr.specialty); %><%= _cat2 && !_cat2.startsWith('categories.') ? _cat2 : ctr.specialty %></p><% } %>
                 <div class="flex items-center gap-2 mt-1">
                   <% if (ctr.rating > 0) { %>
                   <span class="text-sm text-amber-500">★ <%= ctr.rating.toFixed(1) %></span>

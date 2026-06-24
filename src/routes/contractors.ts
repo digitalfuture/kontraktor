@@ -23,9 +23,10 @@ pageRouter.get('/', (req: Request, res: Response): void => {
 
   let sql = `
     SELECT c.*, 
+      (SELECT name FROM categories WHERE slug = c.specialty) as specialty_name,
       (SELECT COUNT(*) FROM reviews WHERE contractor_id = c.id AND is_approved = 1) as review_count,
       (SELECT COALESCE(AVG(rating), 0) FROM reviews WHERE contractor_id = c.id AND is_approved = 1) as avg_rating,
-      (SELECT GROUP_CONCAT(cat.name, ', ') FROM contractor_services cs JOIN categories cat ON cs.category_id = cat.id WHERE cs.contractor_id = c.id AND cs.is_active = 1) as active_services
+      (SELECT GROUP_CONCAT(cat.slug, ',') FROM contractor_services cs JOIN categories cat ON cs.category_id = cat.id WHERE cs.contractor_id = c.id AND cs.is_active = 1) as active_services
     FROM contractors c
     WHERE c.is_active = 1
   `;

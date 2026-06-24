@@ -102,7 +102,7 @@ router.get('/:slug', (req: Request, res: Response, _next: NextFunction): void =>
   const subcategories = db.prepare('SELECT id, category_id, name, slug, price_from, contractors_count FROM subcategories WHERE category_id = ? ORDER BY name').all(category.id) as DbSubcategory[];
 
   const contractors = db.prepare(`
-    SELECT c.id, c.name, c.avatar_url, c.specialty, c.rating, c.reviews_count, c.completed_projects
+    SELECT c.id, c.name, c.avatar_url, c.specialty, (SELECT name FROM categories WHERE slug = c.specialty) as specialty_name, c.rating, c.reviews_count, c.completed_projects
     FROM contractors c
     WHERE c.category_id = ? AND c.is_approved = 1 AND c.is_active = 1
     ORDER BY c.rating DESC, c.reviews_count DESC

@@ -4,6 +4,9 @@
     "tagline": "Construction marketplace",
     "description": "Find verified construction professionals or post your project. Quality work, transparent prices, guaranteed results."
   },
+  "common": {
+    "and": "and"
+  },
   "nav": {
     "services": "Services",
     "postOrder": "Post a Project",
@@ -544,7 +547,14 @@
     "roofing": "Roofing",
     "facade": "Facade",
     "landscaping": "Landscaping",
-    "demolition": "Demolition"
+    "demolition": "Demolition",
+    "general-contractor": "General Contractor",
+    "construction-company": "Construction Company",
+    "civil-engineering": "Civil Engineering",
+    "steel-structure": "Steel Structure",
+    "interior-renovation": "Interior Renovation",
+    "mep-systems": "MEP Systems",
+    "waterproofing": "Waterproofing"
   },
   "subcategories": {
     "cosmetic": "Cosmetic Renovation",

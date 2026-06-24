@@ -111,7 +111,7 @@ pageRouter.get('/:id', optionalAuth, (req: Request, res: Response): void => {
   const isOwner = (req as any).user && project.client_email === (req as any).user.email;
   const bids = db.prepare(`
     SELECT b.*, c.name as contractor_name, c.rating as contractor_rating,
-      c.reviews_count, c.specialty, c.is_verified, c.completed_projects
+      c.reviews_count, c.specialty, (SELECT name FROM categories WHERE slug = c.specialty) as specialty_name, c.is_verified, c.completed_projects
     FROM bids b
     JOIN contractors c ON b.contractor_id = c.id
     WHERE b.project_id = ?
@@ -306,7 +306,7 @@ apiRouter.get('/:id/bids-partial', optionalAuth, (req: Request, res: Response): 
 
   const bids = db.prepare(`
     SELECT b.*, c.name as contractor_name, c.rating as contractor_rating,
-      c.reviews_count, c.specialty, c.is_verified, c.completed_projects
+      c.reviews_count, c.specialty, (SELECT name FROM categories WHERE slug = c.specialty) as specialty_name, c.is_verified, c.completed_projects
     FROM bids b
     JOIN contractors c ON b.contractor_id = c.id
     WHERE b.project_id = ?

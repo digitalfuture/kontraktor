@@ -14,7 +14,7 @@
           <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-300">
             <span>★ <%= bid.contractor_rating ? bid.contractor_rating.toFixed(1) : 'New' %></span>
             <span>•</span>
-            <span><%= bid.specialty %></span>
+            <span><%= bid.specialty_name || bid.specialty || '' %></span>
             <% if (bid.is_verified) { %>
             <span>•</span>
             <span class="text-green-600 dark:text-green-400">✓ <%= t('projectDetail.verified') %></span>

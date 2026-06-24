@@ -4,6 +4,9 @@
     "tagline": "Marketplace konstruksi",
     "description": "Temukan profesional konstruksi terverifikasi atau posting proyek Anda. Pekerjaan berkualitas, harga transparan, hasil terjamin."
   },
+  "common": {
+    "and": "dan"
+  },
   "nav": {
     "services": "Layanan",
     "postOrder": "Posting Proyek",
@@ -543,7 +546,14 @@
     "roofing": "Atap",
     "facade": "Fasad",
     "landscaping": "Pertamanan",
-    "demolition": "Pembongkaran"
+    "demolition": "Pembongkaran",
+    "general-contractor": "Kontraktor Umum",
+    "construction-company": "Perusahaan Konstruksi",
+    "civil-engineering": "Teknik Sipil",
+    "steel-structure": "Struktur Baja",
+    "interior-renovation": "Renovasi Interior",
+    "mep-systems": "Sistem MEP",
+    "waterproofing": "Waterproofing"
   },
   "subcategories": {
     "cosmetic": "Renovasi Kosmetik",
