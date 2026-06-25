@@ -373,7 +373,6 @@ apiRouter.post('/', requireAuth, (req: Request, res: Response): void => {
   if (!formData.title) errors.push(t('post.titleRequired'));
   if (!formData.description) errors.push(t('post.descriptionRequired'));
   if (!formData.category) errors.push(t('post.categoryRequired'));
-  if (!formData.contactName) errors.push(t('post.nameRequired'));
   if (!formData.district) errors.push(t('post.districtRequired'));
 
   // Phone is optional — taken from user profile if present

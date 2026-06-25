@@ -250,7 +250,7 @@
     "phoneLabel": "Telepon",
     "phonePlaceholder": "81234567890",
     "phoneHint": "Masukkan nomor setelah +62",
-    "autoFromAccount": "Nama, email, dan nomor telepon diambil dari akun Anda",
+    "autoFromAccount": "Nama, email, telepon, dan Telegram dari akun Anda",
     "addressLabel": "Detail Alamat",
     "addressPlaceholder": "cth. Jl. Sudirman No. 21, RT 01/RW 05",
     "categoryLabel": "Kategori",

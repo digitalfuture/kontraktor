@@ -64,11 +64,9 @@
             <textarea id="description" name="description" rows="5" required placeholder="<%= t('post.descriptionPlaceholder') %>" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 resize-none"><%= typeof formData !== 'undefined' && formData.description ? formData.description.replace(/</g, '&lt;') : '' %></textarea>
           </div>
           
-          <!-- Contact Info -->
-          <div class="mb-6">
-            <label for="contactName" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.nameLabel') %> *</label>
-            <input type="text" id="contactName" name="contactName" required value="<%= typeof formData !== 'undefined' && formData.contactName ? formData.contactName.replace(/\"/g, '&quot;') : '' %>" placeholder="<%= t('post.namePlaceholder') %>" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1"><%= t('post.autoFromAccount') %></p>
+          <!-- Contact info pulled from user profile -->
+          <div class="mb-6 p-4 bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800 rounded-lg">
+            <p class="text-sm text-orange-800 dark:text-orange-300"><%= t('post.autoFromAccount') %></p>
           </div>
           
           <!-- District/Kota -->
