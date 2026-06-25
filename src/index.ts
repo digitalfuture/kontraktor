@@ -147,12 +147,13 @@ app.get('/', (req: express.Request, res: express.Response): void => {
   const locale = (res.locals.locale as string) || 'en';
   const t = res.locals.t;
   
-  const categories = db.prepare('SELECT id, slug FROM categories WHERE is_active = 1').all() as Array<{ id: number; slug: string }>;
+  const categories = db.prepare('SELECT id, slug, name FROM categories WHERE is_active = 1').all() as Array<{ id: number; slug: string; name: string }>;
   const services = categories.map((cat) => {
     const totalContractors = db.prepare('SELECT COUNT(*) as count FROM contractors WHERE category_id = ? AND is_approved = 1 AND is_active = 1').get(cat.id) as { count: number };
     const firstSub = db.prepare('SELECT price_from FROM subcategories WHERE category_id = ? ORDER BY name LIMIT 1').get(cat.id) as { price_from: string } | undefined;
     return {
       slug: cat.slug,
+      name: cat.name,
       totalContractors: totalContractors.count,
       priceFrom: totalContractors.count > 0 ? (firstSub?.price_from || '') : '',
     };
