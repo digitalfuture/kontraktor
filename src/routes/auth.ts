@@ -143,7 +143,7 @@ apiRouter.post('/login', loginLimiter, async (req: Request, res: Response): Prom
 });
 
 // Logout
-apiRouter.get('/logout', (req: Request, res: Response): void => {
+pageRouter.get('/logout', (req: Request, res: Response): void => {
   const token = req.cookies?.session_token;
   if (token) {
     db.prepare('DELETE FROM sessions WHERE token = ?').run(token);

@@ -39,11 +39,11 @@
           <% service.subcategories.forEach(function(sub) { %>
           <div class="bg-surface dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-card p-5 hover:shadow-card-hover shadow-card transition">
             <h3 class="font-semibold text-gray-900 dark:text-white mb-2"><%= t('subcategories.' + sub.slug) %></h3>
-            <p class="text-sm text-gray-500 dark:text-gray-300 mb-3"><%= sub.count %> <%= t('services.professionals') %></p>
             <p class="text-orange-700 dark:text-orange-400 font-semibold flex items-center gap-1.5 flex-wrap">
-              <%= t('services.priceFrom') %> <%= sub.priceFrom %>
-              <% if (sub.count === 0) { %>
-                <span class="text-xs text-gray-500 dark:text-gray-400 font-normal font-sans">(<%= t('services.marketPrice').toLowerCase() %>)</span>
+              <% if (sub.count > 0 && sub.priceFrom) { %>
+                <%= t('services.priceFrom') %> <%= sub.priceFrom %>
+              <% } else { %>
+                <%= sub.count %> <%= t('services.professionals') %>
               <% } %>
             </p>
           </div>

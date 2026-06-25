@@ -4,7 +4,7 @@
   <% } else if (typeof error !== 'undefined' && error) { %>
     <p class="text-red-400 text-sm mb-2"><%= error %></p>
   <% } %>
-  <form id="contact-form" action="/contact" method="POST" hx-post="/contact" hx-target="#contact-form-section" hx-swap="innerHTML" class="space-y-2">
+  <form id="contact-form" action="/api/contact" method="POST" hx-post="/api/contact" hx-target="#contact-form-section" hx-swap="innerHTML" class="space-y-2">
     <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
     <!-- Honeypot anti-spam: hidden field that bots fill but humans don't see -->
     <input type="text" name="website" value="" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0;height:0;" aria-hidden="true">

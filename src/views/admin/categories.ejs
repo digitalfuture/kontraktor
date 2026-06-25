@@ -12,8 +12,8 @@
         </div>
 
         <!-- Add Category Modal -->
-        <div id="addCategoryModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div class="bg-surface dark:bg-surface-dark rounded-card p-6 w-full max-w-lg">
+        <div id="addCategoryModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg border border-white/30 dark:border-white/10 rounded-card p-6 w-full max-w-lg shadow-2xl shadow-black/20">
             <h2 class="text-lg font-bold mb-4"><%= t("admin.addCategory") %></h2>
             <form action="/api/admin/categories/create" method="POST">
         <%- include('../partials/csrf-field') %>
@@ -48,8 +48,8 @@
         </div>
 
         <!-- Delete Category Modal -->
-        <div id="deleteCategoryModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div class="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-sm">
+        <div id="deleteCategoryModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg border border-white/30 dark:border-white/10 rounded-xl p-6 w-full max-w-sm shadow-2xl shadow-black/20">
             <h2 class="text-lg font-bold mb-4 text-gray-900 dark:text-white"><%= t("admin.confirmDelete") || "Confirm Deletion" %></h2>
             <p class="text-gray-600 dark:text-gray-300 mb-6 text-sm"><%= t("admin.deleteCategoryConfirm") %></p>
             <form id="deleteCategoryForm" hx-post="" method="POST">

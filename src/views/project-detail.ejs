@@ -108,7 +108,7 @@
             <% } %>
           </div>
           <p class="text-sm text-gray-500 dark:text-gray-300 mb-6"><%= t('projectDetail.bidHint') %></p>
-          <form action="/post/<%= project.id %>/bid" method="POST" class="space-y-4">
+          <form action="/api/post/<%= project.id %>/bid" method="POST" class="space-y-4">
           <%- include('partials/csrf-field') %>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -158,14 +158,14 @@
           <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2"><%= t('projectStatus.title') %></h2>
           <p class="text-sm text-gray-500 dark:text-gray-300 mb-4"><%= t('projectStatus.inProgressDesc') %></p>
           <div class="flex flex-wrap gap-3">
-            <form action="/post/<%= project.id %>/status" method="POST" onsubmit="return confirm('<%= t('projectStatus.completeConfirm') %>')">
+            <form action="/api/post/<%= project.id %>/status" method="POST" onsubmit="return confirm('<%= t('projectStatus.completeConfirm') %>')">
               <%- include('partials/csrf-field') %>
               <input type="hidden" name="status" value="completed">
               <button type="submit" class="bg-green-600 text-white px-5 py-2.5 rounded-lg hover:bg-green-700 transition font-medium">
                 <%= t('projectStatus.markComplete') %>
               </button>
             </form>
-            <form action="/post/<%= project.id %>/status" method="POST" onsubmit="return confirm('<%= t('projectStatus.cancelConfirm') %>')">
+            <form action="/api/post/<%= project.id %>/status" method="POST" onsubmit="return confirm('<%= t('projectStatus.cancelConfirm') %>')">
               <%- include('partials/csrf-field') %>
               <input type="hidden" name="status" value="cancelled">
               <button type="submit" class="border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 px-5 py-2.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition font-medium">
@@ -202,7 +202,7 @@
 
           <!-- Leave a review -->
           <% if (isOwner && project.status === 'completed' && !project.reviewed) { %>
-          <form action="/post/<%= project.id %>/review" method="POST" class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <form action="/api/post/<%= project.id %>/review" method="POST" class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
             <%- include('partials/csrf-field') %>
             <h3 class="font-semibold text-gray-900 dark:text-white mb-4"><%= t('review.title') %></h3>
             <input type="hidden" name="contractor_id" value="<%= project.contractor_id %>">

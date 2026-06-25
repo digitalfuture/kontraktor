@@ -29,7 +29,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="services-grid">
           <% services.forEach(function(service) { %>
-          <a href="/services/<%= service.slug %>" class="service-card block bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:shadow-lg hover:border-orange-300 dark:hover:border-orange-600 transition group">
+          <a href="/services/<%= service.slug %>" class="service-card block bg-gradient-to-b from-white to-orange-50/30 dark:from-gray-900 dark:to-orange-950/20 border border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:shadow-lg hover:border-orange-300 dark:hover:border-orange-600 transition group">
             <div class="flex items-start justify-between mb-4">
               <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/40 rounded-lg flex items-center justify-center">
                 <svg class="w-6 h-6 text-orange-700 group-hover:scale-110 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,9 +45,10 @@
               <div class="flex items-center justify-between py-1.5">
                 <span class="text-sm text-gray-700 dark:text-gray-300"><%= t('subcategories.' + sub.slug) %></span>
                 <span class="text-sm text-orange-700 dark:text-orange-400 font-medium flex items-center gap-1 flex-wrap">
-                  <%= t('services.priceFrom') %> <%= sub.priceFrom %>
-                  <% if (sub.count === 0) { %>
-                    <span class="text-[10px] text-gray-500 dark:text-gray-400 font-normal font-sans">(<%= t('services.marketPrice').toLowerCase() %>)</span>
+                  <% if (sub.count > 0 && sub.priceFrom) { %>
+                    <%= t('services.priceFrom') %> <%= sub.priceFrom %>
+                  <% } else { %>
+                    <%= sub.count %> <%= t('services.professionals') %>
                   <% } %>
                 </span>
               </div>
@@ -67,7 +68,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-3"><%= t('services.needSomethingElse') %></h2>
         <p class="text-gray-600 dark:text-gray-300 mb-6"><%= t('services.ctaPostProject') %></p>
-        <a href="/post" class="bg-orange-700 text-white px-8 py-3 rounded-lg hover:bg-orange-800 transition font-semibold text-lg shadow-lg shadow-orange-600/30">
+        <a href="/post" class="bg-gradient-to-r from-orange-600 to-amber-500 text-white px-8 py-3 rounded-lg hover:from-orange-700 hover:to-amber-600 transition font-semibold text-lg shadow-lg shadow-orange-600/30">
           <%= t('nav.postOrder') %>
         </a>
       </div>

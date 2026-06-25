@@ -66,7 +66,7 @@ router.get('/', (req: any, res: Response): void => {
 
   // Get paginated projects
   const projects = db.prepare(`
-    SELECT p.*,
+    SELECT p.*, c.name as category_name,
       (SELECT COUNT(*) FROM bids WHERE project_id = p.id) as bid_count
     FROM projects p
     LEFT JOIN categories c ON p.category = c.slug
@@ -77,7 +77,8 @@ router.get('/', (req: any, res: Response): void => {
 
   // Localize category names and district, mark editability for client
   projects.forEach((p: any) => {
-        p.district_display = getDistrictDisplay(p.district, locale);
+    p.category_display = p.category_name || p.category;
+    p.district_display = getDistrictDisplay(p.district, locale);
     // Client can edit only if no contractor assigned yet
     p.editable = (userRole === 'client' && !p.assigned_contractor_id);
   });

@@ -1,4 +1,4 @@
-<section id="services" class="py-12 sm:py-16 lg:py-24 bg-gradient-to-b from-gray-200 via-gray-100 to-gray-200 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950" aria-labelledby="services-title">
+<section id="services" class="py-12 sm:py-16 lg:py-24 bg-gradient-to-b from-gray-200 via-gray-100 to-orange-100/50 dark:from-gray-950 dark:via-gray-900 dark:to-orange-950/30" aria-labelledby="services-title">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-12">
       <h2 id="services-title" class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white"><%= t('services.title') %></h2>
@@ -10,7 +10,7 @@
       <% serviceSlugs.forEach(function(slug) { %>
         <% const svc = services.find(s => s.slug === slug); %>
         <% if (svc) { %>
-          <a href="/services/<%= slug %>" class="bg-surface dark:bg-surface-dark dark:border-gray-700 border border-gray-200 rounded-card p-6 hover:shadow-card-hover shadow-card transition block flex flex-col focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2">
+          <a href="/services/<%= slug %>" class="bg-gradient-to-b from-surface to-orange-50/30 dark:from-surface-dark dark:to-orange-950/20 dark:border-gray-700 border border-gray-200 rounded-card p-6 hover:shadow-card-hover shadow-card transition block flex flex-col focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2">
             <div class="w-12 h-12 bg-orange-50 dark:bg-orange-900/40 rounded-lg flex items-center justify-center mb-4">
               <svg class="w-6 h-6 text-orange-500 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><%- iconMap[slug] || defaultIcon %></svg>
             </div>
@@ -18,10 +18,8 @@
             <p class="mt-2 text-gray-600 dark:text-gray-300 text-sm flex-1"><%= t('services.cats.' + slug + '.desc') %></p>
             <div class="mt-4 flex items-center justify-between">
               <span class="text-orange-700 dark:text-orange-400 font-medium">
-                <% if (svc.hasContractors) { %>
-                  <%= svc.marketPrice || t('services.cats.' + slug + '.price') %>
-                <% } else { %>
-                  <%= svc.marketPrice || t('services.cats.' + slug + '.price') %> <span class="text-xs text-gray-500 dark:text-gray-400 ml-1"><%= t('services.marketPrice') %></span>
+                <% if (svc.totalContractors > 0 && svc.priceFrom) { %>
+                  <%= t('services.priceFrom') %> <%= svc.priceFrom %>
                 <% } %>
               </span>
               <span class="text-gray-600 dark:text-gray-300 text-sm">
@@ -36,8 +34,7 @@
             </div>
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white"><%= t('services.cats.' + slug + '.name') %></h3>
             <p class="mt-2 text-gray-600 dark:text-gray-300 text-sm flex-1"><%= t('services.cats.' + slug + '.desc') %></p>
-            <div class="mt-4 flex items-center justify-between">
-              <span class="text-gray-500 dark:text-gray-400 font-medium"><%= t('services.cats.' + slug + '.price') %> <span class="text-xs ml-1"><%= t('services.marketPrice') %></span></span>
+            <div class="mt-4 flex items-center justify-end">
               <span class="text-gray-500 dark:text-gray-400 text-sm">0 <%= t('services.contractors') %></span>
             </div>
           </div>

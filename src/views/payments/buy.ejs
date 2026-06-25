@@ -97,7 +97,7 @@
           </div>
 
           <!-- Checkout Form -->
-          <form action="/payments/create-invoice" method="POST" class="mt-auto">
+          <form action="/api/payments/create-invoice" method="POST" class="mt-auto">
             <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
             <input type="hidden" name="package_id" value="<%= pkg.id %>">
             <button type="submit" class="w-full rounded-2xl py-4 px-6 text-center text-sm font-extrabold text-white shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 <%= isPopular ? 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600' : 'bg-gray-800 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600' %>">

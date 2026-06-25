@@ -11,7 +11,7 @@
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3"><%= typeof editMode !== 'undefined' && editMode ? t('post.editTitle') : t('post.title') %></h1>
         <p class="text-gray-600 dark:text-gray-300 mb-8"><%= typeof editMode !== 'undefined' && editMode ? t('post.editSubtitle') : t('post.subtitle') %></p>
         
-        <form action="<%= typeof editMode !== 'undefined' && editMode ? '/post/' + project.id + '/edit' : '/post' %>?lang=<%= locale %>" method="POST" class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
+        <form action="<%= typeof editMode !== 'undefined' && editMode ? '/api/post/' + project.id + '/edit' : '/api/post' %>?lang=<%= locale %>" method="POST" class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
         <%- include('partials/csrf-field') %>
           <!-- Validation Errors -->
           <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
@@ -76,7 +76,15 @@
             </div>
             <div>
               <label for="contactPhone" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.phoneLabel') %> *</label>
-              <input type="tel" id="contactPhone" name="contactPhone" required value="<%= typeof formData !== 'undefined' && formData.contactPhone ? formData.contactPhone.replace(/"/g, '&quot;') : '' %>" placeholder="<%= t('post.phonePlaceholder') %>" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
+              <div class="flex">
+                <span class="inline-flex items-center px-3 border border-r-0 border-gray-300 dark:border-gray-600 rounded-l-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-medium select-none">+62</span>
+                <input type="tel" id="contactPhone" name="contactPhone" required
+                  value="<%= typeof formData !== 'undefined' && formData.contactPhone ? formData.contactPhone.replace(/^\+62/, '') : '' %>"
+                  placeholder="81234567890"
+                  maxlength="14"
+                  class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
+              </div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1"><%= t('post.phoneHint') || 'Masukkan nomor setelah +62' %></p>
             </div>
           </div>
           

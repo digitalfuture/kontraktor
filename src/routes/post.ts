@@ -211,6 +211,19 @@ apiRouter.post('/:id/edit', requireAuth, (req: any, res: Response): void => {
   if (!formData.contactPhone) errors.push(t('post.phoneRequired'));
   if (!formData.district) errors.push(t('post.districtRequired'));
 
+  // Normalize & validate Indonesian phone number
+  if (formData.contactPhone) {
+    let phone = formData.contactPhone.replace(/\s+/g, '');
+    if (phone.startsWith('+62')) phone = phone.slice(3);
+    else if (phone.startsWith('62')) phone = phone.slice(2);
+    else if (phone.startsWith('0')) phone = phone.slice(1);
+    if (!/^8\d{7,14}$/.test(phone)) {
+      errors.push(t('post.phoneInvalid'));
+    } else {
+      formData.contactPhone = '+62' + phone;
+    }
+  }
+
   if (errors.length > 0) {
     const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
     project.district_display = getDistrictDisplay(project.district, locale);
@@ -323,7 +336,7 @@ apiRouter.get('/:id/bids-partial', optionalAuth, (req: Request, res: Response): 
 });
 
 // Post a new project
-apiRouter.post('/', optionalAuth, (req: Request, res: Response): void => {
+apiRouter.post('/', requireAuth, (req: Request, res: Response): void => {
   const errors: string[] = [];
   const formData = {
     title: (req.body.title || '').trim(),
@@ -347,6 +360,21 @@ apiRouter.post('/', optionalAuth, (req: Request, res: Response): void => {
   if (!formData.contactName) errors.push(t('post.nameRequired'));
   if (!formData.contactPhone) errors.push(t('post.phoneRequired'));
   if (!formData.district) errors.push(t('post.districtRequired'));
+
+  // Normalize & validate Indonesian phone number
+  if (formData.contactPhone) {
+    let phone = formData.contactPhone.replace(/\s+/g, '');
+    // Strip leading +62, 62, or 0
+    if (phone.startsWith('+62')) phone = phone.slice(3);
+    else if (phone.startsWith('62')) phone = phone.slice(2);
+    else if (phone.startsWith('0')) phone = phone.slice(1);
+    // Validate: must start with 8, 8-15 digits
+    if (!/^8\d{7,14}$/.test(phone)) {
+      errors.push(t('post.phoneInvalid'));
+    } else {
+      formData.contactPhone = '+62' + phone;
+    }
+  }
 
   if (errors.length > 0) {
     const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
@@ -400,9 +428,11 @@ apiRouter.post('/', optionalAuth, (req: Request, res: Response): void => {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
   `).run(formData.title, formData.description, formData.category, formData.subcategory || null, formData.contactName, formData.contactEmail || null, formData.contactPhone, formData.district_en || formData.district, formData.address || null, clientEmail);
 
-  // Localize district for display
+  // Localize district & category for display
   const storedDistrict = formData.district_en || formData.district;
-  const successFormData = { ...formData, district_display: getDistrictDisplay(storedDistrict, locale) };
+  const categoryRow = db.prepare('SELECT name FROM categories WHERE slug = ?').get(formData.category) as { name: string } | undefined;
+  const serviceDisplay = categoryRow?.name || formData.category;
+  const successFormData = { ...formData, district_display: getDistrictDisplay(storedDistrict, locale), service: serviceDisplay };
   res.render('post-success', {
     title: 'Project Posted — Kontraktor',
     formData: successFormData

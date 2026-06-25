@@ -1,4 +1,4 @@
-<section id="reviews" class="py-12 sm:py-16 lg:py-24 bg-gradient-to-b from-gray-200 to-gray-100 dark:from-gray-950 dark:to-gray-900" aria-labelledby="reviews-title">
+<section id="reviews" class="py-12 sm:py-16 lg:py-24 bg-gradient-to-b from-gray-200 to-orange-100/50 dark:from-gray-950 dark:to-orange-950/30" aria-labelledby="reviews-title">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-12">
       <h2 id="reviews-title" class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white"><%= t('reviews.title') %></h2>
@@ -7,7 +7,7 @@
     
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <% reviews.slice(0, 3).forEach(function(r) { %>
-        <figure class="bg-surface dark:bg-surface-dark rounded-card p-6 border border-gray-200 dark:border-gray-800 shadow-card flex flex-col">
+        <figure class="bg-gradient-to-b from-surface to-orange-50/30 dark:from-surface-dark dark:to-orange-950/20 rounded-card p-6 border border-gray-200 dark:border-gray-800 shadow-card flex flex-col">
           <blockquote class="flex-1">
             <div class="flex items-center gap-1 mb-3" role="img" aria-label="<%= r.rating %> out of 5 stars">
               <% for (var s = 0; s < Math.min(5, Math.max(0, r.rating || 0)); s++) { %>

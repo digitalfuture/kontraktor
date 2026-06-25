@@ -58,17 +58,12 @@ router.get('/', (req: Request, res: Response): void => {
 
   const services = categories.map((cat) => {
     const subs = subMap.get(cat.id) || [];
-    // Get market price: first subcategory price or empty
-    const marketPrice = subs.length > 0 ? (subs[0].price_from || '') : '';
-    const hasContractors = (db.prepare('SELECT COUNT(*) as count FROM contractors WHERE category_id = ? AND is_approved = 1 AND is_active = 1').get(cat.id) as { count: number }).count > 0;
     return {
       name: cat.name,
       slug: cat.slug,
       icon: cat.icon,
       description: cat.description,
       totalContractors: (db.prepare('SELECT COUNT(*) as count FROM contractors WHERE category_id = ? AND is_approved = 1 AND is_active = 1').get(cat.id) as { count: number }).count,
-      marketPrice,
-      hasContractors,
       subcategories: subs.map((sub) => ({
         name: sub.name,
         slug: sub.slug,

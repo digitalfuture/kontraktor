@@ -151,13 +151,10 @@ app.get('/', (req: express.Request, res: express.Response): void => {
   const services = categories.map((cat) => {
     const totalContractors = db.prepare('SELECT COUNT(*) as count FROM contractors WHERE category_id = ? AND is_approved = 1 AND is_active = 1').get(cat.id) as { count: number };
     const firstSub = db.prepare('SELECT price_from FROM subcategories WHERE category_id = ? ORDER BY name LIMIT 1').get(cat.id) as { price_from: string } | undefined;
-    const marketPrice = firstSub ? (firstSub.price_from || '') : '';
-    const hasContractors = totalContractors.count > 0;
     return {
       slug: cat.slug,
       totalContractors: totalContractors.count,
-      marketPrice,
-      hasContractors,
+      priceFrom: totalContractors.count > 0 ? (firstSub?.price_from || '') : '',
     };
   });
 

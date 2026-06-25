@@ -229,6 +229,18 @@ apiRouter.post('/register', optionalAuth, (req: Request, res: Response): void =>
 
   if (!formData.name) errors.push('Name is required');
   if (!formData.email) errors.push('Email is required');
+  // Normalize & validate Indonesian phone number
+  if (formData.phone) {
+    let phone = formData.phone.replace(/\s+/g, '');
+    if (phone.startsWith('+62')) phone = phone.slice(3);
+    else if (phone.startsWith('62')) phone = phone.slice(2);
+    else if (phone.startsWith('0')) phone = phone.slice(1);
+    if (!/^8\d{7,14}$/.test(phone)) {
+      errors.push('Nomor telepon Indonesia tidak valid. Harus nomor +62 yang valid (contoh: 81234567890)');
+    } else {
+      formData.phone = '+62' + phone;
+    }
+  }
   const selectedCategories = Array.isArray(formData.specialty) ? formData.specialty : (formData.specialty ? [formData.specialty] : []);
   if (selectedCategories.length === 0) errors.push('At least one specialty/category is required');
 
