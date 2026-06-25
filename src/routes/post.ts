@@ -12,10 +12,18 @@ import { sendNewBidEmail, sendBidAcceptedEmail, sendProjectCompletedEmail, isEma
 
 export const pageRouter: express.Router = express.Router();
 
-pageRouter.get('/', (req: Request, res: Response): void => {
+pageRouter.get('/', requireAuth, (req: any, res: Response): void => {
   const locale = (res.locals.locale as string) || 'en';
   const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
+  const user = req.user || {};
 
+  // Pre-fill contact info from user profile
+  const formData = {
+    contactName: user.name || '',
+    contactEmail: user.email || '',
+    contactPhone: user.phone || '',
+  };
+  
   res.render('post', {
     seo: seoLib.postProjectSeo(locale as 'en' | 'id'),
     title: locale === 'id' ? 'Pasang Proyek — Kontraktor' : 'Post a Project — Kontraktor',
@@ -24,6 +32,8 @@ pageRouter.get('/', (req: Request, res: Response): void => {
       display_name: c.name
     })),
     districtsData: districtsData,
+    formData,
+    user,
   });
 });
 
@@ -349,7 +359,13 @@ apiRouter.post('/', requireAuth, (req: Request, res: Response): void => {
     district: (req.body.district || '').trim(),
     district_en: (req.body.district_en || '').trim(),
     address: (req.body.address || '').trim(),
-  };
+  } as any;
+
+  // Fill missing contact info from user profile
+  const user = (req as any).user || {};
+  if (!formData.contactEmail) formData.contactEmail = user.email || '';
+  if (!formData.contactPhone) formData.contactPhone = user.phone || '';
+  if (!formData.contactName) formData.contactName = user.name || '';
 
   // Validation
   const locale = (res.locals.locale as string) || 'en';
@@ -358,10 +374,10 @@ apiRouter.post('/', requireAuth, (req: Request, res: Response): void => {
   if (!formData.description) errors.push(t('post.descriptionRequired'));
   if (!formData.category) errors.push(t('post.categoryRequired'));
   if (!formData.contactName) errors.push(t('post.nameRequired'));
-  if (!formData.contactPhone) errors.push(t('post.phoneRequired'));
   if (!formData.district) errors.push(t('post.districtRequired'));
 
-  // Normalize & validate Indonesian phone number
+  // Phone is optional — taken from user profile if present
+  // Normalize & validate Indonesian phone number if provided
   if (formData.contactPhone) {
     let phone = formData.contactPhone.replace(/\s+/g, '');
     // Strip leading +62, 62, or 0

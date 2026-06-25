@@ -248,6 +248,7 @@
     "phoneLabel": "Phone",
     "phonePlaceholder": "81234567890",
     "phoneHint": "Enter number after +62",
+    "autoFromAccount": "Name, email, and phone are taken from your account",
     "addressLabel": "Address Detail",
     "addressPlaceholder": "e.g. Jl. Sudirman No. 21, RT 01/RW 05",
     "categoryLabel": "Category",

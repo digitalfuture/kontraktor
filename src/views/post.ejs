@@ -55,7 +55,7 @@
           <!-- Title -->
           <div class="mb-6">
             <label for="title" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.titleLabel') %> *</label>
-            <input type="text" id="title" name="title" required value="<%= typeof formData !== 'undefined' && formData.title ? formData.title.replace(/"/g, '&quot;') : '' %>" placeholder="<%= t('post.titlePlaceholder') %>" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
+            <input type="text" id="title" name="title" required value="<%= typeof formData !== 'undefined' && formData.title ? formData.title.replace(/\"/g, '&quot;') : '' %>" placeholder="<%= t('post.titlePlaceholder') %>" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
           </div>
 
           <!-- Description -->
@@ -65,36 +65,19 @@
           </div>
           
           <!-- Contact Info -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-            <div>
-              <label for="contactName" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.nameLabel') %> *</label>
-              <input type="text" id="contactName" name="contactName" required value="<%= typeof formData !== 'undefined' && formData.contactName ? formData.contactName.replace(/"/g, '&quot;') : '' %>" placeholder="<%= t('post.namePlaceholder') %>" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
-            </div>
-            <div>
-              <label for="contactEmail" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.emailLabel') %></label>
-              <input type="email" id="contactEmail" name="contactEmail" value="<%= typeof formData !== 'undefined' && formData.contactEmail ? formData.contactEmail.replace(/"/g, '&quot;') : '' %>" placeholder="<%= t('post.emailPlaceholder') %>" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
-            </div>
-            <div>
-              <label for="contactPhone" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.phoneLabel') %> *</label>
-              <div class="flex">
-                <span class="inline-flex items-center px-3 border border-r-0 border-gray-300 dark:border-gray-600 rounded-l-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-medium select-none">+62</span>
-                <input type="tel" id="contactPhone" name="contactPhone" required
-                  value="<%= typeof formData !== 'undefined' && formData.contactPhone ? formData.contactPhone.replace(/^\+62/, '') : '' %>"
-                  placeholder="81234567890"
-                  maxlength="14"
-                  class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
-              </div>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1"><%= t('post.phoneHint') || 'Masukkan nomor setelah +62' %></p>
-            </div>
+          <div class="mb-6">
+            <label for="contactName" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.nameLabel') %> *</label>
+            <input type="text" id="contactName" name="contactName" required value="<%= typeof formData !== 'undefined' && formData.contactName ? formData.contactName.replace(/\"/g, '&quot;') : '' %>" placeholder="<%= t('post.namePlaceholder') %>" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1"><%= t('post.autoFromAccount') %></p>
           </div>
           
           <!-- District/Kota -->
           <div class="mb-6">
             <label for="district" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.districtLabel') %> *</label>
-            <input type="hidden" id="district_en" name="district_en" value="<%= typeof formData !== 'undefined' && formData.district_en ? formData.district_en.replace(/"/g, '&quot;') : '' %>">
+            <input type="hidden" id="district_en" name="district_en" value="<%= typeof formData !== 'undefined' && formData.district_en ? formData.district_en.replace(/\"/g, '&quot;') : '' %>">
             <input type="text" id="district" name="district" required
               list="district-list"
-              value="<%= typeof formData !== 'undefined' && formData.district ? formData.district.replace(/"/g, '&quot;') : '' %>"
+              value="<%= typeof formData !== 'undefined' && formData.district ? formData.district.replace(/\"/g, '&quot;') : '' %>"
               placeholder="<%= t('post.districtPlaceholder') %>"
               autocomplete="off"
               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
@@ -106,7 +89,7 @@
           <div class="mb-6">
             <div>
               <label for="address" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.addressLabel') %></label>
-              <input type="text" id="address" name="address" value="<%= typeof formData !== 'undefined' && formData.address ? formData.address.replace(/"/g, '&quot;') : '' %>" placeholder="<%= t('post.addressPlaceholder') %>" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
+              <input type="text" id="address" name="address" value="<%= typeof formData !== 'undefined' && formData.address ? formData.address.replace(/\"/g, '&quot;') : '' %>" placeholder="<%= t('post.addressPlaceholder') %>" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
             </div>
           </div>
           
@@ -128,7 +111,7 @@
           var datalist = document.getElementById('district-list');
           var debounce;
           var allDistricts = <%- JSON.stringify(typeof districtsData !== 'undefined' ? districtsData : []) %>;
-          var locale = '<%= typeof locale !== "undefined" ? locale : "en" %>';
+          var locale = '<%= typeof locale !== \"undefined\" ? locale : \"en\" %>';
 
           function getName(k) { return locale === 'id' ? k.name_id : k.name; }
           function getProv(k) { return locale === 'id' ? k.province_id : k.province; }
@@ -152,7 +135,7 @@
               return k.name.toLowerCase().indexOf(lq) !== -1 || k.name_id.toLowerCase().indexOf(lq) !== -1;
             }).slice(0, 15);
             datalist.innerHTML = matches.map(function(k) {
-              return '<option value="' + getName(k) + '">' + getName(k) + ' — ' + getProv(k) + '</option>';
+              return '<option value=\"' + getName(k) + '\">' + getName(k) + ' — ' + getProv(k) + '</option>';
             }).join('');
           }
 
