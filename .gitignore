@@ -27,3 +27,6 @@ cookies.txt
 *.sqlite
 scratch_*.py
 *.corrupted
+
+# IDE / agent indices
+.codegraph/
