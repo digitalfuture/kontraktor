@@ -6,8 +6,8 @@ type Locale = 'en' | 'id';
 type TranslationDict = Record<string, any>;
 
 const translations: Record<Locale, TranslationDict> = {
-  en: JSON.parse(fs.readFileSync(path.join(__dirname, '../locales/en.json'), 'utf-8')),
-  id: JSON.parse(fs.readFileSync(path.join(__dirname, '../locales/id.json'), 'utf-8')),
+  en: JSON.parse(fs.readFileSync(path.join(__dirname, './locales/en.json'), 'utf-8')),
+  id: JSON.parse(fs.readFileSync(path.join(__dirname, './locales/id.json'), 'utf-8')),
 };
 
 const defaultLocale: Locale = 'id';

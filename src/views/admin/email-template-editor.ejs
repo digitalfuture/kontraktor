@@ -1,0 +1,327 @@
+<%- include('_admin-layout', { activePage: 'email' }) %>
+
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-4">
+  <div>
+    <h1 class="text-xl font-bold text-gray-900 dark:text-white"><%= tmpl.name %></h1>
+    <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5"><%= t('email.templateEditorHint') %></p>
+  </div>
+  <div class="flex items-center gap-2">
+    <a href="/admin/email/templates" class="text-sm text-orange-600 hover:text-orange-700 dark:text-orange-400 font-medium">&larr; <%= t('email.backToTemplates') %></a>
+  </div>
+</div>
+
+<!-- Subject -->
+<div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 mb-4">
+  <div class="p-4 sm:p-5 space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= t('email.subject') %></label>
+      <input type="text" id="edit-subject" value="<%= tmpl.subject %>"
+        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+    </div>
+  </div>
+</div>
+
+<!-- Tabs: Preview / Code -->
+<div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 overflow-hidden">
+  <div class="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-gray-200 dark:border-gray-700">
+    <div class="flex gap-0 bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5">
+      <button type="button" id="tab-preview" onclick="switchTab('preview')"
+        class="tab-btn px-4 py-1.5 text-xs font-medium rounded-md transition cursor-pointer <%= locals.tab || 'preview' === 'preview' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200' %>">
+        <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+        <%= t('email.preview') %>
+      </button>
+      <button type="button" id="tab-code" onclick="switchTab('code')"
+        class="tab-btn px-4 py-1.5 text-xs font-medium rounded-md transition cursor-pointer <%= locals.tab === 'code' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200' %>">
+        <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+        <%= t('email.code') %>
+      </button>
+    </div>
+    <div class="flex items-center gap-2">
+      <span id="validation-status" class="text-xs text-gray-400"></span>
+      <button type="button" onclick="validateHtml()"
+        class="px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 cursor-pointer transition">
+        <%= t('email.validate') %>
+      </button>
+      <button type="button" onclick="saveTemplate()"
+        class="px-4 py-1.5 text-xs font-medium bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition cursor-pointer">
+        <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+        <%= t('email.saveTemplate') %>
+      </button>
+    </div>
+  </div>
+
+  <!-- Preview panel -->
+  <div id="panel-preview" class="<%= locals.tab === 'code' ? 'hidden' : '' %>">
+    <div class="bg-white dark:bg-gray-900">
+      <iframe id="preview-frame" class="w-full border-0" style="min-height:500px" sandbox="allow-same-origin"></iframe>
+    </div>
+  </div>
+
+  <!-- Code panel -->
+  <div id="panel-code" class="<%= locals.tab === 'code' ? '' : 'hidden' %>">
+    <div class="p-4 sm:p-5 space-y-4">
+      <!-- Placeholder toolbar -->
+      <div class="flex flex-wrap items-center gap-1 p-2 bg-gray-50 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-700 rounded-lg">
+        <span class="text-xs text-gray-400 dark:text-gray-500 mr-1"><%= t('email.insertPlaceholder') %></span>
+        <button type="button" onclick="cmInsert('{{recipient_name}}')" class="px-2 py-1 text-xs font-mono bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 cursor-pointer transition"><%= t('email.recipientName') %></button>
+        <button type="button" onclick="cmInsert('{{company_name}}')" class="px-2 py-1 text-xs font-mono bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 cursor-pointer transition"><%= t('email.companyName') %></button>
+        <button type="button" onclick="cmInsert('{{project_title}}')" class="px-2 py-1 text-xs font-mono bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 cursor-pointer transition">Project</button>
+        <button type="button" onclick="cmInsert('{{project_category}}')" class="px-2 py-1 text-xs font-mono bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 cursor-pointer transition">Category</button>
+        <button type="button" onclick="cmInsert('{{project_budget}}')" class="px-2 py-1 text-xs font-mono bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 cursor-pointer transition">Budget</button>
+        <button type="button" onclick="cmInsert('{{project_location}}')" class="px-2 py-1 text-xs font-mono bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 cursor-pointer transition">Location</button>
+        <button type="button" onclick="cmInsert('{{project_url}}')" class="px-2 py-1 text-xs font-mono bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 cursor-pointer transition">URL</button>
+        <button type="button" onclick="cmInsert('{{unsubscribe_url}}')" class="px-2 py-1 text-xs font-mono bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 cursor-pointer transition">Unsub</button>
+      </div>
+      <!-- CodeMirror container -->
+      <div class="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+        <textarea id="edit-body" rows="20" class="w-full font-mono text-sm" style="display:none"><%= tmpl.body_html %></textarea>
+        <div id="cm-editor"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Validation errors panel -->
+<div id="validation-errors" class="hidden mt-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-card p-4">
+  <h4 class="text-sm font-semibold text-red-700 dark:text-red-400 mb-2"><%= t('email.validationErrors') %></h4>
+  <ul id="validation-list" class="text-xs text-red-600 dark:text-red-300 space-y-1"></ul>
+</div>
+
+<input type="hidden" id="edit-key" value="<%= tmpl.system_key %>">
+<input type="hidden" id="csrf-token" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js" integrity="sha512-BL3dgsQNUPHUgpNtkpVFG8XnBvRazGjQ+ADmBOmGskkRDoSRZMW5v5wvElpB8ONqXhQ8PBPUBYJSB7LYOMhWUw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.css" integrity="sha512-7nE+utR++cPhs2XYoE1YgBVIFRB+AoSe7PlH+E3Cj6fQzIvDyG00Q1zqBSXERsQBI4wr2/zaY7LDtbcSsFJN0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/theme/material-darker.min.css" integrity="sha512-5L1NScbFyM7znS1lX18FsJfZYxJOPkzBLymBdmsR6NJwY7VhBWxQSCio6zN7m3bkXvFnKREm1Lsx3C8l7t3aQw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/xml/xml.min.js" integrity="sha512-FNh7JMUNHKXr4dHPQG2++pqBTdQhEyk06H5+4QFNy5nAshnxrxOr7HCMAkHNjXNA30TKhFaBKKBS25a4DMfoww==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/htmlmixed/htmlmixed.min.js" integrity="sha512-HN6d6KKg2CfGadwYBMJBTWrM13TMr26MlWJaH38Kj5rMxo/6wU0PJBpQyCRNj5SCQf34ftGpc9GqXjZ6gWNVKg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/fold/xml-fold.min.js" integrity="sha512-O0C4qM2E4TgYGcE4vFNBOq28/3iZx80WTrDsRwdqPLD4FwB6x4t2k2AZ/XY3AnPKqQ8tQjsw40+sz0pImMRVdA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/edit/matchtags.min.js" integrity="sha512-d3X6cAQJQfz1TBH1ApYKFQZAMXGkRF5nZvCjML2k2ruAMi/NJVjfXaKTtN7J6A+TqRTX2Am9K7fjLgXHZfxRQA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/edit/matchbrackets.min.js" integrity="sha512-iGX25XuV9VSD7YDc50t/+eEPMH1rH+6i2V9Us+yKLM1rPfQqY/RyIF8YqfMHa73DyAnXLEUJRMD5USOqg2q7YQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/selection/active-line.min.js" integrity="sha512-LpE6LL0T3W/5dWh+5rMsFz50Spu+cgFw9SEFE+aJ7N9WeBKxyOEDBqKMG2KQzQps6iAqeBzkPy5dwGT2sRP+rA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<style>
+.CodeMirror {
+  height: auto;
+  min-height: 500px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.CodeMirror-scroll { min-height: 500px; }
+</style>
+
+<script>
+// ── CodeMirror init ──
+var editor = null;
+var editorInitialized = false;
+
+function initEditor() {
+  if (editorInitialized) return;
+  var ta = document.getElementById('edit-body');
+  if (!ta) return;
+  editor = CodeMirror(document.getElementById('cm-editor'), {
+    value: ta.value,
+    mode: 'htmlmixed',
+    theme: 'material-darker',
+    lineNumbers: true,
+    lineWrapping: true,
+    matchTags: {bothTags: true},
+    matchBrackets: true,
+    styleActiveLine: true,
+    extraKeys: {
+      'Ctrl-S': function() { saveTemplate(); },
+      'Cmd-S': function() { saveTemplate(); }
+    }
+  });
+  editor.on('change', function() {
+    updatePreview();
+    document.getElementById('validation-status').textContent = '';
+    document.getElementById('validation-errors').classList.add('hidden');
+  });
+  editorInitialized = true;
+  ta.style.display = 'none';
+  setTimeout(updatePreview, 100);
+  setTimeout(function() { editor.refresh(); }, 200);
+}
+
+function switchTab(tab) {
+  document.getElementById('panel-preview').classList.toggle('hidden', tab !== 'preview');
+  document.getElementById('panel-code').classList.toggle('hidden', tab !== 'code');
+  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.classList.remove('bg-white', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white', 'shadow-sm');
+    btn.classList.add('text-gray-500', 'dark:text-gray-400');
+  });
+  var activeBtn = document.getElementById('tab-' + tab);
+  if (activeBtn) {
+    activeBtn.classList.remove('text-gray-500', 'dark:text-gray-400');
+    activeBtn.classList.add('bg-white', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white', 'shadow-sm');
+  }
+  if (tab === 'code') {
+    initEditor();
+    setTimeout(function() { if (editor) editor.refresh(); }, 50);
+  } else {
+    updatePreview();
+  }
+}
+
+// ── Preview ──
+function updatePreview() {
+  var iframe = document.getElementById('preview-frame');
+  var html = editor ? editor.getValue() : (document.getElementById('edit-body').value || '');
+  var doc = iframe.contentDocument || iframe.contentWindow.document;
+  doc.open();
+  doc.write(html);
+  doc.close();
+  // Auto-iframe height
+  setTimeout(function() {
+    try {
+      iframe.style.height = Math.max(500, iframe.contentWindow.document.body.scrollHeight) + 'px';
+    } catch(e) {}
+  }, 100);
+}
+
+// ── Insert placeholder at cursor in CodeMirror ──
+function cmInsert(text) {
+  initEditor();
+  if (!editor) return;
+  var cursor = editor.getCursor();
+  editor.replaceRange(text, cursor);
+  editor.focus();
+}
+
+// ── HTML Validator ──
+function validateHtml() {
+  initEditor();
+  var html = editor ? editor.getValue() : '';
+  var errors = [];
+  var warnings = [];
+
+  // 1. Check for unclosed angle brackets
+  var lines = html.split('\n');
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i];
+    var openAngles = (line.match(/</g) || []).length;
+    var closeAngles = (line.match(/>/g) || []).length;
+    if (openAngles !== closeAngles) {
+      errors.push({ line: i + 1, msg: 'Unclosed angle bracket (< or >) — found ' + openAngles + ' opening, ' + closeAngles + ' closing' });
+    }
+  }
+
+  // 2. Check tag nesting (self-closing aware)
+  var tagStack = [];
+  var tagRegex = /<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*(\/)?>/g;
+  var match;
+  var selfClosing = ['br','hr','img','input','meta','link','area','base','col','embed','source','track','wbr'];
+  while ((match = tagRegex.exec(html)) !== null) {
+    var fullTag = match[0];
+    var tagName = match[1].toLowerCase();
+    var isClosing = fullTag.startsWith('</');
+    var isSelfClosing = selfClosing.indexOf(tagName) !== -1 || match[2] === '/';
+
+    if (isClosing) {
+      // Find matching open tag
+      if (tagStack.length === 0) {
+        errors.push({ line: '?', msg: 'Unexpected closing tag <\/' + tagName + '> — no matching open tag' });
+      } else {
+        var lastOpen = tagStack[tagStack.length - 1];
+        if (lastOpen.tag === tagName) {
+          tagStack.pop();
+        } else {
+          errors.push({ line: '?', msg: 'Mismatched tags: <\/' + tagName + '> closed, but expecting <\/' + lastOpen.tag + '> (opened at line ~' + lastOpen.line + ')' });
+        }
+      }
+    } else if (!isSelfClosing) {
+      tagStack.push({ tag: tagName, line: i + 1 });
+    }
+  }
+
+  // Unclosed tags remaining
+  if (tagStack.length > 0) {
+    tagStack.forEach(function(t) {
+      errors.push({ line: t.line, msg: 'Unclosed tag: <' + t.tag + '> (opened at line ~' + t.line + ')' });
+    });
+  }
+
+  // 3. Check mustache placeholders ({{...}})
+  var mustacheRegex = /\{\{([^}]*)\}\}/g;
+  var mustacheErrors = [];
+  while ((match = mustacheRegex.exec(html)) !== null) {
+    // {{}} without content, or {{{ without close
+  }
+  var danglingMustache = html.match(/\{\{[^}]*$/gm);
+  if (danglingMustache) {
+    danglingMustache.forEach(function(m) {
+      errors.push({ line: '?', msg: 'Unclosed placeholder: "' + m + '" — missing closing }}' });
+    });
+  }
+
+  // 4. Check for unclosed {{ and missing }}
+  var openBraces = (html.match(/\{\{/g) || []).length;
+  var closeBraces = (html.match(/\}\}/g) || []).length;
+  if (openBraces !== closeBraces) {
+    errors.push({ line: '?', msg: 'Mismatched placeholders: ' + openBraces + ' opening {{ but ' + closeBraces + ' closing }}' });
+  }
+
+  // Display results
+  var statusEl = document.getElementById('validation-status');
+  var errorsEl = document.getElementById('validation-errors');
+  var listEl = document.getElementById('validation-list');
+
+  listEl.innerHTML = '';
+  if (errors.length === 0) {
+    statusEl.innerHTML = '<span class="text-green-600 dark:text-green-400 font-medium">&#10003; ' + (document.querySelector('.tab-btn.text-gray-900') ? '' : 'HTML looks good') + '</span>';
+    errorsEl.classList.add('hidden');
+    return;
+  }
+
+  statusEl.innerHTML = '<span class="text-red-600 dark:text-red-400 font-medium">&#10007; ' + errors.length + ' ' + (document.querySelector('.tab-btn.text-gray-900') ? '' : 'issue(s)') + '</span>';
+  errors.forEach(function(e) {
+    var li = document.createElement('li');
+    li.textContent = 'Line ' + e.line + ': ' + e.msg;
+    listEl.appendChild(li);
+  });
+  errorsEl.classList.remove('hidden');
+}
+
+// ── Save template ──
+function saveTemplate() {
+  var key = document.getElementById('edit-key').value;
+  var subject = document.getElementById('edit-subject').value;
+  initEditor();
+  var body = editor ? editor.getValue() : (document.getElementById('edit-body').value || '');
+  if (!subject || !body) {
+    showNotification('Fill in both subject and body', 'error');
+    return;
+  }
+  var csrf = document.getElementById('csrf-token').value;
+  var form = new FormData();
+  form.append('_csrf', csrf);
+  form.append('subject', subject);
+  form.append('body_html', body);
+
+  fetch('/api/admin/email/system-templates/' + key + '/update', { method: 'POST', body: new URLSearchParams(form) })
+    .then(function(r) {
+      if (r.ok) {
+        showNotification('Template saved', 'success');
+        validateHtml();
+      } else {
+        showNotification('Failed to save', 'error');
+      }
+    })
+    .catch(function() { showNotification('Failed to save', 'error'); });
+}
+
+// ── Bootstrap ──
+document.addEventListener('DOMContentLoaded', function() {
+  initEditor();
+  // Check URL hash for tab selection
+  if (window.location.hash === '#code') {
+    switchTab('code');
+  } else {
+    switchTab('preview');
+  }
+});
+</script>
+
+<%- include('_admin-layout-close') %>

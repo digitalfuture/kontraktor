@@ -158,7 +158,16 @@
     "contractorOrders": "Proyek Saya",
     "noContractorOrders": "Belum ada proyek yang ditugaskan",
     "noContractorOrdersSub": "Daftar sebagai kontraktor untuk menerima undangan proyek",
-    "noContractorOrdersLink": "Untuk Profesional"
+    "noContractorOrdersLink": "Untuk Profesional",
+    "notifications": "Notifikasi",
+    "notificationsSubtitle": "Kelola notifikasi email untuk proyek baru di kategori Anda",
+    "notificationsSaved": "Pengaturan notifikasi berhasil disimpan",
+    "enableNotifications": "Aktifkan Notifikasi",
+    "enableNotificationsDesc": "Terima notifikasi email saat ada proyek baru di kategori Anda",
+    "notificationCategories": "Kategori Proyek",
+    "notificationCategoriesDesc": "Pilih kategori yang ingin diikuti (kosongkan untuk semua kategori)",
+    "saveNotifications": "Simpan Pengaturan",
+    "settings": "Pengaturan"
   },
   "services": {
     "title": "Jasa Konstruksi",
@@ -1031,6 +1040,13 @@
     "templatePaymentReceiptDesc": "Tanda terima setelah pembelian kredit berhasil",
     "templateEditorHint": "Gunakan {{recipient_name}} dan {{company_name}} sebagai placeholder",
     "insertLink": "Sisipkan Tautan",
-    "linkText": "Teks Tautan"
+    "linkText": "Teks Tautan",
+    "templateNewProjectNotification": "Notifikasi Proyek Baru",
+    "templateNewProjectNotificationDesc": "Dikirim ke pelanggan saat proyek baru diposting",
+    "backToTemplates": "← Kembali ke Template",
+    "preview": "Pratinjau",
+    "code": "Kode",
+    "validate": "Validasi HTML",
+    "validationErrors": "Masalah Validasi HTML"
   }
 }

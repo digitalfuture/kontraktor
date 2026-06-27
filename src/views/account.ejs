@@ -231,8 +231,59 @@
     </div>
   <% } %>
 
-<% } %>
+<!-- === NOTIFICATIONS SETTINGS === -->
+<% } else if (activeSection === 'notifications') { %>
 
-<%- include('partials/_account-layout-close') %>
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-xl font-bold text-gray-900 dark:text-white"><%= t('account.notifications') %></h2>
+      <p class="text-sm text-gray-500 dark:text-gray-300 mt-1"><%= t('account.notificationsSubtitle') %></p>
+    </div>
+  </div>
+
+  <% if (typeof notificationSuccess !== 'undefined' && notificationSuccess) { %>
+  <div class="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 px-4 py-3 rounded-lg mb-6">
+    <%= t('account.notificationsSaved') %>
+  </div>
+  <% } %>
+
+  <form method="POST" action="/account/notifications" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+    <!-- Enable/disable toggle -->
+    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="font-semibold text-gray-900 dark:text-white"><%= t('account.enableNotifications') %></h3>
+          <p class="text-sm text-gray-500 dark:text-gray-300 mt-0.5"><%= t('account.enableNotificationsDesc') %></p>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" name="enabled" value="1" class="sr-only peer" <%= typeof user !== 'undefined' && user.notifications_enabled ? 'checked' : '' %>>
+          <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"></div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Category selection -->
+    <div class="p-6">
+      <h3 class="font-semibold text-gray-900 dark:text-white mb-4"><%= t('account.notificationCategories') %></h3>
+      <p class="text-sm text-gray-500 dark:text-gray-300 mb-4"><%= t('account.notificationCategoriesDesc') %></p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <% categories.forEach(function(cat) { %>
+        <label class="flex items-center gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition cursor-pointer">
+          <input type="checkbox" name="categories" value="<%= cat.slug %>" class="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500 dark:focus:ring-orange-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" <%= userCats.includes(cat.slug) ? 'checked' : '' %>>
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-300"><%= t('categories.' + cat.slug) %></span>
+        </label>
+        <% }); %>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+      <button type="submit" class="bg-gradient-to-r from-orange-600 to-amber-500 text-white px-6 py-2.5 rounded-lg hover:from-orange-700 hover:to-amber-600 transition font-medium">
+        <%= t('account.saveNotifications') %>
+      </button>
+    </div>
+  </form>
+
+<% } %>
 </body>
 </html>

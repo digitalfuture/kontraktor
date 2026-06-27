@@ -190,10 +190,13 @@ export function getQueueItems(
   return db.prepare(query).all(...params) as QueueItem[];
 }
 
-// ── Transporter ──
+// ── Transporter (singleton — reuse across batches to avoid connection leak) ──
 
-export function createTransporter() {
-  return nodemailer.createTransport({
+let _transporter: nodemailer.Transporter | null = null;
+
+function getTransporter(): nodemailer.Transporter {
+  if (_transporter) return _transporter;
+  _transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: parseInt(process.env.SMTP_PORT || '587', 10),
     secure: process.env.SMTP_SECURE === 'true',
@@ -204,6 +207,18 @@ export function createTransporter() {
     connectionTimeout: 5000,
     socketTimeout: 10000,
   });
+  return _transporter;
+}
+
+export function createTransporter(): nodemailer.Transporter {
+  return getTransporter();
+}
+
+export function closeTransporter(): void {
+  if (_transporter) {
+    _transporter.close();
+    _transporter = null;
+  }
 }
 
 // On dev, prepend dev- to the from address
@@ -246,7 +261,7 @@ async function processNextBatch(): Promise<void> {
     db.prepare(`UPDATE email_queue SET status = 'processing', attempts = attempts + 1 WHERE id IN (${placeholders})`)
       .run(...ids);
 
-    const transporter = createTransporter();
+    const transporter = getTransporter();
 
     for (const item of items) {
       // Re-check cooldown between items (provider may have been hit)
@@ -347,4 +362,5 @@ export function stopQueueProcessor(): void {
     processorTimer = null;
     console.log('[email-queue] Processor stopped');
   }
+  closeTransporter();
 }

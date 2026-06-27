@@ -29,6 +29,7 @@ import gaOptRouter from './routes/ga-opt';
 import { apiRouter as contactApi } from './routes/contact';
 import { pageRouter as paymentsPages, apiRouter as paymentsApi } from './routes/payments';
 import { requireAuth, requireAdmin } from './middleware/auth';
+import { getUserByToken } from './lib/auth';
 import { i18nMiddleware } from './middleware/i18n';
 import { csrfMiddleware } from './middleware/csrf';
 import { startQueueProcessor, stopQueueProcessor } from './lib/email-queue';
@@ -106,7 +107,6 @@ app.use(csrfMiddleware);
 app.use((req: express.Request, res: express.Response, next: express.NextFunction): void => {
   const token = req.cookies?.session_token;
   if (token) {
-    const { getUserByToken } = require('./lib/auth');
     res.locals.user = getUserByToken(token) || null;
   }
   res.locals.GA_TRACKING_ID = process.env.GA_TRACKING_ID || null;
@@ -146,18 +146,27 @@ app.get('/health', (_req: express.Request, res: express.Response): void => {
 app.get('/', (req: express.Request, res: express.Response): void => {
   const locale = (res.locals.locale as string) || 'en';
   const t = res.locals.t;
-  
-  const categories = db.prepare('SELECT id, slug, name FROM categories WHERE is_active = 1').all() as Array<{ id: number; slug: string; name: string }>;
-  const services = categories.map((cat) => {
-    const totalContractors = db.prepare('SELECT COUNT(*) as count FROM contractors WHERE category_id = ? AND is_approved = 1 AND is_active = 1').get(cat.id) as { count: number };
-    const firstSub = db.prepare('SELECT price_from FROM subcategories WHERE category_id = ? ORDER BY name LIMIT 1').get(cat.id) as { price_from: string } | undefined;
-    return {
-      slug: cat.slug,
-      name: cat.name,
-      totalContractors: totalContractors.count,
-      priceFrom: totalContractors.count > 0 ? (firstSub?.price_from || '') : '',
-    };
-  });
+
+  // Single query: categories + contractor count + first subcategory price
+  const services = db.prepare(`
+    SELECT 
+      c.id, c.slug, c.name,
+      COALESCE(cc.cnt, 0) as totalContractors,
+      COALESCE(s.price_from, '') as priceFrom
+    FROM categories c
+    LEFT JOIN (
+      SELECT category_id, COUNT(*) as cnt 
+      FROM contractors 
+      WHERE is_approved = 1 AND is_active = 1 
+      GROUP BY category_id
+    ) cc ON cc.category_id = c.id
+    LEFT JOIN subcategories s ON s.id = (
+      SELECT id FROM subcategories
+      WHERE category_id = c.id
+      ORDER BY name LIMIT 1
+    )
+    WHERE c.is_active = 1
+  `).all() as Array<{ id: number; slug: string; name: string; totalContractors: number; priceFrom: string }>;
 
   const reviews = db.prepare('SELECT author_email, rating, comment FROM reviews WHERE is_moderated = 1 ORDER BY created_at DESC LIMIT 3').all();
 

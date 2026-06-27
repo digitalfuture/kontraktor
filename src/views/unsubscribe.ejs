@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="<%= typeof locale !== 'undefined' ? locale : 'en' %>">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <script src="https://cdn.tailwindcss.com" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous"></script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-950 min-h-screen flex items-center justify-center p-4">
+  <div class="max-w-md w-full">
+    <% if (success) { %>
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-green-200 dark:border-green-800 p-8 text-center shadow-lg">
+      <div class="w-16 h-16 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+      <h1 class="text-xl font-bold text-gray-900 dark:text-white mb-3">
+        <%= typeof locale !== 'undefined' && locale === 'id' ? 'Berhasil Berhenti Berlangganan' : 'Successfully Unsubscribed' %>
+      </h1>
+      <p class="text-gray-600 dark:text-gray-300 mb-6"><%= message %></p>
+      <a href="<%= enableUrl %>" class="inline-block bg-gradient-to-r from-orange-600 to-amber-500 text-white px-6 py-2.5 rounded-lg hover:from-orange-700 hover:to-amber-600 transition font-medium">
+        <%= typeof locale !== 'undefined' && locale === 'id' ? 'Kelola Notifikasi di Akun' : 'Manage Notifications in Account' %>
+      </a>
+    </div>
+    <% } else { %>
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-red-200 dark:border-red-800 p-8 text-center shadow-lg">
+      <div class="w-16 h-16 bg-red-100 dark:bg-red-900/40 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </div>
+      <h1 class="text-xl font-bold text-gray-900 dark:text-white mb-3">
+        <%= typeof locale !== 'undefined' && locale === 'id' ? 'Tautan Tidak Valid' : 'Invalid Link' %>
+      </h1>
+      <p class="text-gray-600 dark:text-gray-300"><%= message %></p>
+    </div>
+    <% } %>
+  </div>
+</body>
+</html>

@@ -4,10 +4,7 @@
   "description": "Строительный маркетплейс",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "fuser -k 3003/tcp 2>/dev/null; NODE_OPTIONS=\"--max-old-space-size=512\" NODE_ENV=development PORT=3003 node dist/index.js",
-    "dev:stop": "fuser -k 3003/tcp 2>/dev/null; echo 'Dev server stopped'",
-    "dev:restart": "npm run build && npm run dev:stop && sleep 1 && npm run dev",
-    "dev:build": "npx @tailwindcss/cli -i ./src/input.css -o ./public/css/tailwind.css --minify && tsc && rm -rf dist/views dist/locales dist/data dist/docs && cp -r src/views dist/ && cp -r src/locales dist/ && cp -r src/data dist/ && cp -r docs dist/docs",
+    "dev:build": "npx @tailwindcss/cli -i ./src/input.css -o ./public/css/tailwind.css --minify && /usr/local/lib/hermes-agent/node_modules/.bin/esbuild src/index.ts --bundle --platform=node --format=cjs --external:better-sqlite3 --external:express --external:crypto --external:googleapis --external:imapflow --external:nodemailer --external:dotenv --external:helmet --external:compression --external:express-rate-limit --external:express-fileupload --external:node-cron --external:path --external:fs --external:crypto --outfile=dist/index.js && cp -r src/views dist/ && cp -r src/locales dist/ && cp -r src/data dist/ && rm -rf dist/data/views dist/data/locales && cp -r docs dist/docs",
     "build": "NODE_OPTIONS=\"--max-old-space-size=4096\" npm run dev:build && npm run generate-sitemap",
     "lint": "eslint src/**/*.ts",
     "generate-sitemap": "node scripts/generate-sitemap.mjs",

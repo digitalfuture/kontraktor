@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 
-const dbDir: string = path.join(__dirname, '../../data');
+const dbDir: string = process.env.DB_DIR || path.resolve(__dirname, '../data');
 const dbFile: string = process.env.NODE_ENV === 'production' ? 'kontraktor.prod.db' : 'kontraktor.dev.db';
 const DB_PATH: string = process.env.DB_PATH || path.join(dbDir, dbFile);
 const db: Database.Database = new Database(DB_PATH);
@@ -350,6 +350,15 @@ const migrations: Array<{ version: number; name: string; sql: string }> = [
 
       ALTER TABLE email_templates ADD COLUMN system_key TEXT;
       ALTER TABLE email_templates ADD COLUMN description TEXT;
+    `,
+  },
+  {
+    version: 14,
+    name: 'add_user_notifications',
+    sql: `
+      ALTER TABLE users ADD COLUMN notifications_enabled INTEGER DEFAULT 1;
+      ALTER TABLE users ADD COLUMN notification_categories TEXT;
+      ALTER TABLE users ADD COLUMN max_projects INTEGER DEFAULT 99;
     `,
   },
 ];

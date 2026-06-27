@@ -62,7 +62,27 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
   });
 
   pageRouter.get('/email/templates', (req: Request, res: Response): void => {
-    res.redirect('/admin/email');
+    const locale = (res.locals.locale as string) || 'en';
+    const t = (res.locals.t as (key: string) => string) || ((key: string) => key);
+    const templates = db.prepare("SELECT * FROM email_templates WHERE system_key IS NOT NULL ORDER BY system_key").all() as Array<{id:number;name:string;subject:string;system_key:string;description:string}>;
+    res.render('admin/email-templates', {
+      title: (locale === 'id' ? 'Template Email — Admin' : 'Email Templates — Admin') + ' — Kontraktor',
+      activePage: 'email',
+      templates,
+    });
+  });
+
+  pageRouter.get('/email/templates/:key', (req: Request, res: Response): void => {
+    const locale = (res.locals.locale as string) || 'en';
+    const t = (res.locals.t as (key: string) => string) || ((key: string) => key);
+    const systemKey = req.params.key as string;
+    const tmpl = db.prepare("SELECT * FROM email_templates WHERE system_key = ?").get(systemKey);
+    if (!tmpl) { res.redirect('/admin/email/templates'); return; }
+    res.render('admin/email-template-editor', {
+      title: (locale === 'id' ? 'Edit Template — Admin' : 'Edit Template — Admin') + ' — Kontraktor',
+      activePage: 'email',
+      tmpl,
+    });
   });
 
   pageRouter.get('/email/lists', (req: Request, res: Response): void => {

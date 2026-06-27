@@ -1,0 +1,42 @@
+<%- include('_admin-layout', { activePage: 'email' }) %>
+
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
+  <div>
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white leading-none"><%= t('email.systemTemplates') %></h1>
+    <p class="text-gray-500 dark:text-gray-300 mt-2 text-sm sm:text-base leading-none"><%= t('email.systemTemplatesHint') %></p>
+  </div>
+  <a href="/admin/email" class="text-sm text-orange-600 hover:text-orange-700 dark:text-orange-400 font-medium">&larr; <%= t('email.backToEmail') %></a>
+</div>
+
+<div class="grid gap-4">
+  <% var tmplList = [
+    { key: 'magic_link', icon: '🔑' },
+    { key: 'welcome', icon: '👋' },
+    { key: 'project_assigned', icon: '📋' },
+    { key: 'bid_received', icon: '💬' },
+    { key: 'payment_receipt', icon: '🧾' },
+    { key: 'contractor_invite', icon: '📨' },
+    { key: 'new-project-notification', icon: '🆕' },
+  ]; %>
+  <% tmplList.forEach(function(item) { %>
+    <% var tmpl = null; %>
+    <% templates.forEach(function(t) { if (t.system_key === item.key) tmpl = t; }); %>
+    <a href="/admin/email/templates/<%= item.key %>" class="block bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-5 shadow-card border border-gray-200 dark:border-gray-700 hover:border-orange-300 dark:hover:border-orange-600 transition group">
+      <div class="flex items-start gap-4">
+        <div class="text-2xl shrink-0"><%= item.icon %></div>
+        <div class="min-w-0 flex-1">
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition">
+            <%= t('email.template' + item.key.replace(/-./g, function(m) { return m[1].toUpperCase(); }).replace(/^./, function(m) { return m.toUpperCase(); })) %>
+          </h3>
+          <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5"><%= t('email.template' + item.key.replace(/-./g, function(m) { return m[1].toUpperCase() }).replace(/^./, function(m) { return m.toUpperCase() }) + 'Desc') %></p>
+          <% if (tmpl) { %>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 font-mono truncate">Subject: <%= tmpl.subject %></p>
+          <% } %>
+        </div>
+        <svg class="w-5 h-5 text-gray-300 dark:text-gray-600 group-hover:text-orange-400 shrink-0 mt-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </div>
+    </a>
+  <% }); %>
+</div>
+
+<%- include('_admin-layout-close') %>

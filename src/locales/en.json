@@ -156,7 +156,16 @@
     "contractorOrders": "My Projects",
     "noContractorOrders": "No projects assigned to you yet",
     "noContractorOrdersSub": "Register as a contractor to receive project invitations",
-    "noContractorOrdersLink": "For Professionals"
+    "noContractorOrdersLink": "For Professionals",
+    "notifications": "Notifications",
+    "notificationsSubtitle": "Manage email notifications for new projects in your categories",
+    "notificationsSaved": "Notification settings saved successfully",
+    "enableNotifications": "Enable Notifications",
+    "enableNotificationsDesc": "Receive email notifications when new projects are posted in your categories",
+    "notificationCategories": "Project Categories",
+    "notificationCategoriesDesc": "Select the categories you want to follow (leave empty for all categories)",
+    "saveNotifications": "Save Settings",
+    "settings": "Settings"
   },
   "services": {
     "title": "Construction Services",
@@ -1032,6 +1041,13 @@
     "templatePaymentReceiptDesc": "Receipt after successful credit purchase",
     "templateEditorHint": "Use {{recipient_name}} and {{company_name}} placeholders",
     "insertLink": "Insert Link",
-    "linkText": "Link Text"
+    "linkText": "Link Text",
+    "templateNewProjectNotification": "New Project Notification",
+    "templateNewProjectNotificationDesc": "Sent to subscribers when a new project is posted",
+    "backToTemplates": "← Back to Templates",
+    "preview": "Preview",
+    "code": "Code",
+    "validate": "Validate HTML",
+    "validationErrors": "HTML Validation Issues"
   }
 }
