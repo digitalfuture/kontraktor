@@ -16,6 +16,8 @@
     "tagline": "Marketplace konstruksi",
     "description": "Temukan profesional konstruksi terverifikasi atau posting proyek Anda. Pekerjaan berkualitas, harga transparan, hasil terjamin.",
     "home": "Kembali ke situs",
+    "backToProjects": "← Kembali ke Proyek",
+    "backToContractors": "← Kembali ke Kontraktor",
     "logout": "Keluar",
     "contractors": "Kontraktor",
     "browseProjects": "Lihat Proyek"

@@ -97,6 +97,8 @@ router.get('/', (req: any, res: Response): void => {
     category,
     status,
     locale,
+    user,
+    isContractor: user?.role === 'contractor',
     userRole,
     pagination: {
       page,

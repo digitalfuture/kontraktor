@@ -8,6 +8,9 @@
   <main>
     <section class="py-8 sm:py-12">
       <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <a href="/projects" class="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-300 hover:text-orange-600 transition mb-4">
+          ← <%= t('nav.backToProjects') %>
+        </a>
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3"><%= typeof editMode !== 'undefined' && editMode ? t('post.editTitle') : t('post.title') %></h1>
         <p class="text-gray-600 dark:text-gray-300 mb-8"><%= typeof editMode !== 'undefined' && editMode ? t('post.editSubtitle') : t('post.subtitle') %></p>
         

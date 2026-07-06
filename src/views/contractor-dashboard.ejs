@@ -6,6 +6,9 @@
   <%- include('partials/header') %>
 
   <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+        <a href="/" class="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-300 hover:text-orange-600 transition mb-4">
+          ← <%= t('nav.home') %>
+        </a>
     <!-- Success/Error messages -->
     <% if (success === 'avatar') { %>
     <div class="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-300">
