@@ -19,7 +19,7 @@
       <!-- Desktop Nav -->
       <nav class="hidden md:flex items-center space-x-6" aria-label="Main navigation">
         <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition"><%= t('nav.services') %></a>
-        <% if (typeof user !== 'undefined' && user) { %><a href="/projects" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition"><%= t('projects.title') %></a><% } %>
+
         <a href="/contractors" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition"><%= t('nav.contractors') %></a>
       </nav>
       
@@ -86,7 +86,7 @@
     <div id="mobile-menu" class="hidden md:hidden pb-4" role="navigation" aria-label="Mobile navigation">
       <nav class="flex flex-col space-y-3">
         <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition py-2"><%= t('nav.services') %></a>
-        <% if (typeof user !== 'undefined' && user) { %><a href="/projects" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition py-2"><%= t('projects.title') %></a><% } %>
+
         <a href="/contractors" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition py-2"><%= t('nav.contractors') %></a>
         
         <!-- Mobile Controls -->
