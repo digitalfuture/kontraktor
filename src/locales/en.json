@@ -167,7 +167,18 @@
     "notificationCategories": "Project Categories",
     "notificationCategoriesDesc": "Select the categories you want to follow (leave empty for all categories)",
     "saveNotifications": "Save Settings",
-    "settings": "Settings"
+    "settings": "Settings",
+    "profile": "Profile",
+    "profileSubtitle": "Update your personal information",
+    "profileSaved": "Profile updated successfully",
+    "profileSaveError": "Could not save profile. Please try again.",
+    "nameLabel": "Name",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "telegramLabel": "Telegram ID",
+    "nameRequired": "Name is required",
+    "emailInvalid": "Invalid email address",
+    "emailTaken": "This email is already in use"
   },
   "services": {
     "title": "Construction Services",

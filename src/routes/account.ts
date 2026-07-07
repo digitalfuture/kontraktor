@@ -100,6 +100,63 @@ router.get('/', requireAuth, (req: Request, res: Response): void => {
   });
 });
 
+// GET /account/profile — форма редактирования профиля
+router.get('/profile', requireAuth, (req: Request, res: Response): void => {
+  const user = (req as any).user;
+  const locale = (res.locals.locale as string) || 'en';
+
+  res.render('account', {
+    title: (locale === 'id' ? 'Profil' : 'Profile') + ' — Kontraktor',
+    pageTitle: locale === 'id' ? 'Profil' : 'Profile',
+    user,
+    activeSection: 'profile',
+    profileSuccess: req.query.success === '1',
+    profileError: req.query.error,
+  });
+});
+
+// POST /account/profile — сохранение профиля
+router.post('/profile', requireAuth, (req: Request, res: Response): void => {
+  const user = (req as any).user;
+  const { name, email, phone, telegram_id } = req.body as { name?: string; email?: string; phone?: string; telegram_id?: string };
+
+  const trimmedName = (name || '').trim();
+  const trimmedEmail = (email || '').trim();
+
+  // Validate
+  if (!trimmedName) {
+    res.redirect('/account/profile?error=name_required');
+    return;
+  }
+  if (!trimmedEmail || !trimmedEmail.includes('@')) {
+    res.redirect('/account/profile?error=email_invalid');
+    return;
+  }
+
+  // Check email uniqueness (exclude current user)
+  const existing = db.prepare('SELECT id FROM users WHERE email = ? AND id != ?').get(trimmedEmail, user.id) as { id: number } | undefined;
+  if (existing) {
+    res.redirect('/account/profile?error=email_taken');
+    return;
+  }
+
+  db.prepare('UPDATE users SET name = ?, email = ?, phone = ?, telegram_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(
+    trimmedName,
+    trimmedEmail,
+    (phone || '').trim() || null,
+    (telegram_id || '').trim() || null,
+    user.id
+  );
+
+  // Update session user
+  (req as any).user.name = trimmedName;
+  (req as any).user.email = trimmedEmail;
+  (req as any).user.phone = (phone || '').trim() || null;
+  (req as any).user.telegram_id = (telegram_id || '').trim() || null;
+
+  res.redirect('/account/profile?success=1');
+});
+
 // GET /account/notifications — настройки уведомлений
 router.get('/notifications', requireAuth, (req: Request, res: Response): void => {
   const user = (req as any).user;

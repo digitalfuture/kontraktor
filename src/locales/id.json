@@ -169,7 +169,18 @@
     "notificationCategories": "Kategori Proyek",
     "notificationCategoriesDesc": "Pilih kategori yang ingin diikuti (kosongkan untuk semua kategori)",
     "saveNotifications": "Simpan Pengaturan",
-    "settings": "Pengaturan"
+    "settings": "Pengaturan",
+    "profile": "Profil",
+    "profileSubtitle": "Perbarui informasi pribadi Anda",
+    "profileSaved": "Profil berhasil diperbarui",
+    "profileSaveError": "Gagal menyimpan profil. Silakan coba lagi.",
+    "nameLabel": "Nama",
+    "emailLabel": "Email",
+    "phoneLabel": "Telepon",
+    "telegramLabel": "ID Telegram",
+    "nameRequired": "Nama wajib diisi",
+    "emailInvalid": "Alamat email tidak valid",
+    "emailTaken": "Email ini sudah digunakan"
   },
   "services": {
     "title": "Jasa Konstruksi",
