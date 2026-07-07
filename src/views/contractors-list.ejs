@@ -102,7 +102,7 @@
               }
             %></p>
             <% if (c.is_verified) { %>
-            <span class="text-xs text-green-600 dark:text-green-400">✓ <%= t('contractors.verified') %></span>
+            <%- include('partials/_verified-badge', {label: t('contractors.verified')}) %>
             <% } %>
           </div>
         </div>

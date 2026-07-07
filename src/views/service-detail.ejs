@@ -26,7 +26,7 @@
         <p class="text-gray-600 dark:text-gray-300 text-lg mb-6"><%= service.description %></p>
         <div class="flex flex-wrap gap-4 text-sm">
           <span class="bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 px-3 py-1 rounded-full font-medium"><%= service.totalContractors %> <%= t('services.contractors') %></span>
-          <span class="bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 px-3 py-1 rounded-full font-medium"><%= t('services.verifiedProfessionals') %></span>
+          <%- include('partials/_verified-badge', {label: t('services.verifiedProfessionals')}) %>
         </div>
       </div>
     </section>
