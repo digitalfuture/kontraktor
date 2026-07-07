@@ -30,7 +30,7 @@
           <% locales.forEach(function(loc) { %>
             <a href="?lang=<%= loc %>" 
                class="px-2 py-1 rounded text-sm font-medium transition
-                 <%= locale === loc ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700' : 'text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200' %>"
+                <%= locale === loc ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700' : 'text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200' %>"
             >
               <%= loc.toUpperCase() %>
             </a>
@@ -64,9 +64,7 @@
         <% } else { %>
           <a href="/auth/login" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition font-medium"><%= t('nav.login') %></a>
         <% } %>
-        <a href="/post" class="bg-gradient-to-r from-orange-600 to-amber-500 text-white px-5 py-2 rounded-lg hover:from-orange-700 hover:to-amber-600 transition font-medium shadow-button hover:shadow-button-hover focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2">
-          <%= t('nav.postOrder') %>
-        </a>
+        <%- include('./_post-project-btn') %>
       </div>
       
       <!-- Mobile Menu Button -->
@@ -96,7 +94,7 @@
             <% locales.forEach(function(loc) { %>
               <a href="?lang=<%= loc %>" 
                  class="px-2 py-1 rounded text-sm font-medium transition
-                   <%= locale === loc ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700' : 'text-gray-500 dark:text-gray-300' %>"
+                  <%= locale === loc ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700' : 'text-gray-500 dark:text-gray-300' %>"
               >
                 <%= loc.toUpperCase() %>
               </a>
@@ -126,9 +124,7 @@
         <% } else { %>
           <a href="/auth/login" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition py-2 font-medium"><%= t('nav.login') %></a>
         <% } %>
-        <a href="/post" class="bg-gradient-to-r from-orange-600 to-amber-500 text-white px-5 py-2 rounded-lg hover:from-orange-700 hover:to-amber-600 transition font-medium text-center shadow-button hover:shadow-button-hover focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2">
-          <%= t('nav.postOrder') %>
-        </a>
+        <%- include('./_post-project-btn', {extraClass: 'text-center w-full'}) %>
       </nav>
     </div>
   </div>
