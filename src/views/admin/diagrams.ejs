@@ -23,7 +23,6 @@
               <h3 class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white"><%= typeof t !== 'undefined' ? t('admin.sitemapTitle') : 'Site Structure Diagram' %></h3>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-xs text-gray-500 dark:text-gray-400">🧩 <%= typeof t !== 'undefined' ? t('admin.drillDown') : 'Drill-down' %></span>
               <button onclick="toggleExpand('sitemap-card')" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer expand-btn" title="Expand">
                 <svg class="w-4 h-4 expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
                 <svg class="w-4 h-4 collapse-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25"/></svg>
@@ -79,7 +78,6 @@
               <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Role-based user journeys through the application.</p>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-xs text-gray-500 dark:text-gray-400">🧩 Drill-down</span>
               <button onclick="toggleExpand('scenarios-card')" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer expand-btn" title="Expand">
                 <svg class="w-4 h-4 expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
                 <svg class="w-4 h-4 collapse-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25"/></svg>
@@ -356,7 +354,7 @@
           .attr('stroke', function(d) { return d3.color(color(d.data.category || 'public')).darker(0.4); })
           .attr('stroke-width', 1.5);
 
-        nodeG.append('text')
+        var labelText = nodeG.append('text')
           .attr('class', 'node-label')
           .attr('text-anchor', function(d) { return d.depth === 0 ? 'end' : 'start'; })
           .attr('x', function(d) { return d.depth === 0 ? d.y - 14 : d.y + 14; })
@@ -367,23 +365,22 @@
             if (d.depth === 0) return '#ea580c';
             var isDark = document.documentElement.classList.contains('dark');
             return isDark ? '#e2e8f0' : '#1f2937';
-          })
+          });
+
+        labelText.append('tspan')
           .text(function(d) {
             if (d.depth === 0) return d.data.name;
             var icon = d.data.leaf ? '📄' : '📁';
             return icon + ' ' + d.data.name;
           });
 
-        nodeG.filter(function(d) { return !isEmpty(d.data) && d.depth > 0; }).append('text')
-          .attr('class', 'node-count')
-          .attr('text-anchor', 'start')
-          .attr('x', function(d) { return d.y + 14; })
-          .attr('y', function(d) { return d.x + 19; })
-          .attr('font-size', '10px')
+        labelText.filter(function(d) { return !isEmpty(d.data) && d.depth > 0; }).append('tspan')
           .attr('fill', '#9ca3af')
+          .attr('font-size', '10px')
+          .attr('dx', '6')
           .text(function(d) {
             var count = d.data.children ? d.data.children.length : 0;
-            return count > 0 ? count + ' page' + (count > 1 ? 's' : '') : '';
+            return count > 0 ? ' ' + count + ' page' + (count > 1 ? 's' : '') : '';
           });
 
         // Click handlers — drill-down on any non-empty node

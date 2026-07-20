@@ -446,8 +446,6 @@
     "sitemap": "Sitemap",
     "sitemapTitle": "Site Structure Diagram",
     "sitemapAutoNote": "Auto-generated from Express routes. Run npm run generate-sitemap to update.",
-    "viewMode": "View:",
-    "drillDown": "Drill-down",
     "sitemapHint": "📁 click to drill down • click background to go back",
     "charts": "Charts",
     "categoryDistribution": "Projects by Category",

@@ -445,8 +445,6 @@
     "sitemap": "Peta Situs",
     "sitemapTitle": "Diagram Struktur Situs",
     "sitemapAutoNote": "Dihasilkan otomatis dari rute Express. Jalankan npm run generate-sitemap untuk memperbarui.",
-    "viewMode": "Tampilan:",
-    "drillDown": "Rinci",
     "sitemapHint": "📁 klik untuk memperdalam • klik latar belakang untuk kembali",
     "charts": "Grafik",
     "categoryDistribution": "Proyek per Kategori",
