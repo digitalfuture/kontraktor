@@ -57,9 +57,6 @@ function _createTransporter() {
   });
 }
 
-const _fromEmail = process.env.SMTP_FROM || 'noreply@kontraktor.id';
-const _isDev = process.env.NODE_ENV !== 'production';
-
 // ── Single send with quota check (now enqueues) ──
 
 export async function sendWithQuota(
@@ -68,6 +65,8 @@ export async function sendWithQuota(
   html: string,
   campaignId?: number
 ): Promise<{ sent: boolean; reason?: string }> {
+  const _isDev = process.env.NODE_ENV !== 'production';
+  const _fromEmail = process.env.SMTP_FROM || 'noreply@kontraktor.app';
   const finalSubject = _isDev ? `[DEV] ${subject}` : subject;
   enqueueEmail(to, finalSubject, html, {
     priority: 1,
@@ -85,6 +84,7 @@ export async function sendCampaignEmails(
   html: string,
   onProgress?: (sent: number, failed: number, total: number) => void
 ): Promise<{ sent: number; failed: number }> {
+  const _isDev = process.env.NODE_ENV !== 'production';
   const total = recipients.length;
   const baseSubject = subject;
   const baseHtml = html;

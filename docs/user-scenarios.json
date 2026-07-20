@@ -1,0 +1,232 @@
+{
+  "name": "🧑 User Scenarios",
+  "category": "root",
+  "children": [
+    {
+      "name": "👤 Visitor (not logged in)",
+      "category": "public",
+      "value": 5,
+      "children": [
+        {
+          "name": "🏠 Browse site",
+          "value": 3,
+          "children": [
+            { "name": "Visit Home → /", "leaf": true, "page": "/" },
+            { "name": "Browse Services → /services", "leaf": true, "page": "/services" },
+            { "name": "View Service → /services/:slug", "leaf": true, "page": "/services/:slug" }
+          ]
+        },
+        {
+          "name": "🔍 Find a contractor",
+          "value": 4,
+          "children": [
+            { "name": "Browse Contractors → /contractors", "leaf": true, "page": "/contractors" },
+            { "name": "Filter by service/city", "leaf": true, "page": "" },
+            { "name": "View Profile → /contractors/:id", "leaf": true, "page": "/contractors/:id" },
+            { "name": "Read Reviews", "leaf": true, "page": "" }
+          ]
+        },
+        {
+          "name": "📝 Post a project",
+          "value": 5,
+          "children": [
+            { "name": "Start Posting → /post", "leaf": true, "page": "/post" },
+            { "name": "Fill project details (form)", "leaf": true, "page": "" },
+            { "name": "Sign in / Register → /auth/login", "leaf": true, "page": "/auth/login" },
+            { "name": "Verify email → /auth/verify", "leaf": true, "page": "/auth/verify" },
+            { "name": "Project published", "leaf": true, "page": "" }
+          ]
+        },
+        {
+          "name": "🔐 Sign in / Register",
+          "value": 3,
+          "children": [
+            { "name": "Login → /auth/login", "leaf": true, "page": "/auth/login" },
+            { "name": "Request Magic Link", "leaf": true, "page": "" },
+            { "name": "Verify → /auth/verify", "leaf": true, "page": "/auth/verify" }
+          ]
+        },
+        {
+          "name": "📄 View info pages",
+          "value": 3,
+          "children": [
+            { "name": "Terms → /terms", "leaf": true, "page": "/terms" },
+            { "name": "Privacy → /privacy", "leaf": true, "page": "/privacy" },
+            { "name": "GA Opt-out → /_ga-opt-out", "leaf": true, "page": "/_ga-opt-out" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "👨‍💼 Client",
+      "category": "client",
+      "value": 5,
+      "children": [
+        {
+          "name": "📋 Manage projects",
+          "value": 4,
+          "children": [
+            { "name": "My Projects → /projects", "leaf": true, "page": "/projects" },
+            { "name": "View Project Detail → /projects/:id", "leaf": true, "page": "/projects/:id" },
+            { "name": "Edit Project", "leaf": true, "page": "" },
+            { "name": "Delete / Cancel Project", "leaf": true, "page": "" }
+          ]
+        },
+        {
+          "name": "📝 Post new project",
+          "value": 4,
+          "children": [
+            { "name": "Post Project → /post", "leaf": true, "page": "/post" },
+            { "name": "Select category, fill details", "leaf": true, "page": "" },
+            { "name": "Add contact info", "leaf": true, "page": "" },
+            { "name": "Submit → project pending", "leaf": true, "page": "" }
+          ]
+        },
+        {
+          "name": "👤 Account settings",
+          "value": 4,
+          "children": [
+            { "name": "Account → /account", "leaf": true, "page": "/account" },
+            { "name": "Edit Profile → /account/profile", "leaf": true, "page": "/account/profile" },
+            { "name": "Notifications → /account/notifications", "leaf": true, "page": "/account/notifications" },
+            { "name": "Unsubscribe → /account/unsubscribe", "leaf": true, "page": "/account/unsubscribe" }
+          ]
+        },
+        {
+          "name": "🔍 Browse contractors",
+          "value": 4,
+          "children": [
+            { "name": "All Contractors → /contractors", "leaf": true, "page": "/contractors" },
+            { "name": "Filter by category", "leaf": true, "page": "" },
+            { "name": "View Profile → /contractors/:id", "leaf": true, "page": "/contractors/:id" },
+            { "name": "Leave a Review", "leaf": true, "page": "" }
+          ]
+        },
+        {
+          "name": "💳 Buy credits / Pay",
+          "value": 2,
+          "children": [
+            { "name": "Payments → /payments/buy", "leaf": true, "page": "/payments/buy" },
+            { "name": "Complete payment", "leaf": true, "page": "" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "👷 Contractor",
+      "category": "contractor",
+      "value": 4,
+      "children": [
+        {
+          "name": "📝 Register as contractor",
+          "value": 3,
+          "children": [
+            { "name": "Register → /contractors/register", "leaf": true, "page": "/contractors/register" },
+            { "name": "Fill company profile", "leaf": true, "page": "" },
+            { "name": "Set services offered", "leaf": true, "page": "" }
+          ]
+        },
+        {
+          "name": "📊 Contractor dashboard",
+          "value": 3,
+          "children": [
+            { "name": "Dashboard → /contractors/dashboard", "leaf": true, "page": "/contractors/dashboard" },
+            { "name": "View leads / messages", "leaf": true, "page": "" },
+            { "name": "Update profile & services", "leaf": true, "page": "" }
+          ]
+        },
+        {
+          "name": "🔎 Browse opportunities",
+          "value": 3,
+          "children": [
+            { "name": "Browse Projects → /projects", "leaf": true, "page": "/projects" },
+            { "name": "View project requirements", "leaf": true, "page": "" },
+            { "name": "Express interest / Bid", "leaf": true, "page": "" }
+          ]
+        },
+        {
+          "name": "⭐ Reviews & ratings",
+          "value": 2,
+          "children": [
+            { "name": "Manage reviews", "leaf": true, "page": "" },
+            { "name": "Respond to reviews", "leaf": true, "page": "" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🛡️ Admin",
+      "category": "admin",
+      "value": 8,
+      "children": [
+        {
+          "name": "📊 Dashboard & Overview",
+          "value": 1,
+          "children": [
+            { "name": "Admin Dashboard → /admin", "leaf": true, "page": "/admin" }
+          ]
+        },
+        {
+          "name": "📦 Manage Projects",
+          "value": 3,
+          "children": [
+            { "name": "Projects List → /admin/projects", "leaf": true, "page": "/admin/projects" },
+            { "name": "Change status (pending→active→done)", "leaf": true, "page": "" },
+            { "name": "Assign to contractor", "leaf": true, "page": "" }
+          ]
+        },
+        {
+          "name": "👥 Manage Contractors",
+          "value": 3,
+          "children": [
+            { "name": "Contractors List → /admin/contractors", "leaf": true, "page": "/admin/contractors" },
+            { "name": "Toggle verify / active", "leaf": true, "page": "" },
+            { "name": "Add credits", "leaf": true, "page": "" }
+          ]
+        },
+        {
+          "name": "👤 Manage Users",
+          "value": 2,
+          "children": [
+            { "name": "Users List → /admin/users", "leaf": true, "page": "/admin/users" },
+            { "name": "Change role / delete", "leaf": true, "page": "" }
+          ]
+        },
+        {
+          "name": "🏷️ Manage Categories",
+          "value": 2,
+          "children": [
+            { "name": "Categories → /admin/categories", "leaf": true, "page": "/admin/categories" },
+            { "name": "Add / edit / toggle categories", "leaf": true, "page": "" }
+          ]
+        },
+        {
+          "name": "⭐ Moderate Reviews",
+          "value": 2,
+          "children": [
+            { "name": "Reviews → /admin/reviews", "leaf": true, "page": "/admin/reviews" },
+            { "name": "Approve / reject / delete", "leaf": true, "page": "" }
+          ]
+        },
+        {
+          "name": "📧 Email Campaigns",
+          "value": 3,
+          "children": [
+            { "name": "Email Dashboard → /admin/email", "leaf": true, "page": "/admin/email" },
+            { "name": "Create & send campaigns", "leaf": true, "page": "" },
+            { "name": "Manage templates & lists", "leaf": true, "page": "" }
+          ]
+        },
+        {
+          "name": "🔬 Analytics & Diagrams",
+          "value": 3,
+          "children": [
+            { "name": "Analytics → /admin/analytics", "leaf": true, "page": "/admin/analytics" },
+            { "name": "Diagrams → /admin/diagrams", "leaf": true, "page": "/admin/diagrams" },
+            { "name": "Database → /admin/database", "leaf": true, "page": "/admin/database" }
+          ]
+        }
+      ]
+    }
+  ]
+}

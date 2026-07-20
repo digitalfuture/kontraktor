@@ -3,6 +3,7 @@
 import express, { Request, Response } from 'express';
 import db from '../../db';
 import { getQueueStats, getQueueItems } from '../../lib/email-queue';
+import { clearTemplateCache } from '../../lib/email';
 import {
   EmailTemplate,
   EmailCampaign,
@@ -14,7 +15,7 @@ import {
   EmailNameRow,
 } from '../../types/email';
 import { makeT, getPagination, localizedName, PAGE_SIZE, csvUpload } from './helpers';
-import { createTransporter, fromEmail } from '../../lib/email-queue';
+import { createTransporter, getFromEmail } from '../../lib/email-queue';
 
 // Bring in EmailSetting type
 interface EmailSetting { key: string; value: string; updated_at: string; }
@@ -161,7 +162,7 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
       res.status(400).json({ error: 'Missing required fields: to, subject, body' });
       return;
     }
-    const from = (req.body.from as string | undefined) || fromEmail;
+    const from = (req.body.from as string | undefined) || getFromEmail();
     try {
       const info = await createTransporter().sendMail({ from, to, subject: finalSubject, html });
       const messageId = typeof info === 'object' && info !== null ? (info as { messageId: string }).messageId || '' : '';
@@ -209,7 +210,7 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
     const parentMessageId = (parent.message_id as string) || '';
     const parentSubject = (parent.subject as string) || '';
     const parentBody = (parent.body_html as string) || '';
-    const from = (req.body.from as string | undefined) || (parent.from_email as string) || fromEmail;
+    const from = (req.body.from as string | undefined) || (parent.from_email as string) || getFromEmail();
     const isDev = process.env.NODE_ENV !== 'production';
     const finalSubject = subject.startsWith('Re:') ? subject : `Re: ${parentSubject}`;
     const devSubject = isDev ? `[DEV] ${finalSubject}` : finalSubject;

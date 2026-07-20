@@ -5,7 +5,7 @@
   <%- include('_anti-flash') %>
   <div class="flex flex-col min-h-screen">
     <div class="flex flex-1 min-h-0">
-      <%- include('_account-sidebar', { activeSection: typeof activeSection !== 'undefined' ? activeSection : 'overview', t: typeof t !== 'undefined' ? t : null, locale: locale, isContractor: typeof isContractor !== 'undefined' ? isContractor : false }) %>
+      <%- include('_account-sidebar', { activeSection: typeof activeSection !== 'undefined' ? activeSection : 'overview', t: typeof t !== 'undefined' ? t : null, locale: locale, isContractor: typeof isContractor !== 'undefined' ? isContractor : false, needsName: typeof needsName !== 'undefined' ? needsName : false }) %>
       <div class="flex flex-col flex-1 min-w-0">
         <!-- Account header bar (shared component) -->
         <%- include('_page-header', { 

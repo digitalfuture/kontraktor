@@ -46,11 +46,11 @@
       <div class="flex items-center gap-2 mb-6 text-sm">
         <span class="text-gray-500 dark:text-gray-300"><%= t('contractors.sortBy') %>:</span>
         <a href="?sort=projects<%= search ? '&search=' + search : '' %><%= specialty ? '&specialty=' + specialty : '' %>"
-           class="px-3 py-1.5 rounded-lg transition <%= sort === 'projects' || !sort ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 font-medium' : 'text-gray-600 dark:text-gray-300 hover:text-orange-600' %>">
+           class="px-3 py-1.5 rounded-lg transition <%= sort === 'projects' || !sort ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-200 font-medium' : 'text-gray-600 dark:text-gray-300 hover:text-orange-600' %>">
           <%= t('contractors.sortProjects') %>
         </a>
         <a href="?sort=name<%= search ? '&search=' + search : '' %><%= specialty ? '&specialty=' + specialty : '' %>"
-           class="px-3 py-1.5 rounded-lg transition <%= sort === 'name' ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 font-medium' : 'text-gray-600 dark:text-gray-300 hover:text-orange-600' %>">
+           class="px-3 py-1.5 rounded-lg transition <%= sort === 'name' ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-200 font-medium' : 'text-gray-600 dark:text-gray-300 hover:text-orange-600' %>">
           <%= t('contractors.sortName') %>
         </a>
       </div>
@@ -74,7 +74,7 @@
           <% if (c.avatar_url) { %>
           <img src="<%= c.avatar_url %>" alt="<%= c.name %>" class="w-14 h-14 rounded-full object-cover border-2 border-orange-200 dark:border-orange-800" loading="lazy" width="56" height="56">
           <% } else { %>
-          <div class="w-14 h-14 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-xl font-bold text-orange-700 group-hover:bg-orange-200 dark:group-hover:bg-orange-900/50 transition">
+          <div class="w-14 h-14 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-xl font-bold text-orange-700 dark:text-orange-200 group-hover:bg-orange-200 dark:group-hover:bg-orange-900/50 transition">
             <%= c.name.charAt(0).toUpperCase() %>
           </div>
           <% } %>

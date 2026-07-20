@@ -1,0 +1,223 @@
+<%- include('./_admin-layout', { activePage: 'database' }) %>
+
+<%- include('./_admin-header', { title: '🗄️ Database Browser' }) %>
+
+<style>
+  .db-active { background: rgba(59,130,246,.15); border-color: #3b82f6; }
+  .db-btn { @apply px-3 py-1.5 text-xs font-medium rounded-lg border transition; }
+  .db-btn-primary { @apply bg-blue-600 text-white border-blue-500 hover:bg-blue-700; }
+  .db-btn-ghost { @apply bg-transparent text-gray-400 border-gray-700 hover:bg-gray-800; }
+  .db-btn-page { @apply px-2 py-1 text-xs rounded border border-gray-700 text-gray-400 hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed; }
+  .db-search input { @apply w-full px-3 py-2 text-sm bg-gray-900 border border-gray-700 rounded-lg text-gray-200 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none; }
+  .db-table-wrap { max-height: 70vh; }
+  .db-table-wrap table { min-width: 600px; }
+  .db-table-wrap th { @apply sticky top-0 z-10; }
+</style>
+
+<div class="flex flex-col lg:flex-row gap-6">
+  <!-- ── Table List ── -->
+  <div class="lg:w-64 shrink-0">
+    <div class="bg-gray-900/40 rounded-lg border border-gray-800/60 overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-800/60 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-300">Tables</h3>
+        <button onclick="loadTables()" class="text-gray-500 hover:text-gray-300 transition" title="Refresh">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        </button>
+      </div>
+      <div id="table-list" class="divide-y divide-gray-800/40 text-sm">
+        <% tables.forEach(function(t) { %>
+        <button onclick="loadTable('<%= t.name %>')" class="table-btn w-full text-left px-4 py-2.5 flex items-center justify-between hover:bg-gray-800/40 transition" data-table="<%= t.name %>">
+          <span class="text-gray-300"><%= t.name %></span>
+          <span class="text-xs text-gray-500"><%= t.rows %></span>
+        </button>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Table Data ── -->
+  <div class="flex-1 min-w-0">
+    <div class="bg-gray-900/40 rounded-lg border border-gray-800/60 overflow-hidden">
+      <!-- Header -->
+      <div class="px-5 py-4 border-b border-gray-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h3 id="data-table-name" class="text-sm font-semibold text-gray-300">Select a table</h3>
+          <p id="data-row-count" class="text-xs text-gray-500 mt-0.5"></p>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="db-search">
+            <input id="search-input" type="text" placeholder="Search..." disabled onkeydown="if(event.key==='Enter') reloadTable()">
+          </div>
+          <button id="refresh-btn" onclick="reloadTable()" class="db-btn db-btn-ghost" disabled>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Data -->
+      <div class="overflow-x-auto db-table-wrap">
+        <div id="data-loading" class="flex items-center justify-center py-20 text-gray-500">
+          <svg class="w-8 h-8 animate-spin mr-3" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+          Loading...
+        </div>
+        <div id="data-content" class="hidden">
+          <table class="w-full text-sm">
+            <thead id="data-thead" class="bg-gray-800/80 text-gray-400 text-xs uppercase tracking-wider"></thead>
+            <tbody id="data-tbody" class="divide-y divide-gray-800/40"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div id="data-pagination" class="hidden px-5 py-3 border-t border-gray-800/60 flex items-center justify-between">
+        <div class="text-xs text-gray-500">
+          Page <span id="page-info">1</span> of <span id="page-total">1</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <button onclick="goPage(1)" class="db-btn-page">&laquo;</button>
+          <button onclick="goPage(currentPage - 1)" id="prev-btn" class="db-btn-page">&lsaquo;</button>
+          <span id="page-range" class="text-xs text-gray-500 px-2"></span>
+          <button onclick="goPage(currentPage + 1)" id="next-btn" class="db-btn-page">&rsaquo;</button>
+          <button onclick="goPage(totalPages)" class="db-btn-page">&raquo;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var currentTable = null;
+var currentPage = 1;
+var totalPages = 1;
+var perPage = 50;
+
+function loadTables() {
+  fetch('/api/admin/db/tables')
+    .then(r => r.json())
+    .then(res => {
+      var list = document.getElementById('table-list');
+      list.innerHTML = res.tables.map(function(t) {
+        var active = t.name === currentTable ? ' db-active' : '';
+        return '<button onclick="loadTable(\'' + t.name + '\')" class="table-btn w-full text-left px-4 py-2.5 flex items-center justify-between hover:bg-gray-800/40 transition' + active + '" data-table="' + t.name + '">' +
+          '<span class="text-gray-300">' + t.name + '</span>' +
+          '<span class="text-xs text-gray-500">' + t.rows + '</span></button>';
+      }).join('');
+    })
+    .catch(function(e) { console.error('loadTables error:', e); });
+}
+
+function loadTable(table) {
+  currentTable = table;
+  currentPage = 1;
+
+  // Highlight active
+  document.querySelectorAll('.table-btn').forEach(function(b) {
+    b.classList.toggle('db-active', b.getAttribute('data-table') === table);
+  });
+
+  document.getElementById('data-table-name').textContent = '📋 ' + table;
+  document.getElementById('search-input').disabled = false;
+  document.getElementById('search-input').value = '';
+  document.getElementById('refresh-btn').disabled = false;
+
+  loadData();
+}
+
+function loadData() {
+  if (!currentTable) return;
+
+  var loading = document.getElementById('data-loading');
+  var content = document.getElementById('data-content');
+  var pag = document.getElementById('data-pagination');
+
+  loading.classList.remove('hidden');
+  content.classList.add('hidden');
+  pag.classList.add('hidden');
+
+  var search = encodeURIComponent(document.getElementById('search-input').value || '');
+  var url = '/api/admin/db/data/' + encodeURIComponent(currentTable) + '?page=' + currentPage + '&limit=' + perPage;
+  if (search) url += '&search=' + search;
+
+  fetch(url)
+    .then(r => r.json())
+    .then(function(res) {
+      loading.classList.add('hidden');
+
+      // Headers
+      var thead = document.getElementById('data-thead');
+      if (res.columns.length === 0) {
+        content.innerHTML = '<div class="flex items-center justify-center py-16 text-gray-500">Empty table</div>';
+        content.classList.remove('hidden');
+        return;
+      }
+      thead.innerHTML = '<tr>' + res.columns.map(function(c) { return '<th class="px-4 py-3 text-left font-medium">' + c + '</th>'; }).join('') + '</tr>';
+
+      // Rows
+      var tbody = document.getElementById('data-tbody');
+      if (res.rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="' + res.columns.length + '" class="text-center py-16 text-gray-500">No results</td></tr>';
+      } else {
+        tbody.innerHTML = res.rows.map(function(row) {
+          return '<tr class="hover:bg-gray-800/20 transition">' +
+            res.columns.map(function(c) {
+              var val = row[c];
+              var display = val === null ? '<span class="text-gray-600 italic">NULL</span>' : String(val);
+              return '<td class="px-4 py-2 text-gray-300 max-w-[300px] truncate" title="' + String(display).replace(/"/g, '&quot;') + '">' + display + '</td>';
+            }).join('') +
+          '</tr>';
+        }).join('');
+      }
+
+      content.classList.remove('hidden');
+
+      // Pagination
+      currentPage = res.page;
+      totalPages = res.totalPages;
+      document.getElementById('data-row-count').textContent = res.total + ' rows';
+      updatePagination();
+    })
+    .catch(function(e) {
+      loading.classList.add('hidden');
+      content.innerHTML = '<div class="flex items-center justify-center py-16 text-red-400">Error: ' + e.message + '</div>';
+      content.classList.remove('hidden');
+    });
+}
+
+function reloadTable() {
+  currentPage = 1;
+  loadData();
+}
+
+function goPage(p) {
+  if (p < 1 || p > totalPages) return;
+  currentPage = p;
+  loadData();
+}
+
+function updatePagination() {
+  var pag = document.getElementById('data-pagination');
+  if (totalPages <= 1) { pag.classList.add('hidden'); return; }
+  pag.classList.remove('hidden');
+
+  document.getElementById('page-info').textContent = currentPage;
+  document.getElementById('page-total').textContent = totalPages;
+
+  document.getElementById('prev-btn').disabled = currentPage <= 1;
+  document.getElementById('next-btn').disabled = currentPage >= totalPages;
+
+  // Show page range (up to 5 pages)
+  var start = Math.max(1, currentPage - 2);
+  var end = Math.min(totalPages, currentPage + 2);
+  var pages = [];
+  for (var i = start; i <= end; i++) {
+    if (i === currentPage) {
+      pages.push('<span class="text-blue-400 font-medium">' + i + '</span>');
+    } else {
+      pages.push('<button onclick="goPage(' + i + ')" class="hover:text-gray-300">' + i + '</button>');
+    }
+  }
+  document.getElementById('page-range').innerHTML = pages.join(' · ');
+}
+</script>
+
+<%- include('./_admin-layout-close') %>

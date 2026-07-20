@@ -49,6 +49,21 @@
           var fn = window['_renderMap_map-chart'];
           if (fn) fn();
         }
+        // Tree cards: update viz height to fill expanded space
+        if (id === 'sitemap-card' || id === 'codebase-card' || id === 'scenarios-card') {
+          var containerId = id.replace('-card', '-container');
+          var container = document.getElementById(containerId);
+          if (container) {
+            var viz = container.firstElementChild;
+            while (viz && !viz.querySelector('svg')) viz = viz.nextElementSibling;
+            if (viz && isExpanded) {
+              var cardBody = card.querySelector('div:last-child');
+              if (cardBody) viz.style.height = (cardBody.clientHeight) + 'px';
+            } else if (viz && !isExpanded) {
+              viz.style.height = 'calc(100vh - 320px)';
+            }
+          }
+        }
       });
     });
   }

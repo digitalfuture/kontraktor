@@ -36,7 +36,7 @@
           <% if (contractor.avatar_url) { %>
           <img src="<%= contractor.avatar_url %>" alt="<%= t("contractorDashboard.avatar") %>" class="w-16 h-16 rounded-full object-cover border-2 border-orange-200 dark:border-orange-800" loading="lazy" width="64" height="64">
           <% } else { %>
-          <div class="w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-2xl font-bold text-orange-700 border-2 border-orange-200 dark:border-orange-800">
+          <div class="w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-2xl font-bold text-orange-700 dark:text-orange-200 border-2 border-orange-200 dark:border-orange-800">
             <%= (contractor.name || '?')[0].toUpperCase() %>
           </div>
           <% } %>

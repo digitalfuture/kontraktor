@@ -1,0 +1,20 @@
+# Layout partials split HTML across files — false positives
+_admin-layout.ejs
+_admin-layout-close.ejs
+_account-layout.ejs
+_account-layout-close.ejs
+# Partials with complex EJS in attributes — parser can't handle
+_pagination.ejs
+_verified-badge.ejs
+header.ejs
+footer.ejs
+_admin-order-status.ejs
+_admin-user-actions.ejs
+pagination.ejs
+# Pages with layout close-order noise that can't be separated
+dashboard.ejs
+# Full pages with complex EJS expressions in attributes
+backup.ejs
+email-list-detail.ejs
+email.ejs
+payments.ejs

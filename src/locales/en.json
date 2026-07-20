@@ -103,6 +103,7 @@
     "sentToEmail": "Link sent to",
     "sentToTelegram": "Link also sent to your Telegram",
     "sendFailed": "Could not send link. Please check your email and try again.",
+    "sendFailedHint": "Make sure your email address is correct and try again.",
     "devMode": "Dev mode — link:",
     "backToLogin": "Back to Login",
     "email": "Email",
@@ -178,7 +179,9 @@
     "telegramLabel": "Telegram ID",
     "nameRequired": "Name is required",
     "emailInvalid": "Invalid email address",
-    "emailTaken": "This email is already in use"
+    "emailTaken": "This email is already in use",
+    "phoneInvalid": "Invalid Indonesian phone number. Must be a valid +62 number (e.g., 81234567890)",
+    "saveProfile": "Save Profile"
   },
   "services": {
     "title": "Construction Services",
@@ -443,6 +446,9 @@
     "sitemap": "Sitemap",
     "sitemapTitle": "Site Structure Diagram",
     "sitemapAutoNote": "Auto-generated from Express routes. Run npm run generate-sitemap to update.",
+    "viewMode": "View:",
+    "drillDown": "Drill-down",
+    "sitemapHint": "📁 click to drill down • click background to go back",
     "charts": "Charts",
     "categoryDistribution": "Projects by Category",
     "projectFlow": "Project Flow (Sankey Diagram)",

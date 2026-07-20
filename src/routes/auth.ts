@@ -23,6 +23,19 @@ pageRouter.get('/login', (_req: Request, res: Response): void => {
   res.render('auth/login', { title: 'Sign In — Kontraktor' });
 });
 
+// Link sent page (after POST redirect — keeps URL clean)
+pageRouter.get('/link-sent', (req: Request, res: Response): void => {
+  const email = (req.query.email as string) || '';
+  const emailSent = req.query.emailSent === 'true';
+  const telegramSent = req.query.telegramSent === 'true';
+  res.render('auth/link-sent', {
+    title: 'Ссылка отправлена — Kontraktor',
+    email,
+    emailSent,
+    telegramSent
+  });
+});
+
 // Verify magic link
 pageRouter.get('/verify', (req: Request, res: Response): void => {
   const token: string = req.query.token as string;
@@ -61,10 +74,12 @@ pageRouter.get('/verify', (req: Request, res: Response): void => {
     path: '/'
   });
 
-  // Redirect based on role
+  // Redirect based on name presence — force profile if name not set
   const user = getUserByToken(sessionToken);
   if (user?.role === 'admin') {
     res.redirect('/admin');
+  } else if (!user?.name) {
+    res.redirect('/account/profile');
   } else {
     res.redirect('/account');
   }
@@ -134,12 +149,7 @@ apiRouter.post('/login', loginLimiter, async (req: Request, res: Response): Prom
     }
   }
 
-  res.render('auth/link-sent', { 
-    title: 'Ссылка отправлена — Kontraktor',
-    email,
-    emailSent,
-    telegramSent
-  });
+  res.redirect(`/auth/link-sent?email=${encodeURIComponent(email)}&emailSent=${emailSent}&telegramSent=${telegramSent}`);
 });
 
 // Logout

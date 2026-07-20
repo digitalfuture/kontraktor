@@ -37,6 +37,12 @@ router.get('/', requireAuth, (req: Request, res: Response): void => {
     return;
   }
 
+  // If user has no name, force to profile page
+  if (!user.name && section !== 'profile') {
+    res.redirect('/account/profile');
+    return;
+  }
+
   // Check if user is also registered as contractor
   const contractor = db.prepare('SELECT id, credits FROM contractors WHERE email = ?').get(user.email) as any;
   const isContractor = !!contractor;
@@ -110,6 +116,7 @@ router.get('/profile', requireAuth, (req: Request, res: Response): void => {
     pageTitle: locale === 'id' ? 'Profil' : 'Profile',
     user,
     activeSection: 'profile',
+    needsName: !user.name,
     profileSuccess: req.query.success === '1',
     profileError: req.query.error,
   });
@@ -140,21 +147,37 @@ router.post('/profile', requireAuth, (req: Request, res: Response): void => {
     return;
   }
 
+  // Normalize & validate Indonesian phone number
+  let normalizedPhone: string | null = null;
+  const rawPhone = (phone || '').trim();
+  if (rawPhone) {
+    let p = rawPhone.replace(/\s+/g, '');
+    if (p.startsWith('+62')) p = p.slice(3);
+    else if (p.startsWith('62')) p = p.slice(2);
+    else if (p.startsWith('0')) p = p.slice(1);
+    if (!/^8\d{7,14}$/.test(p)) {
+      res.redirect('/account/profile?error=phone_invalid');
+      return;
+    }
+    normalizedPhone = '+62' + p;
+  }
+
   db.prepare('UPDATE users SET name = ?, email = ?, phone = ?, telegram_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(
     trimmedName,
     trimmedEmail,
-    (phone || '').trim() || null,
+    normalizedPhone,
     (telegram_id || '').trim() || null,
     user.id
   );
 
-  // Update session user
+  // If user had no name before (forced profile), redirect to overview
+  const cameFromForce = !user.name;
   (req as any).user.name = trimmedName;
   (req as any).user.email = trimmedEmail;
-  (req as any).user.phone = (phone || '').trim() || null;
+  (req as any).user.phone = normalizedPhone;
   (req as any).user.telegram_id = (telegram_id || '').trim() || null;
 
-  res.redirect('/account/profile?success=1');
+  res.redirect(cameFromForce ? '/account' : '/account/profile?success=1');
 });
 
 // GET /account/notifications — настройки уведомлений

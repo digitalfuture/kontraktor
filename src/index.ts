@@ -2,6 +2,9 @@ import { config as dotenvConfig } from 'dotenv';
 import path from 'path';
 import * as seoLib from './lib/seo';
 
+// Load base .env (secrets shared across environments)
+dotenvConfig({ path: path.join(__dirname, '../.env') });
+
 // Load environment-specific config file (.env.production or .env.development)
 const nodeEnv = process.env.NODE_ENV || 'development';
 const envFile = nodeEnv === 'production' ? '.env.production' : '.env.development';
@@ -128,7 +131,7 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
     (req.headers['user-agent'] || '').startsWith('Kontraktor-SEO/') ||
     (req.headers['user-agent'] || '').startsWith('Kontraktor-Sitemap/')
   );
-  res.locals.GA_DISABLED = isInternal || req.cookies?.ga_opt_out === '1';
+  res.locals.GA_DISABLED = isInternal || req.cookies?.ga_opt_out === '1' || res.locals.user?.role === 'admin';
 
   // SEO render helpers for templates
   res.locals.renderJsonLd = (seoData: any) => renderJsonLd(seoData);
@@ -275,6 +278,20 @@ const server = app.listen(PORT, HOST, (): void => {
   if (process.env.SMTP_HOST && process.env.SMTP_USER) {
     startQueueProcessor(3000);
   }
+});
+
+// Global error handlers — prevent silent crashes
+process.on('unhandledRejection', (reason: unknown) => {
+  console.error('[FATAL] Unhandled Promise Rejection:', reason instanceof Error ? reason.stack : reason);
+});
+process.on('uncaughtException', (err: Error) => {
+  console.error('[FATAL] Uncaught Exception:', err.stack);
+  // Don't exit — let the process try to recover.
+  // PM2 will restart if needed.
+});
+process.on('warning', (warning: Warning) => {
+  if (warning.name === 'MaxListenersExceededWarning') return; // suppress noise
+  console.warn('[WARN]', warning.stack || warning.message);
 });
 
 // Graceful shutdown

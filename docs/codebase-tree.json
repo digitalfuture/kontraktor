@@ -1,0 +1,1197 @@
+{
+  "name": "📁 Kontraktor Codebase",
+  "type": "dir",
+  "children": [
+    {
+      "name": "config",
+      "type": "dir",
+      "children": [
+        {
+          "name": "service-icons.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        }
+      ],
+      "value": 1
+    },
+    {
+      "name": "data",
+      "type": "dir",
+      "children": [
+        {
+          "name": "coordinates.json",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "json"
+        },
+        {
+          "name": "districts.json",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "json"
+        },
+        {
+          "name": "province-centroids.json",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "json"
+        }
+      ],
+      "value": 3
+    },
+    {
+      "name": "db",
+      "type": "dir",
+      "children": [
+        {
+          "name": "index.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        }
+      ],
+      "value": 1
+    },
+    {
+      "name": "lib",
+      "type": "dir",
+      "children": [
+        {
+          "name": "seo",
+          "type": "dir",
+          "children": [
+            {
+              "name": "index.ts",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ts"
+            },
+            {
+              "name": "pages.ts",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ts"
+            },
+            {
+              "name": "render.ts",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ts"
+            },
+            {
+              "name": "report.ts",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ts"
+            },
+            {
+              "name": "schemas.ts",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ts"
+            },
+            {
+              "name": "types.ts",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ts"
+            }
+          ],
+          "value": 6
+        },
+        {
+          "name": "auth.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "districts.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "email-campaign.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "email-queue.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "email.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "google-analytics.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "i18n-helpers.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "seo.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "telegram.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "upload.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        }
+      ],
+      "value": 16
+    },
+    {
+      "name": "locales",
+      "type": "dir",
+      "children": [
+        {
+          "name": "en.json",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "json"
+        },
+        {
+          "name": "id.json",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "json"
+        }
+      ],
+      "value": 2
+    },
+    {
+      "name": "middleware",
+      "type": "dir",
+      "children": [
+        {
+          "name": "auth.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "csrf.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "i18n.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        }
+      ],
+      "value": 3
+    },
+    {
+      "name": "routes",
+      "type": "dir",
+      "children": [
+        {
+          "name": "admin",
+          "type": "dir",
+          "children": [
+            {
+              "name": "analytics.ts",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ts"
+            },
+            {
+              "name": "backup.ts",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ts"
+            },
+            {
+              "name": "content.ts",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ts"
+            },
+            {
+              "name": "database.ts",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ts"
+            },
+            {
+              "name": "email.ts",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ts"
+            },
+            {
+              "name": "helpers.ts",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ts"
+            },
+            {
+              "name": "index.ts",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ts"
+            },
+            {
+              "name": "payments.ts",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ts"
+            }
+          ],
+          "value": 8
+        },
+        {
+          "name": "account.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "admin.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "auth.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "contact.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "contractors.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "ga-opt.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "payments.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "post.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "projects.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "services.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "sitemap.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        }
+      ],
+      "value": 19
+    },
+    {
+      "name": "scripts",
+      "type": "dir",
+      "children": [
+        {
+          "name": "add-gapensi-data.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "import-mailing-list.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        }
+      ],
+      "value": 2
+    },
+    {
+      "name": "types",
+      "type": "dir",
+      "children": [
+        {
+          "name": "app.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "category.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "contractor.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "data.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "email.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "express.d.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "index.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "page.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "payment.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "project.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "user.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        }
+      ],
+      "value": 11
+    },
+    {
+      "name": "views",
+      "type": "dir",
+      "children": [
+        {
+          "name": "admin",
+          "type": "dir",
+          "children": [
+            {
+              "name": "partials",
+              "type": "dir",
+              "children": [
+                {
+                  "name": "_back-link.ejs",
+                  "type": "file",
+                  "value": 1,
+                  "leaf": true,
+                  "ext": "ejs"
+                },
+                {
+                  "name": "_list-name-display-list.ejs",
+                  "type": "file",
+                  "value": 1,
+                  "leaf": true,
+                  "ext": "ejs"
+                },
+                {
+                  "name": "_list-name-display.ejs",
+                  "type": "file",
+                  "value": 1,
+                  "leaf": true,
+                  "ext": "ejs"
+                },
+                {
+                  "name": "_list-name-edit.ejs",
+                  "type": "file",
+                  "value": 1,
+                  "leaf": true,
+                  "ext": "ejs"
+                }
+              ],
+              "value": 4
+            },
+            {
+              "name": "_admin-footer.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_admin-header.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_admin-layout-close.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_admin-layout.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_controls.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_edit-mode.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_notification.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_pagination.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_sidebar.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "analytics.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "backup.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "categories.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "contractors.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "dashboard.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "dashboard.ejs.corrupted",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "corrupted"
+            },
+            {
+              "name": "database.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "diagrams.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "email-list-detail.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "email-lists.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "email-settings.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "email-template-editor.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "email-templates.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "email.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "orders.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "payment-settings.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "payments.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "reviews.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "trash.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "users.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            }
+          ],
+          "value": 33
+        },
+        {
+          "name": "auth",
+          "type": "dir",
+          "children": [
+            {
+              "name": "link-sent.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "login.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            }
+          ],
+          "value": 2
+        },
+        {
+          "name": "partials",
+          "type": "dir",
+          "children": [
+            {
+              "name": "_account-layout-close.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_account-layout.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_account-sidebar.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_admin_chart_card.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_admin_map.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_admin_sankey.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_admin-contractor-actions.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_admin-order-status.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_admin-review-actions.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_admin-stat-card.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_admin-user-actions.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_anti-flash.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_bids-list.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_chart-expand.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_contact-form.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_controls.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_empty-state.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_expandable-rows.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_head.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_page-header.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_post-project-btn.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_sidebar-header.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_sitemap.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_status-badge.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_verified-badge.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "csrf-field.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "cta.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "footer.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "header.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "hero.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "how-it-works.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "pagination.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "reviews.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "services.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            }
+          ],
+          "value": 34
+        },
+        {
+          "name": "payments",
+          "type": "dir",
+          "children": [
+            {
+              "name": "buy.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            }
+          ],
+          "value": 1
+        },
+        {
+          "name": "account.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "contractor-dashboard.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "contractor-profile.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "contractor-register.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "contractors-list.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "error.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "header.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "index.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "info.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "layout.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "link-sent.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "login.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "post-success.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "post.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "privacy.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "project-detail.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "projects-list.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "service-detail.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "services.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "specialist.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "terms.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "unsubscribe.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        }
+      ],
+      "value": 92
+    },
+    {
+      "name": "index.ts",
+      "type": "file",
+      "value": 1,
+      "leaf": true,
+      "ext": "ts"
+    },
+    {
+      "name": "input.css",
+      "type": "file",
+      "value": 1,
+      "leaf": true,
+      "ext": "css"
+    },
+    {
+      "name": "input.css.orig",
+      "type": "file",
+      "value": 1,
+      "leaf": true,
+      "ext": "orig"
+    }
+  ],
+  "totalFiles": 153
+}

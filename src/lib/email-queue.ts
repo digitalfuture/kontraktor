@@ -2,8 +2,6 @@ import * as nodemailer from 'nodemailer';
 import db from '../db';
 import type { QueueItem, QueueStats } from '../types/email';
 
-const ADMIN_BCC = process.env.ADMIN_BCC || 'pulauberapi@gmail.com';
-
 const DAILY_LIMIT = 300;
 const BATCH_SIZE = 5;
 const MAX_ATTEMPTS = 5;
@@ -222,9 +220,17 @@ export function closeTransporter(): void {
 }
 
 // On dev, prepend dev- to the from address
-const _smtpFrom = process.env.SMTP_FROM || 'noreply@kontraktor.id';
-const isDev = process.env.NODE_ENV !== 'production';
-export const fromEmail = isDev ? _smtpFrom.replace(/^([^@+]+)/, 'dev-$1') : _smtpFrom;
+// Computed lazily — env .env is loaded by dotenv after module init completes
+function getFromEmail(): string {
+  const _smtpFrom = process.env.SMTP_FROM || 'noreply@kontraktor.app';
+  const isDev = process.env.NODE_ENV !== 'production';
+  return isDev ? _smtpFrom.replace(/^([^@+]+)/, 'dev-$1') : _smtpFrom;
+}
+function getIsDev(): boolean {
+  return process.env.NODE_ENV !== 'production';
+}
+
+export { getFromEmail, getIsDev };
 
 // ── Queue Processor ──
 
@@ -279,12 +285,11 @@ async function processNextBatch(): Promise<void> {
       try {
         // [DEV] prefix already added at enqueue time — don't double
         await transporter.sendMail({
-          from: `"Kontraktor${isDev ? ' DEV' : ''}" <${fromEmail}>`,
+          from: `"Kontraktor${getIsDev() ? ' DEV' : ''}" <${getFromEmail()}>`,
           to: item.to_email,
           subject: item.subject,
           html: item.html,
           replyTo: item.reply_to || undefined,
-          bcc: ADMIN_BCC,
         });
 
         // Mark as sent

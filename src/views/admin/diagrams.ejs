@@ -10,19 +10,91 @@
       <!-- Tab Navigation -->
       <div class="flex gap-1 mb-6 border-b border-gray-200 dark:border-gray-700">
         <button onclick="switchTab('sitemap')" id="tab-sitemap" class="px-4 py-2.5 text-sm font-medium border-b-2 border-orange-500 text-orange-600 dark:text-orange-400 transition">🧭 <%= typeof t !== 'undefined' ? t('admin.sitemap') : 'Sitemap' %></button>
+        <button onclick="switchTab('codebase')" id="tab-codebase" class="px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition">📁 <%= typeof t !== 'undefined' ? 'Codebase' : 'Codebase' %></button>
+        <button onclick="switchTab('scenarios')" id="tab-scenarios" class="px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition">🧑 <%= typeof t !== 'undefined' ? 'Scenarios' : 'Scenarios' %></button>
         <button onclick="switchTab('charts')" id="tab-charts" class="px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition">📊 <%= typeof t !== 'undefined' ? t('admin.charts') : 'Charts' %></button>
       </div>
 
       <!-- Tab: Sitemap -->
       <div id="panel-sitemap" class="block">
-        <%- include('../partials/_admin_chart_card', {
-          cardId: 'sitemap-card',
-          chartId: 'sitemap-container',
-          loadingId: '',
-          title: typeof t !== 'undefined' ? t('admin.sitemapTitle') : 'Site Structure Diagram',
-          desc: ''
-        }) %>
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden mb-4 chart-card" id="sitemap-card">
+          <div class="p-4 sm:p-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h3 class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white"><%= typeof t !== 'undefined' ? t('admin.sitemapTitle') : 'Site Structure Diagram' %></h3>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-gray-500 dark:text-gray-400">🧩 <%= typeof t !== 'undefined' ? t('admin.drillDown') : 'Drill-down' %></span>
+              <button onclick="toggleExpand('sitemap-card')" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer expand-btn" title="Expand">
+                <svg class="w-4 h-4 expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                <svg class="w-4 h-4 collapse-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25"/></svg>
+              </button>
+          </div>
+        </div>
+        <div class="p-4 sm:p-5">
+            <div id="sitemap-container">
+              <div class="flex items-center justify-center w-full min-h-[200px] text-gray-400">
+                <div class="text-center">
+                  <svg class="w-10 h-10 mx-auto mb-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                  <p><%= typeof t !== 'undefined' ? t('common.loading') : 'Loading...' %></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <p class="text-xs text-gray-400 mt-2"><%= typeof t !== 'undefined' ? t('admin.sitemapAutoNote') : 'Auto-generated from routes. Run npm run generate-sitemap to update.' %></p>
+      </div>
+
+      <!-- Tab: Codebase Tree -->
+      <div id="panel-codebase" class="hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden mb-4 chart-card" id="codebase-card">
+          <div class="p-4 sm:p-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h3 class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">📁 Codebase Structure</h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Auto-generated from src/. Run npm run build to update.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="toggleExpand('codebase-card')" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer expand-btn" title="Expand">
+                <svg class="w-4 h-4 expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                <svg class="w-4 h-4 collapse-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25"/></svg>
+              </button>
+          </div>
+        </div>
+        <div class="p-4 sm:p-5">
+            <div id="codebase-container">
+              <div class="flex items-center justify-center w-full min-h-[200px] text-gray-400">
+                <svg class="w-10 h-10 mx-auto mb-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="text-xs text-gray-400 mt-2"><%= typeof t !== 'undefined' ? t('admin.sitemapAutoNote') : 'Auto-generated from src/. Run npm run build to update.' %></p>
+      </div>
+
+      <!-- Tab: User Scenarios -->
+      <div id="panel-scenarios" class="hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden mb-4 chart-card" id="scenarios-card">
+          <div class="p-4 sm:p-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h3 class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">🧑 User Scenario Flows</h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Role-based user journeys through the application.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-gray-500 dark:text-gray-400">🧩 Drill-down</span>
+              <button onclick="toggleExpand('scenarios-card')" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer expand-btn" title="Expand">
+                <svg class="w-4 h-4 expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                <svg class="w-4 h-4 collapse-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25"/></svg>
+              </button>
+          </div>
+        </div>
+        <div class="p-4 sm:p-5">
+            <div id="scenarios-container">
+              <div class="flex items-center justify-center w-full min-h-[200px] text-gray-400">
+                <svg class="w-10 h-10 mx-auto mb-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="text-xs text-gray-400 mt-2">User scenarios — manually curated from product requirements.</p>
       </div>
 
       <!-- Tab: Charts -->
@@ -65,16 +137,7 @@
       </div>
       <!-- End Charts Tab -->
 
-  <!-- Sitemap Fullscreen Modal -->
-  <div id="sitemap-modal" class="fixed inset-0 z-50 hidden bg-black/80 flex items-center justify-center p-4">
-    <div class="bg-gray-900 rounded-lg w-full h-[90vh] max-w-6xl flex flex-col">
-      <div class="flex items-center justify-between p-4 border-b border-gray-700">
-        <h3 class="font-semibold text-white"><%= typeof t !== 'undefined' ? t('admin.sitemapTitle') : 'Site Structure Diagram' %></h3>
-        <button onclick="closeSitemapFull()" class="p-2 hover:bg-gray-700 rounded-lg text-gray-400 hover:text-white transition">✕</button>
-      </div>
-      <div id="sitemap-modal-content" class="flex-1 overflow-auto p-4"></div>
-    </div>
-  </div>
+
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
@@ -106,94 +169,170 @@
       tabEl.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
       tabEl.classList.add('border-orange-500', 'text-orange-600', 'dark:text-orange-400');
       document.getElementById('panel-' + tab).classList.remove('hidden');
+      // Lazy-load codebase tree
+      if (tab === 'codebase') loadCodebaseTree();
+      // Lazy-load scenarios
+      if (tab === 'scenarios') loadScenariosTree();
+      // Lazy-init charts (map & Chart.js) — first time panel becomes visible
+      if (tab === 'charts') initCharts();
     }
 
-    // ── Sitemap Loading ────────────────────────────────────────────────────
-    function loadSitemap(target) {
-      const container = target || document.getElementById('sitemap-container');
+    // ── Charts lazy init ─────────────────────────────────────────────
+    var chartsInitialized = false;
+    function initCharts() {
+      if (chartsInitialized) return;
+      chartsInitialized = true;
+      var e = document.createEvent('Event');
+      e.initEvent('charts:visible', true, true);
+      document.dispatchEvent(e);
+    }
+
+    // ── Sitemap ─────────────────────────────────────────────────────────
+
+    function loadSitemap() {
+      var container = document.getElementById('sitemap-container');
       if (!container) return;
-      const isModal = container.id === 'sitemap-modal-content';
-      container.innerHTML = '<div class="flex items-center justify-center w-full h-full min-h-[200px] text-gray-400"><div class="text-center"><svg class="w-10 h-10 mx-auto mb-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg><p>' + '<%= typeof t !== 'undefined' ? t('common.loading') : 'Loading...' %>' + '</p></div></div>';
+      container.innerHTML = '<div class="flex items-center justify-center w-full min-h-[200px] text-gray-400"><div class="text-center"><svg class="w-10 h-10 mx-auto mb-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg><p>' + '<%= typeof t !== 'undefined' ? t('common.loading') : 'Loading...' %>' + '</p></div></div>';
       fetch('/static/docs/sitemap.html')
-        .then(r => r.text())
-        .then(html => {
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, 'text/html');
-          const dataEl = doc.getElementById('sitemap-data');
-          if (dataEl) {
-            const data = JSON.parse(dataEl.textContent);
-            container.innerHTML = '';
-            renderSitemapTree(container, data);
-          } else {
+        .then(function(r) { return r.text(); })
+        .then(function(html) {
+          var parser = new DOMParser();
+          var doc = parser.parseFromString(html, 'text/html');
+          var dataEl = doc.getElementById('sitemap-data');
+          if (!dataEl) {
             container.innerHTML = '<p class="text-gray-400">' + '<%= typeof t !== 'undefined' ? t('admin.noSitemap') : 'No sitemap data found. Run' %>' + ' <code>npm run generate-sitemap</code>.</p>';
+            return;
           }
+          var data = JSON.parse(dataEl.textContent);
+          // Inject the sitemap partial inline
+          container.innerHTML = '';
+          container.appendChild(buildSitemapUI(data));
         })
-        .catch(err => {
-          container.innerHTML = '<p class="text-red-400">Error loading sitemap: ' + err.message + '</p>';
+        .catch(function(err) {
+          container.innerHTML = '<p class="text-red-400">Error: ' + err.message + '</p>';
         });
     }
 
-    function renderSitemapTree(container, data) {
-      container.style.overflow = '';
-      container.style.overflowX = '';
-      container.style.touchAction = '';
-      container.style.minHeight = '200px';
-      container.innerHTML = '';
-      container.style.display = 'flex';
-      container.style.alignItems = 'center';
-      container.style.justifyContent = 'center';
+    function buildSitemapUI(data) {
+      var root = document.createElement('div');
+      root.className = 'w-full relative';
 
-      const color = d3.scaleOrdinal()
+      var bc = document.createElement('div');
+      bc.id = 'sitemap-breadcrumb';
+      bc.className = 'flex items-center gap-0.5 text-sm text-gray-500 dark:text-gray-400 flex-wrap min-h-[24px] mb-3';
+      root.appendChild(bc);
+
+      var viz = document.createElement('div');
+      viz.id = 'sitemap-viz';
+      viz.style.height = 'calc(100vh - 320px)';
+      viz.style.minHeight = '250px';
+      viz.style.overflow = 'hidden';
+
+      var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('style', 'display:block;width:100%;height:100%;max-width:1200px');
+      svg.setAttribute('viewBox', '0 0 1000 400');
+      viz.appendChild(svg);
+
+      var hint = document.createElement('div');
+      hint.className = 'fixed bottom-4 left-1/2 -translate-x-1/2 z-10 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-xs px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm pointer-events-none';
+      hint.textContent = '<%= typeof t !== "undefined" ? t("admin.sitemapHint") : "📁 click to drill down • click background to go back" %>';
+      root.appendChild(viz);
+      root.appendChild(hint);
+
+      // Init D3 (defer to next tick so DOM is attached)
+      setTimeout(function() {
+        initSitemapD3(svg, bc, data);
+      }, 0);
+
+      return root;
+    }
+
+    function initSitemapD3(svgEl, bcEl, data) {
+      var svg = d3.select(svgEl);
+      var g = svg.append('g');
+
+      var color = d3.scaleOrdinal()
         .domain(['root','admin','auth','account','payments','public'])
         .range(['#ea580c','#2563eb','#7c3aed','#059669','#d97706','#6b7280']);
 
-      const svg = d3.select(container).append('svg')
-        .style('display', 'block')
-        .style('width', '100%')
-        .style('height', '100%')
-        .attr('preserveAspectRatio', 'xMidYMid meet')
-        .attr('viewBox', '0 0 1000 400');
-      const g = svg.append('g');
+      var nodeSepY = 16, nodeSepX = 130;
+      var zoomStack = [d3.hierarchy(data)];
+      var isLoading = false;
 
-      const nodeSepY = 22, nodeSepX = 140;
-      let zoomStack = [];
-      let isLoading = false;
+      function isEmpty(d) { return !d.children || d.children.length === 0; }
 
-      function isEmpty(node) { return !node.children || node.children.length === 0; }
+      function breadcrumb() {
+        bcEl.innerHTML = '';
+        zoomStack.forEach(function(d, i) {
+          if (i > 0) {
+            var sep = document.createElement('span');
+            sep.className = 'text-gray-300 dark:text-gray-600';
+            sep.textContent = ' › ';
+            bcEl.appendChild(sep);
+          }
+          var label = d.data.name.length > 28 ? d.data.name.slice(0,25) + '…' : d.data.name;
+          var span = document.createElement('span');
+          span.className = i === zoomStack.length - 1
+            ? 'text-orange-600 dark:text-orange-400 font-semibold cursor-default'
+            : 'cursor-pointer hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 px-1 rounded';
+          span.textContent = label;
+          if (i < zoomStack.length - 1) {
+            (function(idx) {
+              span.onclick = function() {
+                if (isLoading) return;
+                zoomStack.splice(idx + 1);
+                draw(zoomStack[idx]);
+              };
+            })(i);
+          }
+          bcEl.appendChild(span);
+        });
+      }
 
       function draw(node) {
         isLoading = true;
         g.selectAll('*').remove();
 
-        const root = d3.hierarchy(node.data);
+        var root = d3.hierarchy(node.data);
         if (!root.children) { isLoading = false; return; }
 
-        const treeLayout = d3.tree().nodeSize([nodeSepY, nodeSepX]).separation(() => 1);
+        var treeLayout = d3.tree()
+          .nodeSize([nodeSepY, nodeSepX])
+          .separation(function(a, b) {
+            return a.parent === b.parent ? 1 : 1;
+          });
         treeLayout(root);
 
-        // Only 2 levels
-        const visibleNodes = root.descendants().filter(d => d.depth <= 1);
-        const visibleLinks = root.links().filter(l => l.target.depth <= 1);
+        // Compact visible nodes — re-space depth-1 nodes evenly
+        var depth1Nodes = root.descendants().filter(function(d) { return d.depth === 1; });
+        var n = depth1Nodes.length;
+        var targetSpan = 160;
+        var dy = n > 1 ? Math.min(nodeSepY, targetSpan / (n - 1)) : nodeSepY;
+        depth1Nodes.forEach(function(d, i) {
+          d.x = (i - (n - 1) / 2) * dy;
+        });
+        root.x = 0;
 
-        // Compute bounds with room for labels
-        let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
-        visibleNodes.forEach(d => {
-          const leftW = d.depth === 0 ? d.data.name.length * 10 + 20 : 0;
-          const rightW = d.depth > 0 ? d.data.name.length * 8 + 30 : 0;
-          if (d.y - leftW - 16 < x0) x0 = d.y - leftW - 16;
-          if (d.y + rightW + 16 > x1) x1 = d.y + rightW + 16;
+        var visibleNodes = root.descendants().filter(function(d) { return d.depth <= 1; });
+        var visibleLinks = root.links().filter(function(l) { return l.target.depth <= 1; });
+
+        var x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+        visibleNodes.forEach(function(d) {
+          var w = d.data.name.length * 8 + 30;
+          if (d.depth === 0) w += 10;
+          if (d.y - w < x0) x0 = d.y - w;
+          if (d.y + w > x1) x1 = d.y + w;
           if (d.x < y0) y0 = d.x;
           if (d.x > y1) y1 = d.x;
         });
 
-        // Center tree within the fixed 1000×400 viewBox
-        const padY = 30;
-        const treeCx = (x0 + x1) / 2;
-        const treeCy = (y0 + y1) / 2;
-        g.attr('transform', 'translate(' + (500 - treeCx) + ',' + (200 - treeCy) + ')');
+        var padY = 30;
+        var vw = Math.max(x1 - x0, 500);
+        var vh = Math.max(y1 - y0 + padY * 2, 250);
+        svg.attr('viewBox', [(x0 + x1) / 2 - vw / 2, y0 - 25, vw, vh]);
 
         // Links
-        const linkGen = d3.linkHorizontal().x(d => d[0]).y(d => d[1]);
+        var linkGen = d3.linkHorizontal().x(function(d) { return d[0]; }).y(function(d) { return d[1]; });
         g.selectAll('path')
           .data(visibleLinks)
           .join('path')
@@ -201,94 +340,135 @@
           .attr('stroke', '#d1d5db')
           .attr('stroke-opacity', 0.5)
           .attr('stroke-width', 1.5)
-          .attr('d', d => linkGen({ source: [d.source.y, d.source.x], target: [d.target.y, d.target.x] }));
+          .attr('d', function(d) { return linkGen({ source: [d.source.y, d.source.x], target: [d.target.y, d.target.x] }); });
 
         // Nodes
-        const nodeG = g.selectAll('g')
+        var nodeG = g.selectAll('g')
           .data(visibleNodes)
           .join('g')
-          .attr('class', d => 'node-group' + (isEmpty(d.data) ? ' nodrill' : ''));
+          .attr('class', function(d) { return 'node-group' + (isEmpty(d.data) ? ' nodrill' : ''); });
 
-        // Circle
         nodeG.append('circle')
-          .attr('cx', d => d.y)
-          .attr('cy', d => d.x)
-          .attr('r', d => d.data.leaf ? 4 : 6)
-          .attr('fill', d => color(d.data.category || 'public'))
-          .attr('stroke', d => d3.color(color(d.data.category || 'public')).darker(0.4))
+          .attr('cx', function(d) { return d.y; })
+          .attr('cy', function(d) { return d.x; })
+          .attr('r', function(d) { return d.data.leaf ? 4 : 6; })
+          .attr('fill', function(d) { return color(d.data.category || 'public'); })
+          .attr('stroke', function(d) { return d3.color(color(d.data.category || 'public')).darker(0.4); })
           .attr('stroke-width', 1.5);
 
-        // Label — parent LEFT, children RIGHT
         nodeG.append('text')
-          .attr('text-anchor', d => d.depth === 0 ? 'end' : 'start')
-          .attr('x', d => d.depth === 0 ? d.y - 14 : d.y + 14)
-          .attr('y', d => d.x + 5)
-          .attr('font-size', d => d.depth === 0 ? '17px' : (d.data.leaf ? '12px' : '14px'))
-          .attr('font-weight', d => d.depth === 0 ? '700' : '500')
-          .attr('fill', d => {
+          .attr('class', 'node-label')
+          .attr('text-anchor', function(d) { return d.depth === 0 ? 'end' : 'start'; })
+          .attr('x', function(d) { return d.depth === 0 ? d.y - 14 : d.y + 14; })
+          .attr('y', function(d) { return d.x + 5; })
+          .attr('font-size', function(d) { return d.depth === 0 ? '17px' : '14px'; })
+          .attr('font-weight', function(d) { return d.depth === 0 ? '700' : '500'; })
+          .attr('fill', function(d) {
             if (d.depth === 0) return '#ea580c';
-            const isDark = container.closest('.dark');
+            var isDark = document.documentElement.classList.contains('dark');
             return isDark ? '#e2e8f0' : '#1f2937';
           })
-          .text(d => {
+          .text(function(d) {
             if (d.depth === 0) return d.data.name;
-            let icon = d.data.leaf ? '📄' : '📁';
+            var icon = d.data.leaf ? '📄' : '📁';
             return icon + ' ' + d.data.name;
           });
 
-        // Child count
-        nodeG.filter(d => !isEmpty(d.data) && d.depth > 0).append('text')
+        nodeG.filter(function(d) { return !isEmpty(d.data) && d.depth > 0; }).append('text')
+          .attr('class', 'node-count')
           .attr('text-anchor', 'start')
-          .attr('x', d => d.y + 14)
-          .attr('y', d => d.x + 19)
+          .attr('x', function(d) { return d.y + 14; })
+          .attr('y', function(d) { return d.x + 19; })
           .attr('font-size', '10px')
           .attr('fill', '#9ca3af')
-          .text(d => {
-            const count = d.data.children ? d.data.children.length : 0;
+          .text(function(d) {
+            var count = d.data.children ? d.data.children.length : 0;
             return count > 0 ? count + ' page' + (count > 1 ? 's' : '') : '';
           });
 
-        // Click handler
-        nodeG.filter(d => !isEmpty(d.data))
+        // Click handlers — drill-down on any non-empty node
+        nodeG.filter(function(d) { return !isEmpty(d.data); })
           .style('cursor', 'pointer')
           .on('click', function(event, d) {
             if (isLoading) return;
             event.stopPropagation();
-            zoomTo(d);
+            zoomStack.push(d);
+            draw(d);
           });
 
-        nodeG.filter(d => isEmpty(d.data))
-          .style('cursor', 'default');
-
+        breadcrumb();
         isLoading = false;
       }
 
-      function zoomTo(node) {
-        zoomStack.push(node);
-        draw(node);
-      }
-
-      // Click on container background (outside nodes) → zoom out
-      container.addEventListener('click', function(event) {
-        if (zoomStack.length > 1) {
+      // Click background to zoom out
+      svg.on('click', function(event) {
+        if (event.target.tagName === 'svg' && zoomStack.length > 1) {
           zoomStack.pop();
           draw(zoomStack[zoomStack.length - 1]);
         }
       });
 
       // Init
-      zoomStack = [d3.hierarchy(data)];
       draw(zoomStack[0]);
+
+      // Redraw on theme change
+      var obs = new MutationObserver(function() { draw(zoomStack[zoomStack.length - 1]); });
+      obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     }
 
-    function openSitemapFull() {
-      const modal = document.getElementById('sitemap-modal');
-      modal.classList.remove('hidden');
-      loadSitemap(document.getElementById('sitemap-modal-content'));
+    // ── Codebase Tree ─────────────────────────────────────────────────────
+    // Reuses initSitemapD3() — same D3 tree renderer, different data
+
+    var codebaseContainer = document.getElementById('codebase-container');
+
+    function loadCodebaseTree() {
+      var ctr = codebaseContainer;
+      if (!ctr) return;
+
+      var w = ctr.clientWidth || 800;
+      var h = Math.max(400, window.innerHeight * 0.6);
+      ctr.innerHTML = '<svg style="display:block;width:100%;height:auto" viewBox="0 0 ' + w + ' ' + h + '"></svg>';
+
+      fetch('/static/docs/codebase-tree.json')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          ctr.innerHTML = '<div id="codebase-breadcrumb" class="flex items-center gap-0.5 text-sm text-gray-500 dark:text-gray-400 flex-wrap min-h-[24px] mb-3"></div><div class="w-full overflow-hidden" style="height:calc(100vh - 280px);min-height:250px"><svg style="display:block;width:100%;height:100%" viewBox="0 0 ' + w + ' ' + h + '"></svg></div>';
+          var bc = document.getElementById('codebase-breadcrumb');
+          var svg = ctr.querySelector('svg');
+          if (bc && svg) {
+            initSitemapD3(svg, bc, data);
+          }
+        })
+        .catch(function(e) {
+          ctr.innerHTML = '<div class="flex items-center justify-center py-16 text-gray-500">Failed to load: ' + e.message + '</div>';
+        });
     }
 
-    function closeSitemapFull() {
-      document.getElementById('sitemap-modal').classList.add('hidden');
+    // ── User Scenarios Tree ───────────────────────────────────────────────
+
+    var scenariosContainer = document.getElementById('scenarios-container');
+
+    function loadScenariosTree() {
+      var ctr = scenariosContainer;
+      if (!ctr) return;
+
+      var w = ctr.clientWidth || 800;
+      var h = Math.max(400, window.innerHeight * 0.6);
+      ctr.innerHTML = '<svg style="display:block;width:100%;height:auto" viewBox="0 0 ' + w + ' ' + h + '"></svg>';
+
+      fetch('/static/docs/user-scenarios.json')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          ctr.innerHTML = '<div id="scenarios-breadcrumb" class="flex items-center gap-0.5 text-sm text-gray-500 dark:text-gray-400 flex-wrap min-h-[24px] mb-3"></div><div class="w-full overflow-hidden" style="height:calc(100vh - 280px);min-height:250px"><svg style="display:block;width:100%;height:100%" viewBox="0 0 ' + w + ' ' + h + '"></svg></div>';
+          var bc = document.getElementById('scenarios-breadcrumb');
+          var svg = ctr.querySelector('svg');
+          if (bc && svg) {
+            initSitemapD3(svg, bc, data);
+          }
+        })
+        .catch(function(e) {
+          ctr.innerHTML = '<div class="flex items-center justify-center py-16 text-gray-500">Failed to load: ' + e.message + '</div>';
+        });
     }
 
     // ── Chart.js: Category Bar Chart ──────────────────────────────────────
@@ -299,8 +479,11 @@
     const COLORS = ['#f97316','#22c55e','#3b82f6','#a855f7','#ec4899','#14b8a6','#eab308','#ef4444','#6366f1'];
 
     document.addEventListener('DOMContentLoaded', function() {
-      // Load sitemap diagram on page load
+      // Load sitemap diagram on page load (sitemap tab is visible by default)
       loadSitemap();
+    });
+
+    document.addEventListener('charts:visible', function() {
 
       // Category Chart
       const catCtx = document.getElementById('categoryChart')?.getContext('2d');

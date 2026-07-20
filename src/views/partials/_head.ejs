@@ -1,5 +1,5 @@
 <head>
-  <% if (typeof GA_TRACKING_ID !== 'undefined' && GA_TRACKING_ID) { %>
+  <% if (typeof GA_TRACKING_ID !== 'undefined' && GA_TRACKING_ID && !GA_DISABLED) { %>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=<%= GA_TRACKING_ID %>"></script>
     <script>

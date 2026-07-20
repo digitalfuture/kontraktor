@@ -104,8 +104,9 @@
     "linkExpires": "Link kedaluwarsa dalam 15 menit.",
     "sentToEmail": "Link dikirim ke",
     "sentToTelegram": "Link juga dikirim ke Telegram Anda",
-    "sendFailed": "Gagal mengirim link. Silakan cek email Anda dan coba lagi.",
-    "devMode": "Mode pengembang — tautan:",
+    "sendFailed": "Gagal mengirim link. Periksa email Anda dan coba lagi.",
+    "sendFailedHint": "Pastikan alamat email Anda benar dan coba lagi.",
+    "devMode": "Mode dev — link:",
     "backToLogin": "Kembali ke Masuk",
     "email": "Email",
     "signIn": "Masuk",
@@ -180,7 +181,9 @@
     "telegramLabel": "ID Telegram",
     "nameRequired": "Nama wajib diisi",
     "emailInvalid": "Alamat email tidak valid",
-    "emailTaken": "Email ini sudah digunakan"
+    "emailTaken": "Email ini sudah digunakan",
+    "phoneInvalid": "Nomor telepon Indonesia tidak valid. Harus nomor +62 yang valid (contoh: 81234567890)",
+    "saveProfile": "Simpan Profil"
   },
   "services": {
     "title": "Jasa Konstruksi",
@@ -442,6 +445,9 @@
     "sitemap": "Peta Situs",
     "sitemapTitle": "Diagram Struktur Situs",
     "sitemapAutoNote": "Dihasilkan otomatis dari rute Express. Jalankan npm run generate-sitemap untuk memperbarui.",
+    "viewMode": "Tampilan:",
+    "drillDown": "Rinci",
+    "sitemapHint": "📁 klik untuk memperdalam • klik latar belakang untuk kembali",
     "charts": "Grafik",
     "categoryDistribution": "Proyek per Kategori",
     "projectFlow": "Alur Proyek (Diagram Sankey)",

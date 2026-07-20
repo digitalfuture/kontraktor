@@ -244,7 +244,7 @@
             <% if (project.contractor_avatar) { %>
               <img src="<%= project.contractor_avatar %>" alt="<%= project.contractor_name %>" class="w-14 h-14 rounded-full object-cover">
             <% } else { %>
-              <div class="w-14 h-14 rounded-full bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-orange-700 font-bold text-xl">
+              <div class="w-14 h-14 rounded-full bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-orange-700 dark:text-orange-200 font-bold text-xl">
                 <%= project.contractor_name.charAt(0) %>
               </div>
             <% } %>

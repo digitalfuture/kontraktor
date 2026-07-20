@@ -1,0 +1,6 @@
+{
+  "extends": [],
+  "rules": {
+    "close-order": "error"
+  }
+}

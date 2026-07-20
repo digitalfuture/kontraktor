@@ -16,12 +16,18 @@
   function renderMap(containerId, opts) {
     opts = opts || {};
     opts.geoUrl = opts.geoUrl || '/js/indonesia.geojson';
-    opts.apiUrl = opts.apiUrl || '/admin/api/map';
+    opts.apiUrl = opts.apiUrl || '/api/admin/map';
 
     (async function() {
       var mapContainer = document.getElementById(containerId);
       var mapLoading = document.getElementById(containerId.replace('chart', 'loading'));
       if (!mapContainer) return;
+
+      // Skip if container is hidden (display:none) — will re-render via ResizeObserver when visible
+      if (mapContainer.offsetParent === null) {
+        if (mapLoading) mapLoading.style.display = 'none';
+        return;
+      }
 
       try {
         var [geoResp, dataResp] = await Promise.all([

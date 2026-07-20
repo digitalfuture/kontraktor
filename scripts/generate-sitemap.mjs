@@ -60,24 +60,60 @@ function parseMounts() {
         break;
       }
     }
-    mounts.push({ mount, middleware, routerFile, varName, routerType });
+    // Resolve router file path — prefer routes/<name>/index.ts (directory barrel)
+    // over routes/<name>.ts (legacy re-export or flat file)
+    let routerFilePath = null;
+    if (routerFile) {
+      const candidate1 = path.join(SRC, 'routes', routerFile + '.ts');
+      const candidate2 = path.join(SRC, 'routes', routerFile, 'index.ts');
+      if (fs.existsSync(candidate2) && fs.statSync(candidate2).size > 100) {
+        // Directory barrel with substantial content → prefer it
+        routerFilePath = candidate2;
+      } else if (fs.existsSync(candidate1)) {
+        routerFilePath = candidate1;
+      } else if (fs.existsSync(candidate2)) {
+        routerFilePath = candidate2;
+      }
+    }
+    mounts.push({ mount, middleware, routerFile, routerFilePath, varName, routerType });
   }
   return mounts;
 }
 
-function parseRouter(filePath) {
+function parseRouter(filePath, routerType) {
   if (!fs.existsSync(filePath)) return [];
   const text = fs.readFileSync(filePath, 'utf-8');
   const endpoints = [];
 
-  const routeRe = /(\w+Router)\.(get|post|put|delete|patch)\s*\(\s*['"]([^'"]+)['"]\s*,/g;
+  // Match both `router.get(` and `pageRouter.post(` patterns
+  const routeRe = /(\w+Router|\brouter\b)\.(get|post|put|delete|patch)\s*\(\s*['"]([^'"]+)['"]\s*,/g;
   let rm;
   while ((rm = routeRe.exec(text)) !== null) {
-    const routerType = rm[1];
+    const foundType = rm[1] === 'router' ? 'router' : rm[1];
     const method = rm[2].toUpperCase();
     const route = rm[3];
-    endpoints.push({ routerType, method, path: route });
+    endpoints.push({ routerType: foundType, method, path: route });
   }
+
+  // Follow `register*Routes(router, apiRouter)` pattern (admin barrel)
+  // Exclude function definitions (e.g., `function registerContentRoutes(...)` in content.ts)
+  const registerRe = /register(\w+)Routes\s*\(\s*([^)]+)\s*\)/g;
+  let regMatch;
+  while ((regMatch = registerRe.exec(text)) !== null) {
+    // Skip if this is a function definition, not a call
+    const lineStart = text.lastIndexOf('\n', regMatch.index) + 1;
+    const linePrefix = text.slice(lineStart, regMatch.index).trim();
+    if (linePrefix.startsWith('function') || linePrefix.startsWith('export function')) continue;
+    const moduleName = regMatch[1].toLowerCase();
+    const args = regMatch[2].split(',').map(s => s.trim());
+    const dir = path.dirname(filePath);
+    const modulePath = path.join(dir, moduleName + '.ts');
+    if (fs.existsSync(modulePath)) {
+      const subEndpoints = parseRouter(modulePath, routerType);
+      endpoints.push(...subEndpoints);
+    }
+  }
+
   return endpoints;
 }
 
@@ -105,9 +141,14 @@ function buildHierarchy(mounts) {
     // Skip API-only mounts — diagram shows only pages
     if (mount.mount.startsWith('/api')) continue;
 
-    const routerFilePath = path.join(SRC, 'routes', mount.routerFile + '.ts');
-    const allEndpoints = parseRouter(routerFilePath);
-    const endpoints = allEndpoints.filter(ep => ep.routerType === mount.routerType);
+    const routerFilePath = mount.routerFilePath;
+    const allEndpoints = parseRouter(routerFilePath, mount.routerType);
+    const endpoints = allEndpoints.filter(ep => {
+      // For admin: the sub-files register routes on pageRouter, not apiRouter
+      // We filter based on whether the route is on a "page" router vs "api" router
+      const isApi = ep.routerType === 'apiRouter' || ep.routerType.includes('Api');
+      return !isApi && (ep.routerType === mount.routerType || ep.routerType === 'router' || mount.routerType === 'router');
+    });
 
     // Skip mounts with no page endpoints
     if (endpoints.length === 0) continue;
@@ -120,11 +161,13 @@ function buildHierarchy(mounts) {
     const groupName = mount.mount.replace(/^\//, '').replace(/\/$/, '');
     const displayName = groupName.charAt(0).toUpperCase() + groupName.slice(1);
 
-    const mountChildren = endpoints.map(ep => {
-      // Full path: mount + endpoint path (e.g. /auth/login, /contractors/register)
-      const fullPath = mount.mount + ep.path;
-      return { name: fullPath, value: 1, category: categoryFor(mount.mount), leaf: true };
-    });
+    const mountChildren = Array.from(
+      new Map(endpoints.map(ep => {
+        const epPath = ep.path === '/' ? '' : ep.path;
+        const fullPath = mount.mount + epPath;
+        return [fullPath, { name: fullPath, value: 1, category: categoryFor(mount.mount), leaf: true }];
+      })).values()
+    );
 
     const mountNode = {
       name: displayName,
@@ -135,6 +178,30 @@ function buildHierarchy(mounts) {
     };
     root.children.push(mountNode);
   }
+
+  // Add static pages manually (they're inline handlers, not app.use)
+  root.children.push({
+    name: 'Home',
+    category: 'public',
+    children: [
+      { name: '/', value: 1, category: 'public', leaf: true },
+    ],
+    value: 1,
+  });
+  root.children.push({
+    name: 'Legal & Settings',
+    category: 'public',
+    children: [
+      { name: '/terms', value: 1, category: 'public', leaf: true },
+      { name: '/privacy', value: 1, category: 'public', leaf: true },
+      { name: '/_ga-opt-out', value: 1, category: 'public', leaf: true },
+      { name: '/_ga-opt-in', value: 1, category: 'public', leaf: true },
+    ],
+    value: 4,
+  });
+
+  // Sort children alphabetically
+  root.children.sort((a, b) => a.name.localeCompare(b.name));
 
   return root;
 }
@@ -371,6 +438,12 @@ draw(zoomStack[0]);
 </html>`;
 }
 
+// Count total leaves (pages) in the tree
+function countLeaves(node) {
+  if (!node.children || node.children.length === 0) return node.value || 1;
+  return node.children.reduce((sum, c) => sum + countLeaves(c), 0);
+}
+
 // ── Main ────────────────────────────────────────────────────────────────────
 
 function main() {
@@ -378,22 +451,31 @@ function main() {
 
   console.log(`📦 Found ${mounts.length} route mounts:`);
   for (const m of mounts) {
-    const routerFilePath = path.join(SRC, 'routes', m.routerFile + '.ts');
-    const allEndpoints = parseRouter(routerFilePath);
-    const endpoints = allEndpoints.filter(ep => ep.routerType === m.routerType);
-    console.log(`   ${m.mount.padEnd(22)} → ${m.routerFile}.ts (${m.routerType}) (${endpoints.length} endpoints)`);
+    const endpoints = m.routerFilePath && fs.existsSync(m.routerFilePath)
+      ? parseRouter(m.routerFilePath, m.routerType).filter(ep => !ep.routerType.includes('Api'))
+      : [];
+    console.log(`   ${m.mount.padEnd(22)} → ${m.routerFile}.ts (${m.routerType}) (${endpoints.length} page endpoints)`);
   }
 
   const hierarchy = buildHierarchy(mounts);
+  const json = JSON.stringify(hierarchy, null, 2);
   const html = generateHtml(hierarchy);
 
   const outDir = path.join(ROOT, 'docs');
   fs.mkdirSync(outDir, { recursive: true });
+
+  // Write JSON data file → used by _sitemap.ejs partial
+  const jsonPath = path.join(outDir, 'sitemap-map.json');
+  fs.writeFileSync(jsonPath, json, 'utf-8');
+
+  // Write HTML (standalone browser view, also serves as data container)
   const outPath = path.join(outDir, 'sitemap.html');
-  fs.writeFileSync(outPath, html, 'utf-8');
+  const htmlWithData = html.replace('</head>', `<script>window.__SITEMAP_DATA__ = ${json}</script>\n</head>`);
+  fs.writeFileSync(outPath, htmlWithData, 'utf-8');
 
   console.log(`\n✅ Generated: ${outPath}`);
-  console.log(`   Open in browser to view interactive D3 sitemap (2 levels)`);
+  console.log(`   Data: ${jsonPath}`);
+  console.log(`   ${hierarchy.children.length} sections, ${countLeaves(hierarchy)} pages total`);
 }
 
 main();

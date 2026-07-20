@@ -20,7 +20,7 @@
         <% if (contractor.avatar_url) { %>
         <img src="<%= contractor.avatar_url %>" alt="<%= contractor.name %>" class="w-20 h-20 rounded-full object-cover border-2 border-orange-200 dark:border-orange-800" loading="lazy" width="80" height="80">
         <% } else { %>
-        <div class="w-20 h-20 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-3xl font-bold text-orange-700" aria-hidden="true">
+        <div class="w-20 h-20 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-3xl font-bold text-orange-700 dark:text-orange-200" aria-hidden="true">
           <%= contractor.name.charAt(0).toUpperCase() %>
         </div>
         <% } %>

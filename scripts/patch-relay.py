@@ -7,12 +7,12 @@ with open('/root/kontraktor/src/lib/email-queue.ts', 'r') as f:
 
 # Remove the duplicate `const fromEmail` block the bot added
 q = q.replace(
-    """const fromEmail = process.env.SMTP_FROM || 'noreply@kontraktor.id';
+    """const fromEmail = process.env.SMTP_FROM || 'noreply@kontraktor.app';
 export { fromEmail };
 
-const fromEmail = process.env.SMTP_FROM || 'noreply@kontraktor.id';
+const fromEmail = process.env.SMTP_FROM || 'noreply@kontraktor.app';
 const isDev = process.env.NODE_ENV !== 'production';""",
-    """const fromEmail = process.env.SMTP_FROM || 'noreply@kontraktor.id';
+    """const fromEmail = process.env.SMTP_FROM || 'noreply@kontraktor.app';
 export { fromEmail };
 
 export { fromEmail as fromEmailQ };
@@ -22,8 +22,8 @@ const isDev = process.env.NODE_ENV !== 'production';""",
 
 # Add `export { createTransporter };` before `const fromEmail`
 q = q.replace(
-    "const fromEmail = process.env.SMTP_FROM || 'noreply@kontraktor.id';",
-    "export { createTransporter };\n\nexport const fromEmail2 = process.env.SMTP_FROM || 'noreply@kontraktor.id';"
+    "const fromEmail = process.env.SMTP_FROM || 'noreply@kontraktor.app';",
+    "export { createTransporter };\n\nexport const fromEmail2 = process.env.SMTP_FROM || 'noreply@kontraktor.app';"
 )
 
 with open('/root/kontraktor/src/lib/email-queue.ts', 'w') as f:
