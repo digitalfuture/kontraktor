@@ -237,8 +237,12 @@
       root.appendChild(viz);
       root.appendChild(hint);
 
-      // Init D3 (defer to next tick so DOM is attached)
+      // Defer height calc & D3 init until DOM attached
       setTimeout(function() {
+        // Fit viz to remaining viewport space
+        var r = viz.getBoundingClientRect();
+        var avail = window.innerHeight - r.top - 10;
+        viz.style.height = Math.max(avail, 250) + 'px';
         initSitemapD3(svg, bc, data);
       }, 0);
 
@@ -304,8 +308,9 @@
         // Compact visible nodes — re-space depth-1 nodes evenly
         var depth1Nodes = root.descendants().filter(function(d) { return d.depth === 1; });
         var n = depth1Nodes.length;
-        var targetSpan = 160;
-        var dy = n > 1 ? Math.min(nodeSepY, targetSpan / (n - 1)) : nodeSepY;
+        // Target max viewBox height → ~13px text at 400px container
+        var maxVh = 420;
+        var dy = n > 1 ? Math.min(nodeSepY, Math.max(12, (maxVh - 60) / (n - 1))) : nodeSepY;
         depth1Nodes.forEach(function(d, i) {
           d.x = (i - (n - 1) / 2) * dy;
         });
@@ -434,6 +439,13 @@
           var svg = ctr.querySelector('svg');
           if (bc && svg) {
             initSitemapD3(svg, bc, data);
+            // Fit viz to remaining viewport space
+            var vizDiv = ctr.querySelector('.w-full.overflow-hidden');
+            if (vizDiv) {
+              var r = vizDiv.getBoundingClientRect();
+              var avail = window.innerHeight - r.top - 10;
+              vizDiv.style.height = Math.max(avail, 250) + 'px';
+            }
           }
         })
         .catch(function(e) {
