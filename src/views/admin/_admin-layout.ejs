@@ -30,7 +30,7 @@ document.addEventListener('click', function(e) {
   var s = document.querySelector('aside[data-admin-sidebar]');
   if (!s) return;
   if (s.classList.contains('-translate-x-full')) return;
-  var t = document.querySelector('button[onclick*="sidebar"]');
+  var t = document.querySelector('button[onclick*="aside"]');
   if (!s.contains(e.target) && (!t || !t.contains(e.target))) {
     s.classList.add('-translate-x-full');
     s.classList.remove('translate-x-0');
