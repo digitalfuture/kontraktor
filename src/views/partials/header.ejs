@@ -56,6 +56,8 @@
           <a href="/account" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition font-medium"><%= t('nav.account') %></a>
           <% if (user.role === 'contractor') { %>
             <a href="/contractors/dashboard" class="text-orange-700 dark:text-orange-400 hover:text-orange-700 transition font-medium" aria-label="<%= t('contractorDashboard.myBids') %>">📋 <%= t('contractorDashboard.myBids') %></a>
+          <% } else if (user.role === 'client') { %>
+            <a href="/contractors/register" class="text-orange-700 dark:text-orange-400 hover:text-orange-700 transition font-medium text-sm whitespace-nowrap"><%= t('contractors.registerContractor') %></a>
           <% } %>
           <% if (user.role === 'admin') { %>
             <a href="/admin" class="text-gray-500 dark:text-gray-300 hover:text-orange-600 transition text-sm">⚙️ <%= t('nav.admin') %></a>
@@ -116,6 +118,8 @@
           <a href="/account" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition py-2 font-medium"><%= t('nav.account') %></a>
           <% if (user.role === 'contractor') { %>
             <a href="/contractors/dashboard" class="text-orange-700 dark:text-orange-400 hover:text-orange-700 transition py-2 font-medium">📋 <%= t('contractorDashboard.myBids') %></a>
+          <% } else if (user.role === 'client') { %>
+            <a href="/contractors/register" class="text-orange-700 dark:text-orange-400 hover:text-orange-700 transition py-2 font-medium"><%= t('contractors.registerContractor') %></a>
           <% } %>
           <% if (user.role === 'admin') { %>
             <a href="/admin" class="text-gray-500 dark:text-gray-300 hover:text-orange-600 transition py-2 text-sm">⚙️ <%= t('nav.admin') %></a>
