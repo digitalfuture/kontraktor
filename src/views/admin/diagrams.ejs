@@ -332,7 +332,9 @@
         var padY = 30;
         var vw = Math.max(x1 - x0, 500);
         var vh = Math.max(y1 - y0 + padY * 2, 250);
-        svg.attr('viewBox', [(x0 + x1) / 2 - vw / 2, y0 - 25, vw, vh]);
+        var cy = (y0 + y1) / 2;
+        svg.attr('viewBox', [(x0 + x1) / 2 - vw / 2, cy - vh / 2, vw, vh]);
+        svg.attr('preserveAspectRatio', 'xMidYMid meet');
 
         // Links
         var linkGen = d3.linkHorizontal().x(function(d) { return d[0]; }).y(function(d) { return d[1]; });
