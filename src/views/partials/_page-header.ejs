@@ -28,7 +28,7 @@
       extraLangParams: typeof extraLangParams !== 'undefined' ? extraLangParams : ''
     }) %>
     <% if (typeof showAdminLink !== 'undefined' && showAdminLink && typeof user !== 'undefined' && user && user.role === 'admin') { %>
-      <a href="/admin" class="text-xs text-orange-600 dark:text-orange-400 hover:underline whitespace-nowrap"><%= typeof t !== 'undefined' ? t('nav.admin') : 'Admin' %></a>
+      <a href="/admin" class="text-xs text-orange-600 dark:text-orange-400 hover:underline whitespace-nowrap">⚙️ <%= typeof t !== 'undefined' ? t('nav.admin') : 'Admin' %></a>
     <% } %>
     <% if (typeof showAccountLink !== 'undefined' && showAccountLink && typeof user !== 'undefined' && user) { %>
       <a href="/account" class="text-xs text-orange-600 dark:text-orange-400 hover:underline whitespace-nowrap">👤 <%= typeof t !== 'undefined' ? t('nav.account') : 'Account' %></a>
