@@ -122,6 +122,8 @@
     "myBids": "My Bids",
     "contractorDashboard": "Contractor Dashboard",
     "registerContractor": "Register as Contractor",
+    "becomeContractor": "Become a Contractor",
+    "becomeContractorDesc": "Register to start bidding on projects and offer your services to clients",
     "welcomeBack": "Welcome back",
     "recentProjects": "Recent Projects",
     "recentBids": "Recent Bids",

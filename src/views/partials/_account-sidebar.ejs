@@ -41,6 +41,17 @@
       <%= typeof t !== 'undefined' ? t('account.notifications') : 'Notifications' %>
     </a>
 
+    <!-- Become a Contractor (non-contractors) -->
+    <% if (typeof isContractor !== 'undefined' && !isContractor) { %>
+    <div class="pt-4 pb-1 px-4">
+      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500"><%= typeof t !== 'undefined' ? t('account.contractorSection') : 'Contractor' %></p>
+    </div>
+    <a href="/contractors/register" class="flex items-center gap-3 px-4 py-3 rounded-lg transition text-orange-400 hover:bg-gray-800 dark:hover:bg-gray-800">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+      <%= typeof t !== 'undefined' ? t('account.registerContractor') : 'Register as Contractor' %>
+    </a>
+    <% } %>
+
     <!-- Contractor section (only for registered contractors) -->
     <% if (typeof isContractor !== 'undefined' && isContractor) { %>
     <div class="pt-4 pb-1 px-4">

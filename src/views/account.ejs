@@ -33,6 +33,7 @@
       <p class="text-sm text-gray-500 dark:text-gray-300"><%= t('account.clientOrders') %></p>
       <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1"><%= clientCount %></p>
     </div>
+    <% if (isContractor) { %>
     <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
       <p class="text-sm text-gray-500 dark:text-gray-300"><%= t('account.myBids') %></p>
       <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1"><%= bidsStats.total %></p>
@@ -45,6 +46,20 @@
       <p class="text-sm text-green-600 dark:text-green-400"><%= t('account.accepted') %></p>
       <p class="text-2xl font-bold text-green-600 dark:text-green-400 mt-1"><%= bidsStats.accepted %></p>
     </div>
+    <% } else { %>
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+      <p class="text-sm text-gray-500 dark:text-gray-300"><%= t('account.myBids') %></p>
+      <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">0</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+      <p class="text-sm text-gray-500 dark:text-gray-300"><%= t('account.pending') %></p>
+      <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">0</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+      <p class="text-sm text-gray-500 dark:text-gray-300"><%= t('account.accepted') %></p>
+      <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">0</p>
+    </div>
+    <% } %>
   </div>
 
   <!-- Quick actions -->
@@ -68,6 +83,19 @@
       </div>
     </a>
   </div>
+
+  <!-- Become a Contractor CTA (shown to non-contractors) -->
+  <% if (!isContractor) { %>
+  <div class="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 rounded-xl border border-orange-200 dark:border-orange-800 p-6 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div>
+      <h3 class="text-lg font-bold text-gray-900 dark:text-white"><%= t('account.becomeContractor') %></h3>
+      <p class="text-sm text-gray-600 dark:text-gray-300 mt-1"><%= t('account.becomeContractorDesc') %></p>
+    </div>
+    <a href="/contractors/register" class="inline-flex items-center gap-2 bg-orange-700 text-white px-6 py-2.5 rounded-lg hover:bg-orange-800 transition font-medium whitespace-nowrap shrink-0">
+      🛠️ <%= t('account.registerContractor') %>
+    </a>
+  </div>
+  <% } %>
 
   <!-- Recent client projects -->
   <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 mb-8">
