@@ -3,47 +3,67 @@
   <%= t("header.skipToMain") %>
 </a>
 
-<!-- Thin header bar (same pattern as account _page-header) -->
-<header data-scroll-header class="sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0 transition-transform duration-300">
-  <div class="flex items-center gap-3">
-    <!-- Hamburger (mobile only) -->
-    <button id="mobile-menu-btn" class="md:hidden p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer focus:outline-none text-gray-500 dark:text-gray-400" aria-label="<%= t("header.openMenu") %>" aria-expanded="false">
-      <svg id="hamburger-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-      <svg id="close-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-    </button>
-    <a href="/" class="text-lg font-bold text-gray-900 dark:text-white leading-none">Kontraktor</a>
-    <!-- Desktop nav (inline after logo) -->
-    <nav class="hidden md:flex items-center gap-3 ml-2" aria-label="Main navigation">
-      <a href="/services" class="text-sm text-gray-600 dark:text-gray-300 hover:text-orange-600 transition"><%= t('nav.services') %></a>
-      <a href="/contractors" class="text-sm text-gray-600 dark:text-gray-300 hover:text-orange-600 transition"><%= t('nav.contractors') %></a>
-    </nav>
+<header data-scroll-header class="sticky top-0 z-30 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-transform duration-300">
+  <!-- Desktop header (md+) -->
+  <div class="hidden md:flex items-center justify-between h-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center space-x-8">
+      <a href="/" class="text-2xl font-bold text-orange-700 dark:text-orange-400 hover:text-orange-700 transition flex-shrink-0" aria-label="<%= t("header.logoLabel") %>">
+        Kontraktor
+      </a>
+      <nav class="flex items-center space-x-6" aria-label="Main navigation">
+        <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition"><%= t('nav.services') %></a>
+        <a href="/contractors" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition"><%= t('nav.contractors') %></a>
+      </nav>
+    </div>
+    <div class="flex items-center space-x-4">
+      <!-- Controls (lang + theme) -->
+      <%- include('_controls', {
+        locale: typeof locale !== 'undefined' ? locale : 'en',
+        locales: typeof locales !== 'undefined' ? locales : ['id', 'en'],
+        controlsIdPrefix: 'public',
+        isAdmin: false,
+        extraLangParams: ''
+      }) %>
+      <!-- Auth / Account -->
+      <div class="flex items-center space-x-3">
+        <% if (typeof user !== 'undefined' && user) { %>
+          <a href="/account" class="text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 transition font-medium"><%= t('nav.account') %></a>
+          <% if (user.role === 'contractor') { %>
+            <a href="/contractors/dashboard" class="text-sm text-orange-700 dark:text-orange-400 hover:text-orange-700 transition font-medium" aria-label="<%= t('contractorDashboard.myBids') %>">📋 <%= t('contractorDashboard.myBids') %></a>
+          <% } else if (user.role === 'client') { %>
+            <a href="/contractors/register" class="text-sm text-orange-700 dark:text-orange-400 hover:text-orange-700 transition font-medium whitespace-nowrap"><%= t('account.registerContractor') %></a>
+          <% } %>
+          <% if (user.role === 'admin') { %>
+            <a href="/admin" class="text-sm text-gray-500 dark:text-gray-300 hover:text-orange-600 transition">⚙️ <%= t('nav.admin') %></a>
+          <% } %>
+          <a href="/auth/logout" class="text-sm text-gray-500 dark:text-gray-300 hover:text-red-600 transition"><%= t('nav.logout') %></a>
+        <% } else { %>
+          <a href="/auth/login" class="text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 transition font-medium"><%= t('nav.login') %></a>
+        <% } %>
+        <%- include('./_post-project-btn') %>
+      </div>
+    </div>
   </div>
-  <div class="flex items-center gap-2">
-    <!-- Language + Theme controls (shared component) -->
-    <%- include('_controls', {
-      locale: typeof locale !== 'undefined' ? locale : 'en',
-      locales: typeof locales !== 'undefined' ? locales : ['id', 'en'],
-      controlsIdPrefix: 'public',
-      isAdmin: false,
-      extraLangParams: ''
-    }) %>
-    <!-- Auth / Account (desktop) -->
-    <div class="hidden md:flex items-center gap-2">
-      <% if (typeof user !== 'undefined' && user) { %>
-        <a href="/account" class="text-xs text-gray-600 dark:text-gray-300 hover:text-orange-600 transition"><%= t('nav.account') %></a>
-        <% if (user.role === 'contractor') { %>
-          <a href="/contractors/dashboard" class="text-xs text-orange-700 dark:text-orange-400 hover:text-orange-700 transition font-medium">📋 <%= t('contractorDashboard.myBids') %></a>
-        <% } else if (user.role === 'client') { %>
-          <a href="/contractors/register" class="text-xs text-orange-700 dark:text-orange-400 hover:text-orange-700 transition font-medium whitespace-nowrap"><%= t('account.registerContractor') %></a>
-        <% } %>
-        <% if (user.role === 'admin') { %>
-          <a href="/admin" class="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-600 transition">⚙️ <%= t('nav.admin') %></a>
-        <% } %>
-        <a href="/auth/logout" class="text-xs text-gray-500 dark:text-gray-400 hover:text-red-600 transition"><%= t('nav.logout') %></a>
-      <% } else { %>
-        <a href="/auth/login" class="text-xs text-gray-600 dark:text-gray-300 hover:text-orange-600 transition font-medium"><%= t('nav.login') %></a>
-      <% } %>
-      <%- include('./_post-project-btn') %>
+
+  <!-- Mobile header (below md) -->
+  <div class="md:hidden flex items-center justify-between px-4 py-2">
+    <div class="flex items-center gap-2">
+      <button id="mobile-menu-btn" class="p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer focus:outline-none text-gray-500 dark:text-gray-400" aria-label="<%= t("header.openMenu") %>" aria-expanded="false">
+        <svg id="hamburger-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <svg id="close-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <a href="/" class="text-lg font-bold text-orange-700 dark:text-orange-400 leading-none">Kontraktor</a>
+    </div>
+    <!-- Mobile lang switcher -->
+    <div class="flex items-center space-x-1" role="group" aria-label="Language switcher">
+      <% typeof locales !== 'undefined' && locales.forEach(function(loc) { %>
+        <a href="?lang=<%= loc %>"
+           class="px-1.5 py-1 rounded text-xs font-medium transition
+            <%= locale === loc ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-200' : 'text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200' %>"
+        >
+          <%= loc.toUpperCase() %>
+        </a>
+      <% }); %>
     </div>
   </div>
 </header>
@@ -131,7 +151,7 @@
   </div>
 </aside>
 
-<!-- Scroll-hide header (same as _page-header) -->
+<!-- Scroll-hide header -->
 <script>
 (function() {
   var h = document.querySelector('[data-scroll-header]');
