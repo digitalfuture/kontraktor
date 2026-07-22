@@ -8,75 +8,80 @@ if (typeof htmx !== 'undefined') {
 
 (() => {
   function init() {
-    // 1. Mobile Menu Toggling via Event Delegation on Document
-    // This is completely immune to HTMX swaps and iOS click quirks.
+    // 1. Mobile Sidebar Toggling via Event Delegation on Document
+    // Uses translate-x-full/0 pattern like admin/account sidebars.
+    // Completely immune to HTMX swaps and iOS click quirks.
     if (!window.mobileMenuInitialized) {
       window.mobileMenuInitialized = true;
 
       // Reset body cursor on initialization
       document.body.style.cursor = '';
 
-      // Handle click/tap events for toggling, closing outside, or selecting links in the mobile menu.
+      // Handle click/tap events for toggling, closing outside, or selecting links in the mobile sidebar.
       // A single, unified listener prevents touch/click race conditions and iOS double-trigger bugs.
       document.addEventListener('click', (e) => {
+        const sidebar = document.getElementById('mobile-sidebar');
         const btn = document.getElementById('mobile-menu-btn');
-        const menu = document.getElementById('mobile-menu');
-        const aside = document.querySelector('aside[data-admin-sidebar]');
+        const adminAside = document.querySelector('aside[data-admin-sidebar]');
 
         const target = e.target;
         const path = e.composedPath ? e.composedPath() : [];
+        const insideSidebar = sidebar && (path.includes(sidebar) || sidebar.contains(target));
         const insideBtn = btn && (path.includes(btn) || btn.contains(target));
-        const insideMenu = menu && (path.includes(menu) || menu.contains(target));
-        const insideAside = aside && (path.includes(aside) || aside.contains(target));
+        const insideAdminAside = adminAside && (path.includes(adminAside) || adminAside.contains(target));
 
         const hamburger = document.getElementById('hamburger-icon');
         const closeIcon = document.getElementById('close-icon');
 
-        function updateIcons(menuHidden) {
+        function updateIcons(open) {
           if (hamburger && closeIcon) {
-            if (menuHidden) {
-              hamburger.classList.remove('hidden');
-              closeIcon.classList.add('hidden');
-            } else {
+            if (open) {
               hamburger.classList.add('hidden');
               closeIcon.classList.remove('hidden');
+            } else {
+              hamburger.classList.remove('hidden');
+              closeIcon.classList.add('hidden');
             }
           }
         }
 
-        // 1. Mobile Menu: Toggle button click
+        var sidebarOpen = sidebar && !sidebar.classList.contains('-translate-x-full');
+
+        // 1. Mobile Sidebar: Toggle button click
         if (insideBtn) {
-          const isHidden = menu.classList.toggle('hidden');
-          btn.setAttribute('aria-expanded', String(!isHidden));
-          updateIcons(isHidden);
-          
-          // Fix iOS click bubbling quirk: set cursor to pointer on body when menu is active
-          // to force iOS Safari to bubble clicks from unclickable elements (divs, spans).
-          document.body.style.cursor = isHidden ? '' : 'pointer';
+          if (sidebar) {
+            sidebar.classList.toggle('-translate-x-full');
+            sidebar.classList.toggle('translate-x-0');
+          }
+          const isOpen = sidebar && !sidebar.classList.contains('-translate-x-full');
+          btn.setAttribute('aria-expanded', String(isOpen));
+          updateIcons(isOpen);
+          // Fix iOS click bubbling quirk
+          document.body.style.cursor = isOpen ? 'pointer' : '';
         }
-        // 2. Mobile Menu: Click on a link inside the mobile menu (closes it and allows navigation)
-        else if (insideMenu && target.closest('a')) {
-          menu.classList.add('hidden');
-          btn.setAttribute('aria-expanded', 'false');
-          updateIcons(true);
+        // 2. Mobile Sidebar: Click on a link inside closes it
+        else if (sidebarOpen && insideSidebar && target.closest('a')) {
+          sidebar.classList.add('-translate-x-full');
+          sidebar.classList.remove('translate-x-0');
+          if (btn) btn.setAttribute('aria-expanded', 'false');
+          updateIcons(false);
           document.body.style.cursor = '';
         }
-        // 3. Mobile Menu: Click outside both the button and the menu
-        else if (menu && !insideMenu) {
-          if (!menu.classList.contains('hidden')) {
-            menu.classList.add('hidden');
-            btn.setAttribute('aria-expanded', 'false');
-            updateIcons(true);
-            document.body.style.cursor = '';
-          }
+        // 3. Mobile Sidebar: Click outside closes it
+        else if (sidebarOpen && !insideSidebar && !insideBtn) {
+          sidebar.classList.add('-translate-x-full');
+          sidebar.classList.remove('translate-x-0');
+          if (btn) btn.setAttribute('aria-expanded', 'false');
+          updateIcons(false);
+          document.body.style.cursor = '';
         }
 
         // 4. Admin Sidebar: Click-Outside Closing
-        if (aside && !aside.classList.contains('-translate-x-full')) {
+        if (adminAside && !adminAside.classList.contains('-translate-x-full')) {
           const isToggleBtn = target.closest('button[onclick*="aside"]') || path.some(el => el.tagName === 'BUTTON' && el.getAttribute && el.getAttribute('onclick') && el.getAttribute('onclick').includes('aside'));
-          if (!insideAside && !isToggleBtn) {
-            aside.classList.add('-translate-x-full');
-            aside.classList.remove('translate-x-0');
+          if (!insideAdminAside && !isToggleBtn) {
+            adminAside.classList.add('-translate-x-full');
+            adminAside.classList.remove('translate-x-0');
           }
         }
       });
