@@ -63,7 +63,10 @@
     cursor: default;
   }
 
-  /* Form button tooltip */
+  /* Form button tooltip — only on hover of disabled button */
+  .form-btn-wrap {
+    position: relative;
+  }
   .form-btn-tooltip {
     display: none;
     position: absolute;
@@ -94,6 +97,9 @@
   }
   .dark .form-btn-tooltip::after {
     border-top-color: #374151;
+  }
+  .has-disabled-submit:hover .form-btn-tooltip {
+    display: block;
   }
 
   /* Dark theme scrollbars */

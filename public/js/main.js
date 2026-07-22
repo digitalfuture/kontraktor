@@ -261,34 +261,27 @@ if (typeof htmx !== 'undefined') {
 
           submitBtn.disabled = !allFilled;
 
-          // Tooltip wrapper: show/hide tooltip span based on disabled state
-          let wrapper = submitBtn.closest('[data-form-btn-wrap]');
-          if (!wrapper && submitBtn.parentElement) {
-            // Only wrap if button still has its original parent
-            wrapper = document.createElement('span');
-            wrapper.className = 'relative inline-block';
-            wrapper.setAttribute('data-form-btn-wrap', '');
-            const parent = submitBtn.parentElement;
-            parent.insertBefore(wrapper, submitBtn);
-            wrapper.appendChild(submitBtn);
-
-            const tip = document.createElement('span');
+          // Only create tooltip once, after the button in DOM
+          let tip = submitBtn.nextElementSibling;
+          if (!tip || !tip.classList.contains('form-btn-tooltip')) {
+            tip = document.createElement('span');
             tip.className = 'form-btn-tooltip';
             tip.textContent = 'Please fill in all required fields';
-            // Localize if possible
             try {
               var langEl = document.documentElement.lang || document.documentElement.getAttribute('lang');
               if (langEl && langEl.startsWith('id')) {
                 tip.textContent = 'Harap isi semua bidang wajib';
               }
             } catch(e) {}
-            wrapper.appendChild(tip);
+            submitBtn.after(tip);
           }
 
-          const tip = wrapper ? wrapper.querySelector('.form-btn-tooltip') : null;
-          if (tip) {
-            tip.style.display = submitBtn.disabled ? 'block' : 'none';
+          // Ensure parent has required positioning for tooltip
+          if (submitBtn.parentElement && !submitBtn.parentElement.classList.contains('form-btn-wrap')) {
+            submitBtn.parentElement.classList.add('form-btn-wrap');
           }
+          // Toggle hover trigger class
+          submitBtn.parentElement.classList.toggle('has-disabled-submit', submitBtn.disabled);
         });
       }
 
@@ -298,7 +291,7 @@ if (typeof htmx !== 'undefined') {
         const required = form.querySelectorAll('[required]');
         if (required.length === 0) return;
 
-        // Suppress browser's native validation — our JS handles it
+        // Disable browser native validation — we manage via disabled button
         form.setAttribute('novalidate', '');
 
         // Initial state
@@ -308,7 +301,6 @@ if (typeof htmx !== 'undefined') {
         const events = ['input', 'change'];
         required.forEach(field => {
           events.forEach(evt => field.addEventListener(evt, checkAllFormsValidity));
-          // Also listen on siblings in the same checkbox/radio group
           if ((field.type === 'checkbox' || field.type === 'radio') && field.name) {
             const group = getCheckboxGroupForField(field);
             group.forEach(sibling => {
@@ -316,34 +308,6 @@ if (typeof htmx !== 'undefined') {
                 events.forEach(evt => sibling.addEventListener(evt, checkAllFormsValidity));
               }
             });
-          }
-        });
-
-        // On submit: validate and scroll to first empty
-        form.addEventListener('submit', function onSubmit(e) {
-          // Button is disabled when fields empty, but re-check just in case
-          if (submitBtn.disabled) {
-            e.preventDefault();
-            return;
-          }
-          const empty = findFirstEmpty(form);
-          if (empty) {
-            e.preventDefault();
-            // Scroll to the field (or its closest label/container)
-            const scrollTarget = empty.closest('fieldset, label, .mb-6, [data-field]') || empty.parentElement || empty;
-            scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            // Focus the field
-            try { empty.focus({ preventScroll: true }); } catch(e) {}
-            // Highlight with red border
-            empty.classList.add('border-2', 'border-red-600');
-            empty.addEventListener('input', function clearError() {
-              empty.classList.remove('border-2', 'border-red-600');
-              empty.removeEventListener('input', clearError);
-            }, { once: true });
-            empty.addEventListener('change', function clearError() {
-              empty.classList.remove('border-2', 'border-red-600');
-              empty.removeEventListener('change', clearError);
-            }, { once: true });
           }
         });
       }
