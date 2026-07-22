@@ -60,7 +60,40 @@
   }
   
   button:disabled, input:disabled, select:disabled {
-    cursor: not-allowed;
+    cursor: default;
+  }
+
+  /* Form button tooltip */
+  .form-btn-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    background: #1f2937;
+    color: #fff;
+    border-radius: 6px;
+    pointer-events: none;
+    z-index: 50;
+  }
+  .form-btn-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #1f2937;
+  }
+  .dark .form-btn-tooltip {
+    background: #374151;
+  }
+  .dark .form-btn-tooltip::after {
+    border-top-color: #374151;
   }
 
   /* Dark theme scrollbars */

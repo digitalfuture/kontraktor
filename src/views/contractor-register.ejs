@@ -62,6 +62,7 @@
           <label class="flex items-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-950/20 transition has-[:checked]:bg-orange-50 dark:has-[:checked]:bg-orange-950/30 has-[:checked]:border-orange-500 dark:has-[:checked]:border-orange-600">
             <input type="checkbox" name="specialty" value="<%= cat.slug %>"
               class="w-4 h-4 text-orange-700 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded focus:ring-orange-700 focus:ring-2 accent-orange-700"
+              <%= cat === categories[0] ? 'required' : '' %>
               <%= typeof formData !== 'undefined' && formData && Array.isArray(formData.specialty) && formData.specialty.includes(cat.slug) ? 'checked' : '' %>>
             <span class="text-sm text-gray-900 dark:text-gray-100"><%= cat.display_name %></span>
           </label>

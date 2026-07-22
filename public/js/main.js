@@ -260,6 +260,35 @@ if (typeof htmx !== 'undefined') {
           }
 
           submitBtn.disabled = !allFilled;
+
+          // Tooltip wrapper: show/hide tooltip span based on disabled state
+          let wrapper = submitBtn.closest('[data-form-btn-wrap]');
+          if (!wrapper && submitBtn.parentElement) {
+            // Only wrap if button still has its original parent
+            wrapper = document.createElement('span');
+            wrapper.className = 'relative inline-block';
+            wrapper.setAttribute('data-form-btn-wrap', '');
+            const parent = submitBtn.parentElement;
+            parent.insertBefore(wrapper, submitBtn);
+            wrapper.appendChild(submitBtn);
+
+            const tip = document.createElement('span');
+            tip.className = 'form-btn-tooltip';
+            tip.textContent = 'Please fill in all required fields';
+            // Localize if possible
+            try {
+              var langEl = document.documentElement.lang || document.documentElement.getAttribute('lang');
+              if (langEl && langEl.startsWith('id')) {
+                tip.textContent = 'Harap isi semua bidang wajib';
+              }
+            } catch(e) {}
+            wrapper.appendChild(tip);
+          }
+
+          const tip = wrapper ? wrapper.querySelector('.form-btn-tooltip') : null;
+          if (tip) {
+            tip.style.display = submitBtn.disabled ? 'block' : 'none';
+          }
         });
       }
 
@@ -268,6 +297,9 @@ if (typeof htmx !== 'undefined') {
         if (!submitBtn) return;
         const required = form.querySelectorAll('[required]');
         if (required.length === 0) return;
+
+        // Suppress browser's native validation — our JS handles it
+        form.setAttribute('novalidate', '');
 
         // Initial state
         checkAllFormsValidity();
@@ -289,18 +321,19 @@ if (typeof htmx !== 'undefined') {
 
         // On submit: validate and scroll to first empty
         form.addEventListener('submit', function onSubmit(e) {
+          // Button is disabled when fields empty, but re-check just in case
+          if (submitBtn.disabled) {
+            e.preventDefault();
+            return;
+          }
           const empty = findFirstEmpty(form);
           if (empty) {
             e.preventDefault();
             // Scroll to the field (or its closest label/container)
-            const scrollTarget = empty.closest('label, fieldset, .mb-6, [data-field]') || empty;
+            const scrollTarget = empty.closest('fieldset, label, .mb-6, [data-field]') || empty.parentElement || empty;
             scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            // Focus and highlight
-            if (empty.type === 'checkbox' || empty.type === 'radio') {
-              empty.focus({ preventScroll: true });
-            } else {
-              empty.focus({ preventScroll: true });
-            }
+            // Focus the field
+            try { empty.focus({ preventScroll: true }); } catch(e) {}
             // Highlight with red border
             empty.classList.add('border-2', 'border-red-600');
             empty.addEventListener('input', function clearError() {
@@ -308,7 +341,7 @@ if (typeof htmx !== 'undefined') {
               empty.removeEventListener('input', clearError);
             }, { once: true });
             empty.addEventListener('change', function clearError() {
-              empty.classList.remove('ring-2', 'ring-red-500');
+              empty.classList.remove('border-2', 'border-red-600');
               empty.removeEventListener('change', clearError);
             }, { once: true });
           }
