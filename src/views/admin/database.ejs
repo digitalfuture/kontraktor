@@ -1,6 +1,11 @@
 <%- include('./_admin-layout', { activePage: 'database' }) %>
 
-<%- include('./_admin-header', { title: '🗄️ Database Browser' }) %>
+<!-- ── Title ── -->
+<div class="flex items-center justify-between mb-4">
+  <div>
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white leading-none">🗄️ Database Browser</h1>
+  </div>
+</div>
 
 <style>
   .db-active { background: rgba(59,130,246,.15); border-color: #3b82f6; }
@@ -56,12 +61,15 @@
 
       <!-- Data -->
       <div class="overflow-x-auto db-table-wrap">
-        <div id="data-loading" class="flex items-center justify-center py-20 text-gray-500">
-          <svg class="w-8 h-8 animate-spin mr-3" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-          Loading...
+        <div id="data-loading" class="hidden">
+          <div class="flex items-center justify-center py-20 text-gray-500">
+            <svg class="w-8 h-8 animate-spin mr-3" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            Loading...
+          </div>
         </div>
-        <div id="data-content" class="hidden">
-          <table class="w-full text-sm">
+        <div id="data-content" class="">
+          <div id="data-empty" class="flex items-center justify-center py-20 text-gray-500">Select a table to browse</div>
+          <table id="data-table" class="w-full text-sm hidden">
             <thead id="data-thead" class="bg-gray-800/80 text-gray-400 text-xs uppercase tracking-wider"></thead>
             <tbody id="data-tbody" class="divide-y divide-gray-800/40"></tbody>
           </table>
@@ -126,13 +134,16 @@ function loadTable(table) {
 function loadData() {
   if (!currentTable) return;
 
+  // Show loading, hide table + empty placeholder
   var loading = document.getElementById('data-loading');
-  var content = document.getElementById('data-content');
+  var empty = document.getElementById('data-empty');
+  var table = document.getElementById('data-table');
   var pag = document.getElementById('data-pagination');
 
   loading.classList.remove('hidden');
-  content.classList.add('hidden');
-  pag.classList.add('hidden');
+  if (empty) empty.classList.add('hidden');
+  if (table) table.classList.add('hidden');
+  if (pag) pag.classList.add('hidden');
 
   var search = encodeURIComponent(document.getElementById('search-input').value || '');
   var url = '/api/admin/db/data/' + encodeURIComponent(currentTable) + '?page=' + currentPage + '&limit=' + perPage;
@@ -143,17 +154,27 @@ function loadData() {
     .then(function(res) {
       loading.classList.add('hidden');
 
-      // Headers
+      // Safe references — these elements never leave the DOM
       var thead = document.getElementById('data-thead');
+      var tbody = document.getElementById('data-tbody');
+      var dataTable = document.getElementById('data-table');
+      var pagEl = document.getElementById('data-pagination');
+
+      if (!thead || !tbody) return;
+
       if (res.columns.length === 0) {
-        content.innerHTML = '<div class="flex items-center justify-center py-16 text-gray-500">Empty table</div>';
-        content.classList.remove('hidden');
+        tbody.innerHTML = '<tr><td colspan="1" class="text-center py-16 text-gray-500">Empty table</td></tr>';
+        thead.innerHTML = '';
+        if (dataTable) dataTable.classList.remove('hidden');
         return;
       }
-      thead.innerHTML = '<tr>' + res.columns.map(function(c) { return '<th class="px-4 py-3 text-left font-medium">' + c + '</th>'; }).join('') + '</tr>';
+
+      // Headers
+      thead.innerHTML = '<tr>' + res.columns.map(function(c) {
+        return '<th class="px-4 py-3 text-left font-medium">' + String(c).replace(/"/g, '&quot;') + '</th>';
+      }).join('') + '</tr>';
 
       // Rows
-      var tbody = document.getElementById('data-tbody');
       if (res.rows.length === 0) {
         tbody.innerHTML = '<tr><td colspan="' + res.columns.length + '" class="text-center py-16 text-gray-500">No results</td></tr>';
       } else {
@@ -168,7 +189,7 @@ function loadData() {
         }).join('');
       }
 
-      content.classList.remove('hidden');
+      if (dataTable) dataTable.classList.remove('hidden');
 
       // Pagination
       currentPage = res.page;
@@ -178,8 +199,14 @@ function loadData() {
     })
     .catch(function(e) {
       loading.classList.add('hidden');
-      content.innerHTML = '<div class="flex items-center justify-center py-16 text-red-400">Error: ' + e.message + '</div>';
-      content.classList.remove('hidden');
+      var tbody = document.getElementById('data-tbody');
+      var thead = document.getElementById('data-thead');
+      if (thead) thead.innerHTML = '';
+      if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="1" class="text-center py-16 text-red-400">Error: ' + e.message + '</td></tr>';
+      }
+      var dataTable = document.getElementById('data-table');
+      if (dataTable) dataTable.classList.remove('hidden');
     });
 }
 
