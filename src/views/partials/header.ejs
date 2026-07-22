@@ -44,7 +44,7 @@
       <!-- Auth / Account (desktop) -->
       <div class="hidden md:flex items-center space-x-4" role="navigation" aria-label="Account">
         <% if (typeof user !== 'undefined' && user) { %>
-          <a href="/account" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition font-medium"><%= t('nav.account') %></a>
+          <a href="/account" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition font-medium">👤 <%= t('nav.account') %></a>
           <% if (user.role === 'contractor') { %>
             <a href="/contractors/dashboard" class="text-orange-700 dark:text-orange-400 hover:text-orange-700 transition font-medium" aria-label="<%= t('contractorDashboard.myBids') %>">📋 <%= t('contractorDashboard.myBids') %></a>
           <% } else if (user.role === 'client') { %>
