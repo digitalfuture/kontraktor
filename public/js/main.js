@@ -181,6 +181,154 @@ if (typeof htmx !== 'undefined') {
     if (footerYear) {
       footerYear.textContent = new Date().getFullYear();
     }
+
+    // 4. Generic Form Validation — disables submit button until all required fields
+    //    are filled, and scrolls to the first empty field on submit.
+    (() => {
+      function isFieldFilled(field) {
+        if (field.type === 'checkbox') {
+          // For checkboxes, check if at least one checkbox with this name is checked
+          if (field.name) {
+            const form = field.form;
+            if (!form) return field.checked;
+            const group = form.querySelectorAll(`[name="${CSS.escape(field.name)}"]`);
+            if (group.length > 1) {
+              return Array.from(group).some(cb => cb.checked);
+            }
+          }
+          return field.checked;
+        }
+        if (field.type === 'radio') {
+          if (!field.name) return field.checked;
+          const form = field.form;
+          if (!form) return field.checked;
+          const group = form.querySelectorAll(`[name="${CSS.escape(field.name)}"]`);
+          return Array.from(group).some(r => r.checked);
+        }
+        // text, email, tel, textarea, select, number, etc.
+        return field.value.trim() !== '';
+      }
+
+      function getCheckboxGroupForField(field) {
+        if (field.type !== 'checkbox') return [field];
+        if (!field.name) return [field];
+        const form = field.form;
+        if (!form) return [field];
+        const group = form.querySelectorAll(`[name="${CSS.escape(field.name)}"]`);
+        if (group.length > 1) return Array.from(group);
+        return [field];
+      }
+
+      function isGroupFilled(field) {
+        const group = getCheckboxGroupForField(field);
+        return group.some(f => isFieldFilled(f));
+      }
+
+      function findFirstEmpty(form) {
+        const required = form.querySelectorAll('[required]');
+        for (const field of required) {
+          if (field.disabled) continue;
+          if (field.type === 'checkbox' || field.type === 'radio') {
+            if (!isGroupFilled(field)) {
+              // Return the first unchecked checkbox in the group
+              const group = getCheckboxGroupForField(field);
+              return group.find(f => !f.checked) || field;
+            }
+          } else if (!isFieldFilled(field)) {
+            return field;
+          }
+        }
+        return null;
+      }
+
+      function checkAllFormsValidity() {
+        document.querySelectorAll('form').forEach(form => {
+          const submitBtn = form.querySelector('button[type="submit"]');
+          if (!submitBtn) return;
+          const required = form.querySelectorAll('[required]');
+          if (required.length === 0) {
+            submitBtn.disabled = false;
+            return;
+          }
+
+          let allFilled = true;
+          for (const field of required) {
+            if (field.disabled) continue;
+            if (field.type === 'checkbox' || field.type === 'radio') {
+              if (!isGroupFilled(field)) { allFilled = false; break; }
+            } else if (!isFieldFilled(field)) { allFilled = false; break; }
+          }
+
+          submitBtn.disabled = !allFilled;
+        });
+      }
+
+      function attachFormValidation(form) {
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (!submitBtn) return;
+        const required = form.querySelectorAll('[required]');
+        if (required.length === 0) return;
+
+        // Initial state
+        checkAllFormsValidity();
+
+        // Re-check on any input/change
+        const events = ['input', 'change'];
+        required.forEach(field => {
+          events.forEach(evt => field.addEventListener(evt, checkAllFormsValidity));
+          // Also listen on siblings in the same checkbox/radio group
+          if ((field.type === 'checkbox' || field.type === 'radio') && field.name) {
+            const group = getCheckboxGroupForField(field);
+            group.forEach(sibling => {
+              if (sibling !== field) {
+                events.forEach(evt => sibling.addEventListener(evt, checkAllFormsValidity));
+              }
+            });
+          }
+        });
+
+        // On submit: validate and scroll to first empty
+        form.addEventListener('submit', function onSubmit(e) {
+          const empty = findFirstEmpty(form);
+          if (empty) {
+            e.preventDefault();
+            // Scroll to the field (or its closest label/container)
+            const scrollTarget = empty.closest('label, fieldset, .mb-6, [data-field]') || empty;
+            scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Focus and highlight
+            if (empty.type === 'checkbox' || empty.type === 'radio') {
+              empty.focus({ preventScroll: true });
+            } else {
+              empty.focus({ preventScroll: true });
+            }
+            // Highlight with red border
+            empty.classList.add('border-2', 'border-red-600');
+            empty.addEventListener('input', function clearError() {
+              empty.classList.remove('border-2', 'border-red-600');
+              empty.removeEventListener('input', clearError);
+            }, { once: true });
+            empty.addEventListener('change', function clearError() {
+              empty.classList.remove('ring-2', 'ring-red-500');
+              empty.removeEventListener('change', clearError);
+            }, { once: true });
+          }
+        });
+      }
+
+      // Attach to all existing forms (safe against HTMX swaps — re-runs on init)
+      document.querySelectorAll('form').forEach(attachFormValidation);
+
+      // Observe for HTMX/swapped forms
+      if (window.MutationObserver) {
+        const observer = new MutationObserver(() => {
+          document.querySelectorAll('form:not([data-form-validated])').forEach(form => {
+            form.setAttribute('data-form-validated', '1');
+            attachFormValidation(form);
+          });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+      }
+    })();
   }
 
   // Robust readyState check: run immediately if DOM is already parsed,
