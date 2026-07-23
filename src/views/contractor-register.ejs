@@ -47,7 +47,7 @@
         <div class="flex">
           <span class="inline-flex items-center px-3 border border-r-0 border-gray-300 dark:border-gray-600 rounded-l-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-medium select-none">+62</span>
           <input type="tel" id="phone" name="phone"
-            value="<%= typeof formData !== 'undefined' && formData ? formData.phone.replace(/^\+62/, '') : '' %>"
+            value="<%= typeof formData !== 'undefined' && formData ? formData.phone.replace(/^\+62/, '') : (typeof user !== 'undefined' && user && user.phone ? user.phone.replace(/^\+62/, '') : '') %>"
             placeholder="81234567890"
             maxlength="14"
             class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-orange-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
@@ -88,3 +88,4 @@
 
   <%- include('partials/footer') %>
 </body>
+</html>
