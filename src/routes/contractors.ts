@@ -223,7 +223,6 @@ apiRouter.post('/register', optionalAuth, (req: Request, res: Response): void =>
     email: (req.body.email || '').trim(),
     phone: (req.body.phone || '').trim(),
     specialty: req.body.specialty || '',
-    experience: req.body.experience || '',
     bio: (req.body.bio || '').trim(),
   };
 
@@ -275,9 +274,9 @@ apiRouter.post('/register', optionalAuth, (req: Request, res: Response): void =>
   }
 
   const result = db.prepare(`
-    INSERT INTO contractors (email, name, phone, specialty, experience, bio, is_verified, is_active)
-    VALUES (?, ?, ?, ?, ?, ?, 0, 1)
-  `).run(formData.email, formData.name, formData.phone, selectedCategories[0] || '', parseInt(formData.experience) || 0, formData.bio);
+    INSERT INTO contractors (email, name, phone, specialty, bio, is_verified, is_active)
+    VALUES (?, ?, ?, ?, ?, 0, 1)
+  `).run(formData.email, formData.name, formData.phone, selectedCategories[0] || '', formData.bio);
 
   const contractorId = result.lastInsertRowid;
 

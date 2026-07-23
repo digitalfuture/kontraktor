@@ -86,7 +86,6 @@ db.exec(`CREATE TABLE IF NOT EXISTS contractors (
   email TEXT UNIQUE NOT NULL,
   name TEXT,
   phone TEXT,
-  experience INTEGER,
   bio TEXT,
   avatar_url TEXT,
   category_id INTEGER,
@@ -177,7 +176,6 @@ const migrations: Array<{ version: number; name: string; sql: string }> = [
     sql: `
       ALTER TABLE contractors ADD COLUMN avatar_url TEXT;
       ALTER TABLE contractors ADD COLUMN phone TEXT;
-      ALTER TABLE contractors ADD COLUMN experience INTEGER;
       ALTER TABLE contractors ADD COLUMN bio TEXT;
       ALTER TABLE contractors ADD COLUMN category_id INTEGER REFERENCES categories(id);
       ALTER TABLE contractors ADD COLUMN specialty TEXT;

@@ -703,7 +703,6 @@
     "about": "Tentang",
     "allReviews": "Semua Ulasan",
     "noReviews": "Belum ada ulasan",
-    "yearsExp": "tahun pengalaman",
     "verified": "Terverifikasi",
     "ratingBreakdown": "Rincian Penilaian",
     "anonymous": "Anonim",
@@ -809,7 +808,6 @@
     "specialtyLabel": "Spesialisasi",
     "selectSpecialty": "Pilih spesialisasi",
     "specialtyHint": "Pilih satu atau lebih kategori keahlian Anda",
-    "experienceLabel": "Tahun Pengalaman",
     "bioLabel": "Tentang Anda",
     "bioPlaceholder": "cth. Ceritakan tentang keahlian dan pengalaman Anda...",
     "submitButton": "Daftar sebagai Kontraktor",
@@ -818,7 +816,6 @@
     "phone": "Nomor Telepon",
     "city": "Kota",
     "specialty": "Keahlian",
-    "experience": "Tahun Pengalaman",
     "bio": "Tentang Anda",
     "submit": "Daftar sebagai Kontraktor",
     "selectMultipleHint": "Tahan Ctrl/Cmd untuk memilih beberapa"
