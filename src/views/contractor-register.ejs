@@ -64,7 +64,7 @@
               class="w-4 h-4 text-orange-700 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded focus:ring-orange-700 focus:ring-2 accent-orange-700"
               <%= cat === categories[0] ? 'required' : '' %>
               <%= typeof formData !== 'undefined' && formData && Array.isArray(formData.specialty) && formData.specialty.includes(cat.slug) ? 'checked' : '' %>>
-            <span class="text-sm text-gray-900 dark:text-gray-100"><%= cat.display_name %></span>
+            <span class="text-sm text-gray-900 dark:text-gray-100"><%= t('categories.' + cat.slug) %></span>
           </label>
           <% }); } %>
         </div>
@@ -78,9 +78,11 @@
           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 resize-none"><%= typeof formData !== 'undefined' && formData ? formData.bio.replace(/</g, '&lt;') : '' %></textarea>
       </div>
 
-      <button type="submit" class="w-full bg-orange-700 text-white py-3 rounded-lg hover:bg-orange-800 transition font-semibold text-lg shadow-lg shadow-orange-600/30 focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
-        <%= t('contractorRegister.submitButton') %>
-      </button>
+      <div class="flex justify-end">
+        <button type="submit" class="bg-orange-700 text-white px-8 py-3 rounded-lg hover:bg-orange-800 transition font-semibold text-lg shadow-lg shadow-orange-600/30 focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
+          <%= t('contractorRegister.submitButton') %>
+        </button>
+      </div>
     </form>
   </main>
 
