@@ -55,6 +55,14 @@
         <p class="text-xs text-gray-500 dark:text-gray-300 mt-1"><%= t('contractorRegister.phoneHint') || 'Masukkan nomor setelah +62' %></p>
       </div>
 
+      <div class="mb-6">
+        <label for="telegram" class="block text-sm font-semibold mb-2"><%= t('account.telegramLabel') %></label>
+        <input type="text" id="telegram" name="telegram_id"
+          value="<%= typeof formData !== 'undefined' && formData ? formData.telegram_id.replace(/\"/g, '&quot;') : (typeof user !== 'undefined' && user && user.telegram_id ? user.telegram_id : '') %>"
+          placeholder="@username"
+          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+      </div>
+
       <fieldset class="mb-6">
         <legend class="block text-sm font-semibold mb-3"><%= t('contractorRegister.specialtyLabel') %></legend>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">

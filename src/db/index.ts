@@ -86,6 +86,7 @@ db.exec(`CREATE TABLE IF NOT EXISTS contractors (
   email TEXT UNIQUE NOT NULL,
   name TEXT,
   phone TEXT,
+  telegram_id TEXT,
   bio TEXT,
   avatar_url TEXT,
   category_id INTEGER,

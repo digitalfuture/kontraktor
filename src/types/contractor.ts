@@ -3,6 +3,7 @@ export interface Contractor {
   email: string;
   name: string | null;
   phone: string | null;
+  telegram_id: string | null;
   bio: string | null;
   avatar_url: string | null;
   category_id: number | null;
@@ -26,6 +27,7 @@ export interface ContractorFormData {
   name: string;
   email: string;
   phone: string;
+  telegram_id: string;
   specialty: string;
   bio: string;
 }
