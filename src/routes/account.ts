@@ -226,6 +226,7 @@ router.post('/notifications', requireAuth, (req: Request, res: Response): void =
 router.get('/unsubscribe', (req: Request, res: Response): void => {
   const token = req.query.token as string;
   const all = req.query.all as string | undefined;
+  const t = res.locals.t as (key: string, params?: Record<string, string>) => string;
   const locale = (res.locals.locale as string) || 'en';
 
   if (!token) {
@@ -233,7 +234,7 @@ router.get('/unsubscribe', (req: Request, res: Response): void => {
       title: 'Unsubscribe — Kontraktor',
       locale,
       success: false,
-      message: locale === 'id' ? 'Tautan tidak valid.' : 'Invalid link.',
+      message: t('account.invalidLink'),
     });
     return;
   }
@@ -244,7 +245,7 @@ router.get('/unsubscribe', (req: Request, res: Response): void => {
       title: 'Unsubscribe — Kontraktor',
       locale,
       success: false,
-      message: locale === 'id' ? 'Tautan tidak valid atau telah kedaluwarsa.' : 'Invalid or expired link.',
+      message: t('account.invalidOrExpiredLink'),
     });
     return;
   }
@@ -258,9 +259,7 @@ router.get('/unsubscribe', (req: Request, res: Response): void => {
       title: 'Unsubscribed — Kontraktor',
       locale,
       success: true,
-      message: locale === 'id'
-        ? 'Anda telah berhenti berlangganan dari semua notifikasi.'
-        : 'You have been unsubscribed from all notifications.',
+      message: t('account.unsubscribedAll'),
       enableUrl: '/account/notifications',
     });
   } else {
@@ -279,9 +278,7 @@ router.get('/unsubscribe', (req: Request, res: Response): void => {
       title: 'Unsubscribed — Kontraktor',
       locale,
       success: true,
-      message: locale === 'id'
-        ? `Anda telah berhenti berlangganan notifikasi kategori "${catName?.name || categorySlug}".`
-        : `You have been unsubscribed from "${catName?.name || categorySlug}" notifications.`,
+      message: t('account.unsubscribedCategory', { category: catName?.name || categorySlug }),
       enableUrl: '/account/notifications',
     });
   }

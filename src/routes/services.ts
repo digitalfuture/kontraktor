@@ -43,6 +43,7 @@ function localizedDescription(
 
 router.get('/', (req: Request, res: Response): void => {
   const locale = (res.locals.locale as string) || 'en';
+  const t = res.locals.t as (key: string) => string;
 
   const categories = db.prepare('SELECT id, name, slug, description, icon, is_active FROM categories WHERE is_active = 1 ORDER BY name').all() as DbCategory[];
 
@@ -75,7 +76,7 @@ router.get('/', (req: Request, res: Response): void => {
 
   res.render('services', {
     seo: seoLib.servicesPageSeo(locale as 'en' | 'id'),
-    title: locale === 'id' ? 'Layanan — Kontraktor' : 'Services — Kontraktor',
+    title: t('services.pageTitle'),
     services,
     iconMap: serviceIcons,
     defaultIcon: defaultServiceIcon,
@@ -84,13 +85,14 @@ router.get('/', (req: Request, res: Response): void => {
 
 router.get('/:slug', (req: Request, res: Response, _next: NextFunction): void => {
   const locale = (res.locals.locale as string) || 'en';
+  const t = res.locals.t as (key: string) => string;
   const { slug } = req.params;
 
   const category = db.prepare('SELECT id, name, slug, description, icon FROM categories WHERE slug = ? AND is_active = 1').get(slug) as DbCategory | undefined;
 
   if (!category) {
     res.status(404);
-    res.render('error', { message: locale === 'id' ? 'Layanan tidak ditemukan' : 'Service not found' });
+    res.render('error', { message: t('services.notFound') });
     return;
   }
 

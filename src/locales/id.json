@@ -14,8 +14,8 @@
     "settings": "Pengaturan",
     "description": "Temukan profesional konstruksi terverifikasi atau posting proyek Anda. Pekerjaan berkualitas, harga transparan, hasil terjamin.",
     "home": "Kembali ke situs",
-    "backToProjects": "← Kembali ke Proyek",
-    "backToContractors": "← Kembali ke Kontraktor",
+    "backToProjects": "\u2190 Kembali ke Proyek",
+    "backToContractors": "\u2190 Kembali ke Kontraktor",
     "logout": "Keluar",
     "contractors": "Kontraktor",
     "browseProjects": "Lihat Proyek"
@@ -104,7 +104,7 @@
     "sentToTelegram": "Link juga dikirim ke Telegram Anda",
     "sendFailed": "Gagal mengirim link. Periksa email Anda dan coba lagi.",
     "sendFailedHint": "Pastikan alamat email Anda benar dan coba lagi.",
-    "devMode": "Mode dev — link:",
+    "devMode": "Mode dev \u2014 link:",
     "backToLogin": "Kembali ke Masuk",
     "email": "Email",
     "signIn": "Masuk",
@@ -183,7 +183,18 @@
     "emailInvalid": "Alamat email tidak valid",
     "emailTaken": "Email ini sudah digunakan",
     "phoneInvalid": "Nomor telepon Indonesia tidak valid. Harus nomor +62 yang valid (contoh: 81234567890)",
-    "saveProfile": "Simpan Profil"
+    "saveProfile": "Simpan Profil",
+    "navOverview": "Akun",
+    "navProjects": "Proyek Saya",
+    "navBids": "Penawaran Saya",
+    "profileTitle": "Profil",
+    "profilePageTitle": "Profil",
+    "notifTitle": "Notifikasi",
+    "notifPageTitle": "Notifikasi",
+    "invalidLink": "Tautan tidak valid.",
+    "invalidOrExpiredLink": "Tautan tidak valid atau telah kedaluwarsa.",
+    "unsubscribedAll": "Anda telah berhenti berlangganan dari semua notifikasi.",
+    "unsubscribedCategory": "Anda telah berhenti berlangganan notifikasi kategori \"{category}\"."
   },
   "services": {
     "title": "Jasa Konstruksi",
@@ -201,12 +212,12 @@
     "step3Title": "Terima pekerjaan",
     "step3Desc": "Bayar setelah inspeksi melalui layanan",
     "needProfessional": "Butuh profesional?",
-    "ctaSubtitle": "Pasang proyek — dapatkan respons cepat dari profesional",
+    "ctaSubtitle": "Pasang proyek \u2014 dapatkan respons cepat dari profesional",
     "cats": {
       "apartment-renovation": {
         "name": "Renovasi",
         "desc": "Renovasi dan remodeling apartemen penuh",
-        "price": "mulai 150K Rp/m²",
+        "price": "mulai 150K Rp/m\u00b2",
         "pros": "2,400+ profesional"
       },
       "electrical-work": {
@@ -224,31 +235,31 @@
       "finishing": {
         "name": "Finishing",
         "desc": "Pengecatan, wallpaper, ubin, laminasi",
-        "price": "mulai 80K Rp/m²",
+        "price": "mulai 80K Rp/m\u00b2",
         "pros": "2,100+ profesional"
       },
       "construction": {
         "name": "Pembangunan Rumah",
         "desc": "Rumah bingkai, bata, blok turnkey",
-        "price": "mulai 1,500K Rp/m²",
+        "price": "mulai 1,500K Rp/m\u00b2",
         "pros": "900+ profesional"
       },
       "roofing": {
         "name": "Atap",
         "desc": "Pemasangan, perbaikan, insulasi",
-        "price": "mulai 200K Rp/m²",
+        "price": "mulai 200K Rp/m\u00b2",
         "pros": "700+ profesional"
       },
       "facade": {
         "name": "Fasad",
         "desc": "Plester, siding, cladding batu",
-        "price": "mulai 300K Rp/m²",
+        "price": "mulai 300K Rp/m\u00b2",
         "pros": "600+ profesional"
       },
       "landscaping": {
         "name": "Lanskap",
         "desc": "Pagar, paving, penghijauan, drainase",
-        "price": "mulai 100K Rp/m²",
+        "price": "mulai 100K Rp/m\u00b2",
         "pros": "800+ profesional"
       },
       "demolition": {
@@ -263,9 +274,11 @@
     "noContractors": "Belum ada kontraktor di kategori ini",
     "findService": "Cari layanan...",
     "needSomethingElse": "Butuh sesuatu yang lain?",
-    "ctaPostProject": "Posting proyek — profesional akan menghubungi Anda",
+    "ctaPostProject": "Posting proyek \u2014 profesional akan menghubungi Anda",
     "more": "lainnya",
-    "contractors": "kontraktor"
+    "contractors": "kontraktor",
+    "notFound": "Layanan tidak ditemukan",
+    "pageTitle": "Layanan \u2014 Kontraktor"
   },
   "post": {
     "title": "Pasang Proyek",
@@ -324,7 +337,7 @@
     "searchPlaceholder": "Cari berdasarkan nama atau email...",
     "searchTitle": "Cari berdasarkan judul...",
     "allStatuses": "Semua status",
-    "selectContractor": "— Pilih kontraktor —",
+    "selectContractor": "\u2014 Pilih kontraktor \u2014",
     "noUsers": "Belum ada pengguna",
     "totalReviews": "Total Ulasan",
     "reviewMod": "Moderasi ulasan",
@@ -409,9 +422,9 @@
     "userBaseDistribution": "Distribusi Pengguna",
     "contractorsLabel": "Kontraktor",
     "administrators": "Administrator",
-    "sankeyTitle": "Alur Klien → Proyek → Kontraktor",
+    "sankeyTitle": "Alur Klien \u2192 Proyek \u2192 Kontraktor",
     "sankeyDesc": "Alur visual proyek antara klien dan kontraktor. Arahkan untuk detail.",
-    "mapTitle": "Peta Proyek — Indonesia",
+    "mapTitle": "Peta Proyek \u2014 Indonesia",
     "mapDesc": "Proyek berdasarkan provinsi. Oranye = menunggu, Hijau = diterima.",
     "payments": "Pembayaran",
     "paymentsList": "Riwayat Pembayaran",
@@ -448,7 +461,7 @@
     "sitemap": "Peta Situs",
     "sitemapTitle": "Diagram Struktur Situs",
     "sitemapAutoNote": "Dihasilkan otomatis dari rute Express. Jalankan npm run generate-sitemap untuk memperbarui.",
-    "sitemapHint": "📁 klik untuk memperdalam • klik latar belakang untuk kembali",
+    "sitemapHint": "\ud83d\udcc1 klik untuk memperdalam \u2022 klik latar belakang untuk kembali",
     "charts": "Grafik",
     "categoryDistribution": "Proyek per Kategori",
     "projectFlow": "Alur Proyek (Diagram Sankey)",
@@ -459,13 +472,13 @@
     "mapLoadingNote": "Data peta dimuat di dashboard",
     "admins": "Admin",
     "analytics": "Analytics",
-    "freeModeTitle": "Gratis — Proyek Tak Terbatas",
+    "freeModeTitle": "Gratis \u2014 Proyek Tak Terbatas",
     "freeModeDesc": "Aktif: semua pengguna bisa membuat proyek tak terbatas. Nonaktif: 1 proyek aktif per pengguna. Proyek berjalan tidak terpengaruh.",
     "freeModeOn": "proyek tak terbatas untuk semua",
     "freeModeOff": "1 proyek aktif per pengguna",
     "activeInCampaign": "Aktif dalam kampanye",
     "listActiveCampaign": "Daftar ini sedang digunakan dalam kampanye aktif",
-    "cannotStartNewCampaign": "Tidak bisa memulai kampanye baru — daftar sedang dikirim",
+    "cannotStartNewCampaign": "Tidak bisa memulai kampanye baru \u2014 daftar sedang dikirim",
     "recipientStatus": "Status Penerima",
     "sentTo": "Terkirim",
     "notSentYet": "Menunggu",
@@ -492,7 +505,6 @@
     "deleteUserPermanentConfirm": "Hapus permanen pengguna ini? Tindakan ini tidak bisa dibatalkan.",
     "confirmDelete": "Anda yakin?",
     "emailTemplates": "Template Email",
-    "reviews": "Ulasan",
     "moderation": "Moderasi",
     "noDeletedReviews": "Tidak ada ulasan yang dihapus",
     "noDeletedEmailTemplates": "Tidak ada template email yang dihapus",
@@ -563,7 +575,7 @@
   },
   "payments": {
     "biddingFree": "Penawaran Sekarang Gratis!",
-    "launchDesc": "Di tahap pertama peluncuran, semua penawaran proyek gratis. Tidak perlu membeli kredit — daftar dan mulai tawar!",
+    "launchDesc": "Di tahap pertama peluncuran, semua penawaran proyek gratis. Tidak perlu membeli kredit \u2014 daftar dan mulai tawar!",
     "noCost": "Tidak ada biaya untuk merespon proyek. Kirim penawaran sebanyak yang Anda mau.",
     "unlimited": "Tak Terbatas",
     "unlimitedBids": "Kirim penawaran tanpa batas. Kami ingin membantu bisnis Anda tumbuh.",
@@ -672,7 +684,7 @@
     "noProjectsClient": "Anda belum memposting proyek apa pun.",
     "noProjectsContractor": "Tidak ada proyek tersedia saat ini. Cek kembali nanti.",
     "edit": "Edit",
-    "assignedLock": "Ditugaskan — edit terkunci",
+    "assignedLock": "Ditugaskan \u2014 edit terkunci",
     "editLocked": "Proyek ini sudah ditugaskan ke kontraktor dan tidak dapat diedit lagi.",
     "bids": "penawaran",
     "bidsPlural": "penawaran",
@@ -716,8 +728,8 @@
     "title": "Dasbor Saya",
     "welcomeBack": "Selamat datang kembali",
     "credits": "Kredit",
-    "servicesActive": "✅ Layanan Aktif",
-    "servicesInactive": "⏸ Layanan Dihentikan",
+    "servicesActive": "\u2705 Layanan Aktif",
+    "servicesInactive": "\u23f8 Layanan Dihentikan",
     "totalBids": "Total Penawaran",
     "pending": "Menunggu",
     "accepted": "Diterima",
@@ -737,7 +749,7 @@
     "noPortfolio": "Belum ada foto portofolio",
     "noPortfolioSub": "Unggah foto untuk menampilkan pekerjaan Anda",
     "creditsLabel": "Saldo Kredit",
-    "creditsHint": "Penawaran gratis — tidak perlu kredit!",
+    "creditsHint": "Penawaran gratis \u2014 tidak perlu kredit!",
     "requestCredits": "Minta Kredit Gratis",
     "avatar": "Avatar",
     "creditsRemaining": "Sisa kredit",
@@ -760,7 +772,7 @@
     "freeBidsHint": "3 penawaran gratis per bulan",
     "submitBid": "Ajukan Penawaran",
     "submitBidCost": "Ajukan Penawaran (GRATIS)",
-    "alreadyBid": "✓ Anda sudah mengajukan penawaran untuk proyek ini.",
+    "alreadyBid": "\u2713 Anda sudah mengajukan penawaran untuk proyek ini.",
     "bidsTitle": "Penawaran",
     "assignedContractor": "Kontraktor yang Ditugaskan",
     "rejectBid": "Tolak",
@@ -844,9 +856,9 @@
     "title": "Kelola Status Proyek",
     "inProgressDesc": "Proyek ini sedang berlangsung. Setelah selesai, tandai sebagai selesai untuk memberi ulasan.",
     "completeConfirm": "Tandai proyek ini sebagai selesai? Anda bisa memberi ulasan setelah ini.",
-    "markComplete": "✓ Tandai Selesai",
+    "markComplete": "\u2713 Tandai Selesai",
     "cancelConfirm": "Batalkan proyek ini? Tindakan ini tidak bisa dibatalkan.",
-    "cancelProject": "✕ Batalkan Proyek"
+    "cancelProject": "\u2715 Batalkan Proyek"
   },
   "requestCredits": "Minta Kredit",
   "requestCreditsDesc": "Butuh lebih banyak kredit untuk merespons proyek? Minta kredit gratis dari admin.",
@@ -881,13 +893,13 @@
     "stopped": "Dihentikan",
     "time": "Waktu",
     "error": "Kesalahan",
-    "none": "—"
+    "none": "\u2014"
   },
   "header": {
     "skipToMain": "Langsung ke konten utama",
     "openMenu": "Buka menu",
     "closeMenu": "Tutup menu",
-    "logoLabel": "Kontraktor — Beranda"
+    "logoLabel": "Kontraktor \u2014 Beranda"
   },
   "role": {
     "admin": "Admin",
@@ -941,7 +953,7 @@
       },
       {
         "title": "Tanpa Komisi",
-        "desc": "Kami tidak mengambil persentase — Anda menyimpan 100% pendapatan"
+        "desc": "Kami tidak mengambil persentase \u2014 Anda menyimpan 100% pendapatan"
       },
       {
         "title": "Sistem Reputasi",
@@ -949,7 +961,7 @@
       },
       {
         "title": "Jadwal Fleksibel",
-        "desc": "Pilih hanya proyek yang Anda inginkan — tanpa kewajiban"
+        "desc": "Pilih hanya proyek yang Anda inginkan \u2014 tanpa kewajiban"
       }
     ],
     "cta": "Daftar sebagai Profesional",
@@ -963,7 +975,7 @@
     "reputationDesc": "Rating lebih tinggi berarti lebih banyak proyek. Ulasan membantu Anda menonjol.",
     "easyStartTitle": "Mulai dengan Mudah",
     "easyStartDesc": "Daftar gratis. 3 penawaran pertama gratis.",
-    "exampleProject": "Renovasi kamar mandi 4m²: penggantian ubin, pemasangan bathtub, pemeriksaan pipa.",
+    "exampleProject": "Renovasi kamar mandi 4m\u00b2: penggantian ubin, pemasangan bathtub, pemeriksaan pipa.",
     "projectCompleted": "Proyek selesai!",
     "ctaTitle": "Mulai menerima proyek hari ini",
     "exampleBid": "Contoh respon penawaran",
@@ -1017,7 +1029,7 @@
     "description_short": "Deskripsi",
     "contacts": "Kontak",
     "delete": "Hapus",
-    "noLists": "Belum ada daftar email — buat di atas",
+    "noLists": "Belum ada daftar email \u2014 buat di atas",
     "name": "Nama",
     "edit": "Edit",
     "save": "Simpan",
@@ -1047,7 +1059,6 @@
     "sentTo": "Dikirim ke",
     "viaList": "via daftar",
     "actions": "Aksi",
-    "status": "Status",
     "saveTemplate": "Simpan sebagai Template",
     "templateName": "Nama Template",
     "saving": "Menyimpan...",
@@ -1063,9 +1074,9 @@
     "queue": "Antrian",
     "queued": "antri",
     "waitingRetry": "{n} menunggu ulang",
-    "cooldown": "⏳ Pendinginan {s}d",
+    "cooldown": "\u23f3 Pendinginan {s}d",
     "pendingCount": "{n} tertunda",
-    "statsStatus": "{queued} antri · {sending} mengirim",
+    "statsStatus": "{queued} antri \u00b7 {sending} mengirim",
     "listRenamed": "Daftar diganti nama",
     "settings": "Pengaturan Email",
     "settingsSubtitle": "Konfigurasi SMTP, kuota & template sistem",
@@ -1080,7 +1091,7 @@
     "templateSubject": "Subjek (template)",
     "templateHtml": "Template HTML",
     "systemTemplates": "Template Email Sistem",
-    "systemTemplatesHint": "Edit email otomatis — magic link, notifikasi, dll.",
+    "systemTemplatesHint": "Edit email otomatis \u2014 magic link, notifikasi, dll.",
     "templateMagicLink": "Login Magic Link",
     "templateMagicLinkDesc": "Dikirim saat pengguna minta link login",
     "templateWelcome": "Email Selamat Datang",
@@ -1098,7 +1109,7 @@
     "linkText": "Teks Tautan",
     "templateNewProjectNotification": "Notifikasi Proyek Baru",
     "templateNewProjectNotificationDesc": "Dikirim ke pelanggan saat proyek baru diposting",
-    "backToTemplates": "← Kembali ke Template",
+    "backToTemplates": "\u2190 Kembali ke Template",
     "preview": "Pratinjau",
     "code": "Kode",
     "validate": "Validasi HTML",

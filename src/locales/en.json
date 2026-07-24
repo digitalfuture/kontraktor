@@ -13,8 +13,8 @@
     "logout": "Logout",
     "settings": "Settings",
     "home": "Back to site",
-    "backToProjects": "← Back to Projects",
-    "backToContractors": "← Back to Contractors",
+    "backToProjects": "\u2190 Back to Projects",
+    "backToContractors": "\u2190 Back to Contractors",
     "contractors": "Contractors",
     "browseProjects": "Browse Projects"
   },
@@ -102,7 +102,7 @@
     "sentToTelegram": "Link also sent to your Telegram",
     "sendFailed": "Could not send link. Please check your email and try again.",
     "sendFailedHint": "Make sure your email address is correct and try again.",
-    "devMode": "Dev mode — link:",
+    "devMode": "Dev mode \u2014 link:",
     "backToLogin": "Back to Login",
     "email": "Email",
     "signIn": "Sign In",
@@ -181,7 +181,18 @@
     "emailInvalid": "Invalid email address",
     "emailTaken": "This email is already in use",
     "phoneInvalid": "Invalid Indonesian phone number. Must be a valid +62 number (e.g., 81234567890)",
-    "saveProfile": "Save Profile"
+    "saveProfile": "Save Profile",
+    "navOverview": "Account",
+    "navProjects": "My Projects",
+    "navBids": "My Bids",
+    "profileTitle": "Profile",
+    "profilePageTitle": "Profile",
+    "notifTitle": "Notifications",
+    "notifPageTitle": "Notifications",
+    "invalidLink": "Invalid link.",
+    "invalidOrExpiredLink": "Invalid or expired link.",
+    "unsubscribedAll": "You have been unsubscribed from all notifications.",
+    "unsubscribedCategory": "You have been unsubscribed from \"{category}\" notifications."
   },
   "services": {
     "title": "Construction Services",
@@ -199,12 +210,12 @@
     "step3Title": "Accept the work",
     "step3Desc": "Pay after inspection through the service",
     "needProfessional": "Need a professional?",
-    "ctaSubtitle": "Post a project — get a fast response from professionals",
+    "ctaSubtitle": "Post a project \u2014 get a fast response from professionals",
     "cats": {
       "apartment-renovation": {
         "name": "Renovation",
         "desc": "Full apartment renovation and remodeling",
-        "price": "from 150K Rp/m²",
+        "price": "from 150K Rp/m\u00b2",
         "pros": "2,400+ pros"
       },
       "electrical-work": {
@@ -222,31 +233,31 @@
       "finishing": {
         "name": "Finishing",
         "desc": "Painting, wallpaper, tiles, laminate",
-        "price": "from 80K Rp/m²",
+        "price": "from 80K Rp/m\u00b2",
         "pros": "2,100+ pros"
       },
       "construction": {
         "name": "Home Building",
         "desc": "Frame, brick, block houses turnkey",
-        "price": "from 1,500K Rp/m²",
+        "price": "from 1,500K Rp/m\u00b2",
         "pros": "900+ pros"
       },
       "roofing": {
         "name": "Roofing",
         "desc": "Installation, repair, insulation",
-        "price": "from 200K Rp/m²",
+        "price": "from 200K Rp/m\u00b2",
         "pros": "700+ pros"
       },
       "facade": {
         "name": "Facade",
         "desc": "Plastering, siding, stone cladding",
-        "price": "from 300K Rp/m²",
+        "price": "from 300K Rp/m\u00b2",
         "pros": "600+ pros"
       },
       "landscaping": {
         "name": "Landscaping",
         "desc": "Fencing, paving, greening, drainage",
-        "price": "from 100K Rp/m²",
+        "price": "from 100K Rp/m\u00b2",
         "pros": "800+ pros"
       },
       "demolition": {
@@ -261,9 +272,11 @@
     "noContractors": "No contractors in this category yet",
     "findService": "Find a service...",
     "needSomethingElse": "Need something else?",
-    "ctaPostProject": "Post a project — professionals will reach out",
+    "ctaPostProject": "Post a project \u2014 professionals will reach out",
     "more": "more",
-    "contractors": "contractors"
+    "contractors": "contractors",
+    "notFound": "Layanan tidak ditemukan",
+    "pageTitle": "Services \u2014 Kontraktor"
   },
   "post": {
     "title": "Post a Project",
@@ -322,7 +335,7 @@
     "searchPlaceholder": "Search by name or email...",
     "searchTitle": "Search by title...",
     "allStatuses": "All statuses",
-    "selectContractor": "— Select contractor —",
+    "selectContractor": "\u2014 Select contractor \u2014",
     "noUsers": "No users yet",
     "totalReviews": "Total Reviews",
     "reviewMod": "Review moderation",
@@ -407,9 +420,9 @@
     "userBaseDistribution": "User Base Distribution",
     "contractorsLabel": "Contractors",
     "administrators": "Administrators",
-    "sankeyTitle": "Client → Project → Contractor Flow",
+    "sankeyTitle": "Client \u2192 Project \u2192 Contractor Flow",
     "sankeyDesc": "Visual flow of projects between clients and contractors. Hover to see details.",
-    "mapTitle": "Project Map — Indonesia",
+    "mapTitle": "Project Map \u2014 Indonesia",
     "mapDesc": "Projects by province. Orange = pending, Green = accepted.",
     "payments": "Payments",
     "paymentsList": "Payment History",
@@ -446,7 +459,7 @@
     "sitemap": "Sitemap",
     "sitemapTitle": "Site Structure Diagram",
     "sitemapAutoNote": "Auto-generated from Express routes. Run npm run generate-sitemap to update.",
-    "sitemapHint": "📁 click to drill down • click background to go back",
+    "sitemapHint": "\ud83d\udcc1 click to drill down \u2022 click background to go back",
     "charts": "Charts",
     "categoryDistribution": "Projects by Category",
     "projectFlow": "Project Flow (Sankey Diagram)",
@@ -457,13 +470,13 @@
     "mapLoadingNote": "Map data loaded on dashboard",
     "admins": "Admins",
     "analytics": "Analytics",
-    "freeModeTitle": "Free Mode — Unlimited Projects",
+    "freeModeTitle": "Free Mode \u2014 Unlimited Projects",
     "freeModeDesc": "When ON: unlimited projects for all users. When OFF: 1 active project per user. Existing projects continue unaffected.",
     "freeModeOn": "unlimited projects for everyone",
     "freeModeOff": "1 active project per user",
     "activeInCampaign": "Active in campaign",
     "listActiveCampaign": "This list is currently being used in an active campaign",
-    "cannotStartNewCampaign": "Cannot start new campaign — list has active sending",
+    "cannotStartNewCampaign": "Cannot start new campaign \u2014 list has active sending",
     "recipientStatus": "Recipient Status",
     "sentTo": "Sent",
     "notSentYet": "Pending",
@@ -490,7 +503,6 @@
     "deleteUserPermanentConfirm": "Permanently delete this user? This cannot be undone.",
     "confirmDelete": "Are you sure?",
     "emailTemplates": "Email Templates",
-    "reviews": "Reviews",
     "moderation": "Moderation",
     "noDeletedReviews": "No deleted reviews",
     "noDeletedEmailTemplates": "No deleted email templates",
@@ -561,7 +573,7 @@
   },
   "payments": {
     "biddingFree": "Bidding Is Now Free!",
-    "launchDesc": "In the first stage of our launch, all project bids are free. No need to buy credits — just sign up and start bidding!",
+    "launchDesc": "In the first stage of our launch, all project bids are free. No need to buy credits \u2014 just sign up and start bidding!",
     "noCost": "No cost to respond to projects. Send as many bids as you want.",
     "unlimited": "Unlimited",
     "unlimitedBids": "Send unlimited bids. We want to help your business grow.",
@@ -670,7 +682,7 @@
     "noProjectsClient": "You haven't posted any projects yet.",
     "noProjectsContractor": "No available projects at the moment. Check back later.",
     "edit": "Edit",
-    "assignedLock": "Assigned — editing locked",
+    "assignedLock": "Assigned \u2014 editing locked",
     "editLocked": "This project has been assigned to a contractor and can no longer be edited.",
     "bids": "bid",
     "bidsPlural": "bids",
@@ -714,8 +726,8 @@
     "title": "Account",
     "welcomeBack": "Welcome back",
     "credits": "Credits",
-    "servicesActive": "✅ Services Active",
-    "servicesInactive": "⏸ Services Paused",
+    "servicesActive": "\u2705 Services Active",
+    "servicesInactive": "\u23f8 Services Paused",
     "totalBids": "Total Bids",
     "pending": "Pending",
     "accepted": "Accepted",
@@ -735,7 +747,7 @@
     "noPortfolio": "No portfolio photos yet",
     "noPortfolioSub": "Upload photos to showcase your work",
     "creditsLabel": "Credits Balance",
-    "creditsHint": "Bidding is free — no credits needed!",
+    "creditsHint": "Bidding is free \u2014 no credits needed!",
     "requestCredits": "Request Free Credits",
     "avatar": "Avatar",
     "creditsRemaining": "Credits remaining",
@@ -758,7 +770,7 @@
     "freeBidsHint": "3 free bids per month",
     "submitBid": "Submit Bid",
     "submitBidCost": "Submit Bid (FREE)",
-    "alreadyBid": "✓ You've already submitted a bid for this project.",
+    "alreadyBid": "\u2713 You've already submitted a bid for this project.",
     "bidsTitle": "Bids",
     "assignedContractor": "Assigned Contractor",
     "rejectBid": "Reject",
@@ -841,9 +853,9 @@
     "title": "Manage Project Status",
     "inProgressDesc": "This project is currently in progress. When the work is done, mark it as complete to allow leaving a review.",
     "completeConfirm": "Mark this project as completed? This will allow you to leave a review.",
-    "markComplete": "✓ Mark Complete",
+    "markComplete": "\u2713 Mark Complete",
     "cancelConfirm": "Cancel this project? This action cannot be undone.",
-    "cancelProject": "✕ Cancel Project"
+    "cancelProject": "\u2715 Cancel Project"
   },
   "requestCredits": "Request Credits",
   "requestCreditsDesc": "Need more credits to respond to projects? Request free credits from admin.",
@@ -878,13 +890,13 @@
     "stopped": "Stopped",
     "time": "Time",
     "error": "Error",
-    "none": "—"
+    "none": "\u2014"
   },
   "header": {
     "skipToMain": "Skip to main content",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "logoLabel": "Kontraktor — Home"
+    "logoLabel": "Kontraktor \u2014 Home"
   },
   "role": {
     "admin": "Admin",
@@ -938,7 +950,7 @@
       },
       {
         "title": "No Commissions",
-        "desc": "We don't take a percentage — you keep 100% of your earnings"
+        "desc": "We don't take a percentage \u2014 you keep 100% of your earnings"
       },
       {
         "title": "Reputation System",
@@ -946,7 +958,7 @@
       },
       {
         "title": "Flexible Schedule",
-        "desc": "Choose only the projects you want — no obligations"
+        "desc": "Choose only the projects you want \u2014 no obligations"
       }
     ],
     "cta": "Register as a Professional",
@@ -960,7 +972,7 @@
     "reputationDesc": "Higher rating means more projects. Reviews help you stand out.",
     "easyStartTitle": "Easy Start",
     "easyStartDesc": "Register for free. First 3 bids are on us.",
-    "exampleProject": "Bathroom renovation 4m²: tile replacement, bathtub installation, plumbing check.",
+    "exampleProject": "Bathroom renovation 4m\u00b2: tile replacement, bathtub installation, plumbing check.",
     "projectCompleted": "Project completed!",
     "ctaTitle": "Start receiving projects today",
     "exampleBid": "Example bid response",
@@ -1014,7 +1026,7 @@
     "description_short": "Description",
     "contacts": "Contacts",
     "delete": "Delete",
-    "noLists": "No mailing lists yet — create one above",
+    "noLists": "No mailing lists yet \u2014 create one above",
     "name": "Name",
     "edit": "Edit",
     "save": "Save",
@@ -1044,7 +1056,6 @@
     "sentTo": "Sent to",
     "viaList": "via list",
     "actions": "Actions",
-    "status": "Status",
     "saveTemplate": "Save as Template",
     "templateName": "Template Name",
     "saving": "Saving...",
@@ -1060,9 +1071,9 @@
     "queue": "Queue",
     "queued": "queued",
     "waitingRetry": "{n} waiting retry",
-    "cooldown": "⏳ Cooldown {s}s",
+    "cooldown": "\u23f3 Cooldown {s}s",
     "pendingCount": "{n} pending",
-    "statsStatus": "{queued} queued · {sending} sending",
+    "statsStatus": "{queued} queued \u00b7 {sending} sending",
     "listRenamed": "List renamed",
     "settings": "Email Settings",
     "settingsSubtitle": "SMTP config, quotas & system templates",
@@ -1077,7 +1088,7 @@
     "templateSubject": "Subject (template)",
     "templateHtml": "HTML Template",
     "systemTemplates": "System Email Templates",
-    "systemTemplatesHint": "Edit automated emails — magic link, notifications, etc.",
+    "systemTemplatesHint": "Edit automated emails \u2014 magic link, notifications, etc.",
     "templateMagicLink": "Magic Link Login",
     "templateMagicLinkDesc": "Sent when user requests a login link",
     "templateWelcome": "Welcome Email",
@@ -1095,7 +1106,7 @@
     "linkText": "Link Text",
     "templateNewProjectNotification": "New Project Notification",
     "templateNewProjectNotificationDesc": "Sent to subscribers when a new project is posted",
-    "backToTemplates": "← Back to Templates",
+    "backToTemplates": "\u2190 Back to Templates",
     "preview": "Preview",
     "code": "Code",
     "validate": "Validate HTML",
