@@ -92,33 +92,13 @@ db.exec(`CREATE TABLE IF NOT EXISTS projects (
   reviewed INTEGER DEFAULT 0,
   status TEXT DEFAULT 'pending',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (assigned_contractor_id) REFERENCES contractors(id) ON DELETE SET NULL
+  FOREIGN KEY (assigned_contractor_id) REFERENCES users(id) ON DELETE SET NULL
 );`);
 
-db.exec(`CREATE TABLE IF NOT EXISTS contractors (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  email TEXT UNIQUE NOT NULL,
-  name TEXT,
-  phone TEXT,
-  telegram_id TEXT,
-  bio TEXT,
-  avatar_url TEXT,
-  category_id INTEGER,
-  specialty TEXT,
-  rating REAL DEFAULT 0,
-  reviews_count INTEGER DEFAULT 0,
-  completed_projects INTEGER DEFAULT 0,
-  is_verified INTEGER DEFAULT 0,
-  is_approved INTEGER DEFAULT 0,
-  is_active INTEGER DEFAULT 1,
-  credits INTEGER DEFAULT 3,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
-);`);
-
+// contractors merged into users (2026-07-24). See users table.
 db.exec(`CREATE TABLE IF NOT EXISTS reviews (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  contractor_id INTEGER REFERENCES contractors(id),
+  contractor_id INTEGER REFERENCES users(id),
   project_id INTEGER REFERENCES projects(id),
   author_email TEXT NOT NULL,
   client_email TEXT,
@@ -260,12 +240,10 @@ const migrations: Array<{ version: number; name: string; sql: string }> = [
         category_id INTEGER NOT NULL,
         is_active INTEGER DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (contractor_id) REFERENCES contractors(id) ON DELETE CASCADE,
+        FOREIGN KEY (contractor_id) REFERENCES users(id) ON DELETE CASCADE,
         FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
         UNIQUE(contractor_id, category_id)
       );
-      INSERT OR IGNORE INTO contractor_services (contractor_id, category_id, is_active)
-        SELECT id, category_id, 1 FROM contractors WHERE category_id IS NOT NULL;
     `,
   },
   {
