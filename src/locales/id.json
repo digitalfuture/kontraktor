@@ -821,6 +821,7 @@
     "city": "Kota",
     "specialty": "Keahlian",
     "bio": "Tentang Anda",
+    "phoneInvalid": "Nomor telepon Indonesia tidak valid. Harus nomor +62 yang valid (contoh: 81234567890)",
     "submit": "Daftar sebagai Kontraktor",
     "selectMultipleHint": "Tahan Ctrl/Cmd untuk memilih beberapa"
   },

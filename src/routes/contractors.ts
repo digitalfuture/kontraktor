@@ -236,7 +236,8 @@ apiRouter.post('/register', optionalAuth, (req: Request, res: Response): void =>
     else if (phone.startsWith('62')) phone = phone.slice(2);
     else if (phone.startsWith('0')) phone = phone.slice(1);
     if (!/^8\d{7,14}$/.test(phone)) {
-      errors.push('Nomor telepon Indonesia tidak valid. Harus nomor +62 yang valid (contoh: 81234567890)');
+      const t = res.locals.t as (key: string) => string;
+      errors.push(t('contractorRegister.phoneInvalid'));
     } else {
       formData.phone = '+62' + phone;
     }

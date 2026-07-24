@@ -818,6 +818,7 @@
     "city": "City",
     "specialty": "Specialty",
     "bio": "About You",
+    "phoneInvalid": "Invalid Indonesian phone number. Must be a valid +62 number (e.g., 81234567890)",
     "submit": "Register as Contractor",
     "selectMultipleHint": "Hold Ctrl/Cmd to select multiple"
   },
