@@ -6,7 +6,7 @@
   "scripts": {
     "dev:build": "npx @tailwindcss/cli -i ./src/input.css -o ./public/css/tailwind.css --minify && /usr/local/lib/hermes-agent/node_modules/.bin/esbuild src/index.ts --bundle --platform=node --format=cjs --external:better-sqlite3 --external:express --external:crypto --external:googleapis --external:imapflow --external:nodemailer --external:dotenv --external:helmet --external:compression --external:express-rate-limit --external:express-fileupload --external:node-cron --external:path --external:fs --external:crypto --outfile=dist/index.js && cp -r src/views dist/ && cp -r src/locales dist/ && cp -r src/data dist/ && rm -rf dist/data/views dist/data/locales && cp -r docs dist/docs",
     "build": "NODE_OPTIONS=\"--max-old-space-size=4096\" npm run dev:build && npm run generate-sitemap && npm run generate-codetree",
-    "lint": "eslint src/**/*.ts",
+    "lint": "NODE_OPTIONS=\"--max-old-space-size=4096\" eslint src/**/*.ts",
     "lint:ejs": "html-validate src/views/**/*.ejs 2>&1 | grep -v '</body>' | grep -v '</html>' | grep -v 'parser-error'; true",
     "validate-locale": "node scripts/validate-locale-keys.mjs",
     "generate-sitemap": "node scripts/generate-sitemap.mjs",
