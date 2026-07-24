@@ -806,6 +806,7 @@
     "emailPlaceholder": "ex. jane.doe@example.com",
     "phoneLabel": "Phone",
     "phonePlaceholder": "ex. +1 (555) 019-0123",
+    "phoneHint": "Enter number after +62",
     "specialtyLabel": "Specialties",
     "selectSpecialty": "Select specialty",
     "specialtyHint": "Select one or more categories you specialize in",
