@@ -15,7 +15,7 @@ db.exec(`CREATE TABLE IF NOT EXISTS users (
   email TEXT UNIQUE NOT NULL,
   name TEXT,
   phone TEXT,
-  role TEXT NOT NULL DEFAULT 'client' CHECK(role IN ('admin', 'contractor', 'client')),
+  role TEXT NOT NULL DEFAULT 'client' CHECK(role IN ('admin', 'specialist', 'contractor', 'client')),
   telegram_id TEXT,
   is_verified INTEGER DEFAULT 0,
   is_active INTEGER DEFAULT 1,
