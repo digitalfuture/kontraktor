@@ -8,6 +8,7 @@ export interface AuthUser {
   role: 'admin' | 'contractor' | 'client';
   telegram_id: string | null;
   is_verified: number;
+  is_contractor: number;
 }
 
 // Create session token (60 days TTL)
@@ -26,7 +27,7 @@ export function createSession(userId: number): string {
 export function getUserByToken(token: string): AuthUser | null {
   const now = new Date().toISOString();
   const row = db.prepare(`
-    SELECT u.id, u.email, u.name, u.role, u.telegram_id, u.is_verified
+    SELECT u.id, u.email, u.name, u.role, u.telegram_id, u.is_verified, u.is_contractor
     FROM users u
     JOIN sessions s ON u.id = s.user_id
     WHERE s.token = ? AND s.expires_at > ?
