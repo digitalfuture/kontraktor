@@ -4,9 +4,6 @@
     "tagline": "Construction marketplace",
     "description": "Find verified construction professionals or post your project. Quality work, transparent prices, guaranteed results."
   },
-  "common": {
-    "and": "and"
-  },
   "nav": {
     "services": "Services",
     "postOrder": "Post a Project",
@@ -14,6 +11,7 @@
     "account": "Account",
     "admin": "Admin",
     "logout": "Logout",
+    "settings": "Settings",
     "home": "Back to site",
     "backToProjects": "← Back to Projects",
     "backToContractors": "← Back to Contractors",
@@ -548,6 +546,8 @@
     "notConfigured": "Analytics not configured"
   },
   "common": {
+    "and": "and",
+    "verified": "Verified",
     "back": "Back",
     "submit": "Submit",
     "cancel": "Cancel",

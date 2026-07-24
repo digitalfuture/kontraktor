@@ -4,9 +4,6 @@
     "tagline": "Marketplace konstruksi",
     "description": "Temukan profesional konstruksi terverifikasi atau posting proyek Anda. Pekerjaan berkualitas, harga transparan, hasil terjamin."
   },
-  "common": {
-    "and": "dan"
-  },
   "nav": {
     "services": "Layanan",
     "postOrder": "Posting Proyek",
@@ -14,6 +11,7 @@
     "account": "Akun",
     "admin": "Admin",
     "tagline": "Marketplace konstruksi",
+    "settings": "Pengaturan",
     "description": "Temukan profesional konstruksi terverifikasi atau posting proyek Anda. Pekerjaan berkualitas, harga transparan, hasil terjamin.",
     "home": "Kembali ke situs",
     "backToProjects": "← Kembali ke Proyek",
@@ -302,10 +300,13 @@
     "districtLabel": "Kabupaten / Kota",
     "districtPlaceholder": "cth. Kab. Bandung, Kota Surabaya",
     "districtHint": "Ketik untuk mencari dari 500+ kabupaten dan kota",
-    "titleRequired": "Judul wajib diisi",
+    "titleRequired": "Judul proyek wajib diisi",
     "descriptionRequired": "Deskripsi wajib diisi",
     "categoryRequired": "Kategori wajib dipilih",
     "nameRequired": "Nama wajib diisi",
+    "editTitle": "Edit Proyek",
+    "editSubtitle": "Perbarui detail proyek Anda di bawah.",
+    "saveButton": "Simpan Perubahan",
     "phoneRequired": "Telepon wajib diisi",
     "phoneInvalid": "Nomor telepon Indonesia tidak valid. Harus nomor +62 yang valid (contoh: 81234567890)",
     "districtRequired": "Kabupaten/Kota wajib diisi",
@@ -547,6 +548,8 @@
     "notConfigured": "Analitik belum dikonfigurasi"
   },
   "common": {
+    "and": "dan",
+    "verified": "Terverifikasi",
     "back": "Kembali",
     "submit": "Kirim",
     "cancel": "Batal",

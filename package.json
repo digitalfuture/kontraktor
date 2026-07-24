@@ -8,6 +8,7 @@
     "build": "NODE_OPTIONS=\"--max-old-space-size=4096\" npm run dev:build && npm run generate-sitemap && npm run generate-codetree",
     "lint": "eslint src/**/*.ts",
     "lint:ejs": "html-validate src/views/**/*.ejs 2>&1 | grep -v '</body>' | grep -v '</html>' | grep -v 'parser-error'; true",
+    "validate-locale": "node scripts/validate-locale-keys.mjs",
     "generate-sitemap": "node scripts/generate-sitemap.mjs",
     "generate-codetree": "node scripts/generate-codetree.mjs",
     "deploy": "npm run build && pm2 restart kontraktor-prod && echo 'Deploy complete'",
