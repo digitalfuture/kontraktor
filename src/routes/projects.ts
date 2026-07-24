@@ -29,7 +29,7 @@ router.get('/', (req: any, res: Response): void => {
     }
   } else if (userRole === 'contractor') {
     // Contractor sees: their assigned projects + all unassigned projects
-    const contractor = db.prepare('SELECT id FROM contractors WHERE email = ?').get(user.email) as any;
+    const contractor = db.prepare('SELECT id FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
     if (contractor) {
       conditions.push(`(p.assigned_contractor_id = ? OR p.assigned_contractor_id IS NULL)`);
       params.push(contractor.id);
@@ -98,7 +98,7 @@ router.get('/', (req: any, res: Response): void => {
     status,
     locale,
     user,
-    isContractor: user?.role === 'contractor',
+    isContractor: user?.is_contractor === 1 || user?.role === 'contractor',
     userRole,
     pagination: {
       page,

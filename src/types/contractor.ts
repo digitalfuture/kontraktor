@@ -1,28 +1,12 @@
-export interface Contractor {
-  id: number;
-  email: string;
-  name: string | null;
-  phone: string | null;
-  telegram_id: string | null;
-  bio: string | null;
-  avatar_url: string | null;
-  category_id: number | null;
-  specialty: string | null;
-  rating: number;
-  reviews_count: number;
-  completed_projects: number;
-  is_verified: number;
-  is_approved: number;
-  is_active: number;
-  credits: number;
-  created_at: string;
-}
+// Contractor types are now aliases for User.
+// All contractor attributes live on the users table.
+// Import { User as Contractor } from './user' or use the type aliases below.
+import type { User } from './user';
 
-export interface ContractorWithStats extends Contractor {
-  review_count: number;
-  avg_rating: number;
-}
+export type Contractor = User;
+export type ContractorWithStats = User;
 
+// Form data for contractor registration
 export interface ContractorFormData {
   name: string;
   email: string;

@@ -1057,13 +1057,6 @@
           "ext": "ejs"
         },
         {
-          "name": "header.ejs",
-          "type": "file",
-          "value": 1,
-          "leaf": true,
-          "ext": "ejs"
-        },
-        {
           "name": "index.ejs",
           "type": "file",
           "value": 1,
@@ -1072,13 +1065,6 @@
         },
         {
           "name": "info.ejs",
-          "type": "file",
-          "value": 1,
-          "leaf": true,
-          "ext": "ejs"
-        },
-        {
-          "name": "layout.ejs",
           "type": "file",
           "value": 1,
           "leaf": true,
@@ -1169,7 +1155,7 @@
           "ext": "ejs"
         }
       ],
-      "value": 92
+      "value": 90
     },
     {
       "name": "index.ts",
@@ -1184,14 +1170,7 @@
       "value": 1,
       "leaf": true,
       "ext": "css"
-    },
-    {
-      "name": "input.css.orig",
-      "type": "file",
-      "value": 1,
-      "leaf": true,
-      "ext": "orig"
     }
   ],
-  "totalFiles": 153
+  "totalFiles": 150
 }

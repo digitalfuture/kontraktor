@@ -14,7 +14,7 @@ router.get('/', (_req: Request, res: Response): void => {
   `).all() as any[];
 
   const contractors = db.prepare(`
-    SELECT id, created_at FROM contractors WHERE is_active = 1 ORDER BY created_at DESC LIMIT 100
+    SELECT id, created_at FROM users WHERE is_contractor = 1 AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 100
   `).all() as any[];
 
   const categories = db.prepare(`

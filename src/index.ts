@@ -160,8 +160,8 @@ app.get('/', (req: express.Request, res: express.Response): void => {
     LEFT JOIN (
       SELECT cs.category_id, COUNT(*) as cnt
       FROM contractor_services cs
-      JOIN contractors ct ON ct.id = cs.contractor_id
-      WHERE ct.is_approved = 1 AND ct.is_active = 1 AND cs.is_active = 1
+      JOIN users ct ON ct.id = cs.contractor_id
+      WHERE ct.is_approved = 1 AND ct.is_contractor = 1 AND ct.deleted_at IS NULL AND cs.is_active = 1
       GROUP BY cs.category_id
     ) cc ON cc.category_id = c.id
     LEFT JOIN subcategories s ON s.id = (

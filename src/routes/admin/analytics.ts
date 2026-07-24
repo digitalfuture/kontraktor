@@ -39,11 +39,11 @@ export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: e
         ORDER BY count DESC
       `).all() as any[];
       const roleStats = db.prepare(`
-        SELECT role, COUNT(*) as count FROM (
-          SELECT role FROM users WHERE deleted_at IS NULL
-          UNION ALL
-          SELECT 'contractor' as role FROM contractors WHERE is_active = 1
-        ) GROUP BY role
+        SELECT
+          CASE WHEN is_contractor = 1 THEN 'contractor' ELSE role END as role,
+          COUNT(*) as count
+        FROM users WHERE deleted_at IS NULL
+        GROUP BY role
       `).all() as any[];
 
       res.render('admin/diagrams', {
@@ -90,11 +90,11 @@ export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: e
       ORDER BY count DESC
     `).all() as any[];
     const roleStats = db.prepare(`
-      SELECT role, COUNT(*) as count FROM (
-        SELECT role FROM users WHERE deleted_at IS NULL
-        UNION ALL
-        SELECT 'contractor' as role FROM contractors WHERE is_active = 1
-      ) GROUP BY role
+      SELECT
+        CASE WHEN is_contractor = 1 THEN 'contractor' ELSE role END as role,
+        COUNT(*) as count
+      FROM users WHERE deleted_at IS NULL
+      GROUP BY role
     `).all() as any[];
     res.render('admin/diagrams', {
       title: _t('titles.diagrams') + ' — Kontraktor',
@@ -115,7 +115,7 @@ export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: e
                COALESCE(p.contact_name, p.client_email, 'Unknown') as client_name,
                COALESCE(c.name, c.email, NULL) as contractor_name
         FROM projects p
-        LEFT JOIN contractors c ON p.assigned_contractor_id = c.id
+        LEFT JOIN users c ON p.assigned_contractor_id = c.id
         WHERE p.status IN ('pending', 'in_progress')
       `).all() as any[];
 
@@ -254,7 +254,7 @@ export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: e
   apiRouter.get('/network-graph', (req: Request, res: Response): void => {
     try {
       const users = db.prepare('SELECT email as id, name as label, role as "group" FROM users').all() as any[];
-      const contractors = db.prepare(`SELECT email as id, name as label, 'contractor' as "group" FROM contractors`).all() as any[];
+      const contractors = db.prepare(`SELECT email as id, name as label, 'contractor' as "group" FROM users WHERE is_contractor = 1`).all() as any[];
 
       const nodesMap = new Map();
       users.forEach(u => nodesMap.set(u.id, u));
@@ -271,14 +271,14 @@ export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: e
       const projectLinks = db.prepare(`
         SELECT p.client_email as source, c.email as target
         FROM projects p
-        JOIN contractors c ON p.assigned_contractor_id = c.id
+        JOIN users c ON p.assigned_contractor_id = c.id
         WHERE p.client_email IS NOT NULL AND c.email IS NOT NULL
       `).all() as { source: string, target: string }[];
 
       const reviewLinks = db.prepare(`
         SELECT r.author_email as source, c.email as target
         FROM reviews r
-        JOIN contractors c ON r.contractor_id = c.id
+        JOIN users c ON r.contractor_id = c.id
         WHERE r.author_email IS NOT NULL AND c.email IS NOT NULL
       `).all() as { source: string, target: string }[];
 

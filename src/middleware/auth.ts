@@ -52,7 +52,7 @@ export function requireContractorOrAdmin(req: Request, res: Response, next: Next
     res.redirect('/auth/login');
     return;
   }
-  if (req.user.role !== 'contractor' && req.user.role !== 'admin') {
+  if (!req.user.is_contractor && req.user.role !== 'admin') {
     res.status(403).render('error', { title: 'Forbidden', message: req.user.role === 'client' ? 'Only contractors can browse projects' : 'Access denied' });
     return;
   }

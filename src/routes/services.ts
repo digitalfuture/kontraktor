@@ -63,7 +63,7 @@ router.get('/', (req: Request, res: Response): void => {
       slug: cat.slug,
       icon: cat.icon,
       description: cat.description,
-      totalContractors: (db.prepare('SELECT COUNT(*) as count FROM contractor_services cs JOIN contractors ct ON ct.id = cs.contractor_id WHERE cs.category_id = ? AND ct.is_approved = 1 AND ct.is_active = 1 AND cs.is_active = 1').get(cat.id) as { count: number }).count,
+      totalContractors: (db.prepare('SELECT COUNT(*) as count FROM contractor_services cs JOIN users ct ON ct.id = cs.contractor_id WHERE cs.category_id = ? AND ct.is_approved = 1 AND ct.is_contractor = 1 AND ct.deleted_at IS NULL AND cs.is_active = 1').get(cat.id) as { count: number }).count,
       subcategories: subs.map((sub) => ({
         name: sub.name,
         slug: sub.slug,
@@ -98,8 +98,8 @@ router.get('/:slug', (req: Request, res: Response, _next: NextFunction): void =>
 
   const contractors = db.prepare(`
     SELECT c.id, c.name, c.avatar_url, c.specialty, (SELECT name FROM categories WHERE slug = c.specialty) as specialty_name, c.rating, c.reviews_count, c.completed_projects
-    FROM contractors c
-    WHERE c.is_approved = 1 AND c.is_active = 1
+    FROM users c
+    WHERE c.is_approved = 1 AND c.is_contractor = 1 AND c.deleted_at IS NULL
       AND EXISTS (SELECT 1 FROM contractor_services cs WHERE cs.contractor_id = c.id AND cs.category_id = ? AND cs.is_active = 1)
     ORDER BY c.rating DESC, c.reviews_count DESC
     LIMIT 10
@@ -118,8 +118,8 @@ router.get('/:slug', (req: Request, res: Response, _next: NextFunction): void =>
     slug: category.slug,
     icon: serviceIcons[category.slug] || defaultServiceIcon,
     description: category.description,
-    totalContractors: (db.prepare('SELECT COUNT(*) as count FROM contractor_services cs JOIN contractors ct ON ct.id = cs.contractor_id WHERE cs.category_id = ? AND ct.is_approved = 1 AND ct.is_active = 1 AND cs.is_active = 1').get(category.id) as { count: number }).count,
-    hasVerifiedContractors: (db.prepare("SELECT COUNT(*) as count FROM contractor_services cs JOIN contractors ct ON ct.id = cs.contractor_id WHERE cs.category_id = ? AND ct.is_approved = 1 AND ct.is_active = 1 AND cs.is_active = 1 AND ct.reviews_count > 0").get(category.id) as { count: number }).count > 0,
+    totalContractors: (db.prepare('SELECT COUNT(*) as count FROM contractor_services cs JOIN users ct ON ct.id = cs.contractor_id WHERE cs.category_id = ? AND ct.is_approved = 1 AND ct.is_contractor = 1 AND ct.deleted_at IS NULL AND cs.is_active = 1').get(category.id) as { count: number }).count,
+    hasVerifiedContractors: (db.prepare("SELECT COUNT(*) as count FROM contractor_services cs JOIN users ct ON ct.id = cs.contractor_id WHERE cs.category_id = ? AND ct.is_approved = 1 AND ct.is_contractor = 1 AND ct.deleted_at IS NULL AND cs.is_active = 1 AND ct.reviews_count > 0").get(category.id) as { count: number }).count > 0,
     subcategories: subcategories.map((sub) => ({
       name: sub.name,
       slug: sub.slug,

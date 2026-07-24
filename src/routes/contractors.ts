@@ -27,8 +27,8 @@ pageRouter.get('/', (req: Request, res: Response): void => {
       (SELECT COUNT(*) FROM reviews WHERE contractor_id = c.id AND is_approved = 1) as review_count,
       (SELECT COALESCE(AVG(rating), 0) FROM reviews WHERE contractor_id = c.id AND is_approved = 1) as avg_rating,
       (SELECT GROUP_CONCAT(cat.slug, ',') FROM contractor_services cs JOIN categories cat ON cs.category_id = cat.id WHERE cs.contractor_id = c.id AND cs.is_active = 1) as active_services
-    FROM contractors c
-    WHERE c.is_active = 1
+    FROM users c
+    WHERE c.is_contractor = 1 AND c.deleted_at IS NULL
   `;
   const params: any[] = [];
 
@@ -43,7 +43,7 @@ pageRouter.get('/', (req: Request, res: Response): void => {
 
   // Count total for pagination
   const countResult = db.prepare(`
-    SELECT COUNT(*) as total FROM contractors c WHERE c.is_active = 1${search ? ` AND (c.name LIKE ? OR c.bio LIKE ? OR EXISTS (SELECT 1 FROM contractor_services cs JOIN categories cat ON cs.category_id = cat.id WHERE cs.contractor_id = c.id AND (cat.name LIKE ?)))` : ''}${specialty ? ` AND EXISTS (SELECT 1 FROM contractor_services cs WHERE cs.contractor_id = c.id AND cs.category_id = (SELECT id FROM categories WHERE slug = ?) AND cs.is_active = 1)` : ''}
+    SELECT COUNT(*) as total FROM users c WHERE c.is_contractor = 1 AND c.deleted_at IS NULL${search ? ` AND (c.name LIKE ? OR c.bio LIKE ? OR EXISTS (SELECT 1 FROM contractor_services cs JOIN categories cat ON cs.category_id = cat.id WHERE cs.contractor_id = c.id AND (cat.name LIKE ?)))` : ''}${specialty ? ` AND EXISTS (SELECT 1 FROM contractor_services cs WHERE cs.contractor_id = c.id AND cs.category_id = (SELECT id FROM categories WHERE slug = ?) AND cs.is_active = 1)` : ''}
   `).get(...params) as { total: number };
 
   // Sort
@@ -57,7 +57,7 @@ pageRouter.get('/', (req: Request, res: Response): void => {
   const contractors = db.prepare(sql).all(...params, limit, offset) as any[];
 
   // Get all categories for filter dropdown (used as specialties)
-  const specialties = db.prepare(`SELECT DISTINCT c.slug, c.name FROM categories c WHERE c.is_active = 1 AND EXISTS (SELECT 1 FROM contractor_services cs JOIN contractors ct ON cs.contractor_id = ct.id WHERE cs.category_id = c.id AND ct.is_active = 1) ORDER BY c.name`).all() as any[];
+  const specialties = db.prepare(`SELECT DISTINCT c.slug, c.name FROM categories c WHERE c.is_active = 1 AND EXISTS (SELECT 1 FROM contractor_services cs JOIN users ct ON cs.contractor_id = ct.id WHERE cs.category_id = c.id AND ct.is_contractor = 1 AND ct.deleted_at IS NULL) ORDER BY c.name`).all() as any[];
 
   const totalPages = Math.ceil(countResult.total / limit);
 
@@ -108,7 +108,7 @@ pageRouter.get('/dashboard', optionalAuth, (req: Request, res: Response): void =
     return;
   }
 
-  const contractor = db.prepare('SELECT * FROM contractors WHERE email = ?').get(user.email) as any;
+  const contractor = db.prepare('SELECT * FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
   if (!contractor) {
     res.redirect('/contractors/register');
     return;
@@ -173,7 +173,7 @@ pageRouter.get('/:id', (req: Request, res: Response): void => {
   const id = parseInt(req.params.id as string, 10);
   if (isNaN(id)) { res.status(404).render('error', { message: 'Not Found' }); return; }
 
-  const contractor = db.prepare('SELECT * FROM contractors WHERE id = ?').get(id) as any;
+  const contractor = db.prepare('SELECT * FROM users WHERE id = ? AND is_contractor = 1').get(id) as any;
   
   if (!contractor) {
     res.status(404).render('error', { message: 'Not Found' });
@@ -258,7 +258,7 @@ apiRouter.post('/register', optionalAuth, (req: Request, res: Response): void =>
     return;
   }
 
-  const existing = db.prepare('SELECT id FROM contractors WHERE email = ?').get(formData.email) as any;
+  const existing = db.prepare('SELECT id FROM users WHERE email = ? AND is_contractor = 1').get(formData.email) as any;
   if (existing) {
     errors.push('This email is already registered as a contractor');
     const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
@@ -274,24 +274,34 @@ apiRouter.post('/register', optionalAuth, (req: Request, res: Response): void =>
     return;
   }
 
-  const result = db.prepare(`
-    INSERT INTO contractors (email, name, phone, telegram_id, specialty, bio, is_verified, is_active)
-    VALUES (?, ?, ?, ?, ?, ?, 0, 1)
-  `).run(formData.email, formData.name, formData.phone, formData.telegram_id || null, selectedCategories[0] || '', formData.bio);
+  const currentUserId = (req as any).user?.id;
+  if (!currentUserId) {
+    errors.push('You must be logged in to register as a contractor');
+    const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
+    res.render('contractor-register', {
+      title: locale === 'id' ? 'Daftar sebagai Kontraktor' : 'Register as Contractor',
+      categories: categories.map((c: any) => ({
+        ...c,
+        display_name: c.name
+      })),
+      formData,
+      errors,
+    });
+    return;
+  }
 
-  const contractorId = result.lastInsertRowid;
+  db.prepare(`
+    UPDATE users SET is_contractor = 1, name = ?, phone = ?, telegram_id = ?, specialty = ?, bio = ?, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `).run(formData.name, formData.phone, formData.telegram_id || null, selectedCategories[0] || '', formData.bio, currentUserId);
 
   // Insert into contractor_services for each selected category
   const insertService = db.prepare('INSERT OR IGNORE INTO contractor_services (contractor_id, category_id) VALUES (?, (SELECT id FROM categories WHERE slug = ?))');
   for (const catSlug of selectedCategories) {
-    insertService.run(contractorId, catSlug);
+    insertService.run(currentUserId, catSlug);
   }
 
-  if (req.user) {
-    db.prepare("UPDATE users SET role = 'contractor' WHERE email = ?").run(req.user.email);
-  }
-
-  res.redirect(`/contractors/${result.lastInsertRowid}`);
+  res.redirect(`/contractors/${currentUserId}`);
 });
 
 // Upload avatar (single image)
@@ -302,7 +312,7 @@ apiRouter.post('/dashboard/avatar', requireAuth, upload.single('avatar'), async 
     return;
   }
 
-  const contractor = db.prepare('SELECT id, avatar_url FROM contractors WHERE email = ?').get(user.email) as any;
+  const contractor = db.prepare('SELECT id, avatar_url FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
   if (!contractor) {
     res.redirect('/contractors/dashboard?error=no_contractor');
     return;
@@ -316,7 +326,7 @@ apiRouter.post('/dashboard/avatar', requireAuth, upload.single('avatar'), async 
 
   try {
     const { filename } = await processAndSaveImage(req.file, { isAvatar: true });
-    db.prepare('UPDATE contractors SET avatar_url = ? WHERE id = ?').run(`/uploads/${filename}`, contractor.id);
+    db.prepare('UPDATE users SET avatar_url = ? WHERE id = ? AND is_contractor = 1').run(`/uploads/${filename}`, contractor.id);
     res.redirect('/contractors/dashboard?success=avatar');
   } catch (err) {
     console.error('Failed to process and save avatar:', err);
@@ -334,7 +344,7 @@ apiRouter.post('/dashboard/portfolio', requireAuth, upload.array('photos', 10), 
     return;
   }
 
-  const contractor = db.prepare('SELECT id FROM contractors WHERE email = ?').get(user.email) as any;
+  const contractor = db.prepare('SELECT id FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
   if (!contractor) {
     res.redirect('/contractors/dashboard?error=no_contractor');
     return;
@@ -376,7 +386,7 @@ apiRouter.post('/dashboard/photo/:photoId/delete', requireAuth, (req: Request, r
     return;
   }
 
-  const contractor = db.prepare('SELECT id FROM contractors WHERE email = ?').get(user.email) as any;
+  const contractor = db.prepare('SELECT id FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
   if (!contractor) {
     res.redirect('/contractors/dashboard');
     return;
@@ -398,14 +408,14 @@ apiRouter.post('/dashboard/photo/:photoId/delete', requireAuth, (req: Request, r
 apiRouter.post('/request-credits', requireAuth, (req: Request, res: Response): void => {
   const user = (req as any).user;
   
-  const contractor = db.prepare('SELECT id, credits FROM contractors WHERE email = ?').get(user.email) as any;
+  const contractor = db.prepare('SELECT id, credits FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
   if (!contractor) {
     res.redirect('/contractors/dashboard?error=not_contractor');
     return;
   }
   
   // Grant 5 free credits per request
-  db.prepare('UPDATE contractors SET credits = credits + 5 WHERE id = ?').run(contractor.id);
+  db.prepare('UPDATE users SET credits = credits + 5 WHERE id = ? AND is_contractor = 1').run(contractor.id);
   
   res.redirect('/contractors/dashboard?success=credits_granted');
 });
@@ -414,13 +424,13 @@ apiRouter.post('/request-credits', requireAuth, (req: Request, res: Response): v
 apiRouter.post('/dashboard/toggle-active', requireAuth, (req: Request, res: Response): void => {
   const user = (req as any).user;
 
-  const contractor = db.prepare('SELECT id, is_active FROM contractors WHERE email = ?').get(user.email) as any;
+  const contractor = db.prepare('SELECT id, is_active FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
   if (!contractor) {
     res.redirect('/contractors/dashboard?error=not_contractor');
     return;
   }
 
-  db.prepare('UPDATE contractors SET is_active = NOT is_active WHERE id = ?').run(contractor.id);
+  db.prepare('UPDATE users SET is_active = NOT is_active WHERE id = ? AND is_contractor = 1').run(contractor.id);
   res.redirect('/contractors/dashboard');
 });
 
@@ -429,7 +439,7 @@ apiRouter.post('/dashboard/services/:serviceId/toggle', requireAuth, (req: Reque
   const user = (req as any).user;
   const serviceId = parseInt(req.params.serviceId as string, 10);
 
-  const contractor = db.prepare('SELECT id FROM contractors WHERE email = ?').get(user.email) as any;
+  const contractor = db.prepare('SELECT id FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
   if (!contractor) {
     res.redirect('/contractors/dashboard?error=not_contractor');
     return;

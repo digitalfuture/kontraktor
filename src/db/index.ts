@@ -18,6 +18,20 @@ db.exec(`CREATE TABLE IF NOT EXISTS users (
   role TEXT NOT NULL DEFAULT 'client' CHECK(role IN ('admin', 'contractor', 'client')),
   telegram_id TEXT,
   is_verified INTEGER DEFAULT 0,
+  is_active INTEGER DEFAULT 1,
+  bio TEXT,
+  avatar_url TEXT,
+  category_id INTEGER,
+  specialty TEXT,
+  rating REAL DEFAULT 0,
+  reviews_count INTEGER DEFAULT 0,
+  completed_projects INTEGER DEFAULT 0,
+  is_approved INTEGER DEFAULT 0,
+  credits INTEGER DEFAULT 3,
+  is_contractor INTEGER DEFAULT 0,
+  notifications_enabled INTEGER DEFAULT 1,
+  notification_categories TEXT,
+  max_projects INTEGER DEFAULT 99,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   deleted_at DATETIME
@@ -658,7 +672,7 @@ function seedMockData(): void {
     { email: 'rina.desain@gmail.com', name: 'Rina Wulandari', rating: 4.7, reviews_count: 89, completed_projects: 67, is_verified: 1, is_active: 1 },
   ];
 
-  const insertContractor = db.prepare('INSERT INTO contractors (email, name, rating, reviews_count, completed_projects, is_verified, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)');
+  const insertContractor = db.prepare('INSERT INTO users (email, name, rating, reviews_count, completed_projects, is_verified, is_active, is_contractor, role) VALUES (?, ?, ?, ?, ?, ?, ?, 1, \'client\')');
   for (const c of contractors) insertContractor.run(c.email, c.name, c.rating, c.reviews_count, c.completed_projects, c.is_verified, c.is_active);
 
   const reviews = [

@@ -95,12 +95,12 @@ apiRouter.post('/create-invoice', requireAuth, async (req: Request, res: Respons
   const locale = (res.locals.locale as string) || 'en';
   const { package_id } = req.body;
 
-  if (user.role !== 'contractor' && user.role !== 'admin') {
+  if (!user.is_contractor && user.role !== 'admin') {
     res.redirect('/account/profile');
     return;
   }
 
-  const contractor = db.prepare('SELECT id FROM contractors WHERE email = ?').get(user.email) as any;
+  const contractor = db.prepare('SELECT id FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
   if (!contractor) {
     res.redirect('/contractors/dashboard?error=not_contractor');
     return;
@@ -134,7 +134,7 @@ apiRouter.post('/create-invoice', requireAuth, async (req: Request, res: Respons
 
     // If sandbox simulated (no api key), auto-credit the account in dev for convenience
     if (!XENDIT_API_KEY) {
-      db.prepare("UPDATE contractors SET credits = credits + ? WHERE id = ?").run(pkg.credits, contractor.id);
+      db.prepare("UPDATE users SET credits = credits + ? WHERE id = ?").run(pkg.credits, contractor.id);
       db.prepare("UPDATE payments SET status = 'completed', payment_method = 'SIMULATOR', updated_at = CURRENT_TIMESTAMP WHERE external_id = ?").run(externalId);
     }
 
@@ -185,8 +185,8 @@ apiRouter.post('/webhook', (req: Request, res: Response): void => {
 
         // Add credits to contractor
         db.prepare(`
-          UPDATE contractors 
-          SET credits = credits + ? 
+          UPDATE users
+          SET credits = credits + ?
           WHERE id = ?
         `).run(payment.credits, payment.contractor_id);
       })();
@@ -194,7 +194,7 @@ apiRouter.post('/webhook', (req: Request, res: Response): void => {
       console.log(`[Payments] Successfully completed payment ${external_id}. Added ${payment.credits} credits to contractor ID ${payment.contractor_id}`);
 
       // Send Telegram alert to admin
-      const contractor = db.prepare('SELECT name FROM contractors WHERE id = ?').get(payment.contractor_id) as any;
+      const contractor = db.prepare('SELECT name FROM users WHERE id = ?').get(payment.contractor_id) as any;
       const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
       if (adminChatId) {
         sendPaymentSuccessNotification(

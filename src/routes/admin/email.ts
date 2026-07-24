@@ -338,7 +338,7 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
       recipients = contacts.map(c => ({ email: c.email, name: c.name || undefined, company: c.company || undefined }));
     } else {
       if (campaign.recipient_filter === 'all' || campaign.recipient_filter === 'all_contractors') {
-        const contractors = db.prepare('SELECT email, name FROM contractors WHERE is_active = 1').all() as EmailNameRow[];
+        const contractors = db.prepare('SELECT email, name FROM users WHERE is_contractor = 1 AND deleted_at IS NULL').all() as EmailNameRow[];
         recipients.push(...contractors.map(c => ({ email: c.email, name: c.name ?? undefined })));
       }
       if (campaign.recipient_filter === 'all' || campaign.recipient_filter === 'clients') {
@@ -346,7 +346,7 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
         recipients.push(...clients.map(c => ({ email: c.email, name: c.name ?? undefined })));
       }
       if (campaign.recipient_filter === 'all') {
-        const contractors2 = db.prepare('SELECT email, name FROM contractors WHERE is_active = 1').all() as EmailNameRow[];
+        const contractors2 = db.prepare('SELECT email, name FROM users WHERE is_contractor = 1 AND deleted_at IS NULL').all() as EmailNameRow[];
         recipients.push(...contractors2.map(c => ({ email: c.email, name: c.name ?? undefined })));
       }
 

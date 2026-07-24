@@ -44,8 +44,8 @@ router.get('/', requireAuth, (req: Request, res: Response): void => {
   }
 
   // Check if user is also registered as contractor
-  const contractor = db.prepare('SELECT id, credits FROM contractors WHERE email = ?').get(user.email) as any;
-  const isContractor = !!contractor;
+  const isContractor = user.is_contractor === 1;
+  const contractor = isContractor ? user : null;
 
   // Projects as client (created by user)
   const clientProjects = db.prepare(`
@@ -55,7 +55,7 @@ router.get('/', requireAuth, (req: Request, res: Response): void => {
     FROM projects p
     LEFT JOIN categories c ON p.category = c.slug
     LEFT JOIN subcategories s ON p.subcategory = s.slug
-    LEFT JOIN contractors con ON p.assigned_contractor_id = con.id
+    LEFT JOIN users con ON p.assigned_contractor_id = con.id
     WHERE p.client_email = ?
     ORDER BY p.created_at DESC
   `).all(user.email) as any[];

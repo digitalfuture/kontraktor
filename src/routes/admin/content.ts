@@ -17,7 +17,7 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
     const locale = (res.locals.locale as string) || 'en';
     const _t = makeT(res);
     const totalProjects: { count: number } = db.prepare('SELECT COUNT(*) as count FROM projects').get() as { count: number };
-    const totalContractors: { count: number } = db.prepare('SELECT COUNT(*) as count FROM contractors').get() as { count: number };
+    const totalContractors: { count: number } = db.prepare('SELECT COUNT(*) as count FROM users WHERE is_contractor = 1 AND deleted_at IS NULL').get() as { count: number };
     const totalUsers: { count: number } = db.prepare('SELECT COUNT(*) as count FROM users WHERE deleted_at IS NULL').get() as { count: number };
     const totalClients: { count: number } = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'client' AND deleted_at IS NULL").get() as { count: number };
     const totalReviews: { count: number } = db.prepare('SELECT COUNT(*) as count FROM reviews WHERE deleted_at IS NULL').get() as { count: number };
@@ -50,11 +50,11 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
     `).all() as any[];
 
     const roleStats = db.prepare(`
-      SELECT role, COUNT(*) as count FROM (
-        SELECT role FROM users WHERE deleted_at IS NULL
-        UNION ALL
-        SELECT 'contractor' as role FROM contractors WHERE is_active = 1
-      ) GROUP BY role
+      SELECT
+        CASE WHEN is_contractor = 1 THEN 'contractor' ELSE role END as role,
+        COUNT(*) as count
+      FROM users WHERE deleted_at IS NULL
+      GROUP BY role
     `).all() as any[];
 
     res.render('admin/dashboard', {
@@ -97,7 +97,7 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
       LIMIT ? OFFSET ?
     `).all(PAGE_SIZE, offset);
 
-    const contractors = db.prepare('SELECT id, name, email FROM contractors WHERE is_active = 1 ORDER BY name').all();
+    const contractors = db.prepare('SELECT id, name, email FROM users WHERE is_contractor = 1 AND deleted_at IS NULL ORDER BY name').all();
 
     res.render('admin/orders', {
       title: (locale === 'id' ? 'Proyek — Admin' : 'Projects — Admin') + ' — Kontraktor',
@@ -114,12 +114,13 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
 
   pageRouter.get('/contractors', (req: Request, res: Response): void => {
     const locale = (res.locals.locale as string) || 'en';
-    const total: { count: number } = db.prepare('SELECT COUNT(*) as count FROM contractors').get() as { count: number };
+    const total: { count: number } = db.prepare('SELECT COUNT(*) as count FROM users WHERE is_contractor = 1 AND deleted_at IS NULL').get() as { count: number };
     const { page, totalPages, offset } = getPagination(req, total.count);
 
     const contractors = db.prepare(`
       SELECT id, email, name, phone, rating, reviews_count, completed_projects, is_verified, is_active, created_at
-      FROM contractors
+      FROM users
+      WHERE is_contractor = 1 AND deleted_at IS NULL
       ORDER BY rating DESC
       LIMIT ? OFFSET ?
     `).all(PAGE_SIZE, offset) as any[];
@@ -173,7 +174,7 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
     const reviews = db.prepare(`
       SELECT r.*, c.name as contractor_name, c.email as contractor_email
       FROM reviews r
-      LEFT JOIN contractors c ON r.contractor_id = c.id
+      LEFT JOIN users c ON r.contractor_id = c.id
       WHERE r.deleted_at IS NULL
       ORDER BY r.created_at DESC
       LIMIT ? OFFSET ?
@@ -197,7 +198,7 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
     const deletedCategories = db.prepare('SELECT * FROM categories WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC LIMIT 50').all() as any[];
     const deletedReviews = db.prepare(`
       SELECT r.*, c.name as contractor_name FROM reviews r
-      LEFT JOIN contractors c ON r.contractor_id = c.id
+      LEFT JOIN users c ON r.contractor_id = c.id
       WHERE r.deleted_at IS NOT NULL ORDER BY r.deleted_at DESC LIMIT 50
     `).all();
     const deletedTemplates = db.prepare('SELECT id, name, subject, deleted_at FROM email_templates WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC LIMIT 50').all();
@@ -228,7 +229,7 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
     const search = (req.query.search as string) || '';
 
     let countSql = "SELECT COUNT(*) as count FROM users WHERE deleted_at IS NULL";
-    let sql = "SELECT u.*, COALESCE(c.rating, 0) as contractor_rating, COALESCE(c.reviews_count, 0) as contractor_reviews, COALESCE(c.completed_projects, 0) as contractor_projects FROM users u LEFT JOIN contractors c ON u.email = c.email WHERE u.deleted_at IS NULL";
+    let sql = "SELECT u.*, COALESCE(u.rating, 0) as contractor_rating, COALESCE(u.reviews_count, 0) as contractor_reviews, COALESCE(u.completed_projects, 0) as contractor_projects FROM users u WHERE u.deleted_at IS NULL";
     const params: any[] = [];
     const countParams: any[] = [];
 
@@ -405,13 +406,13 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
 
   apiRouter.post('/contractors/:id/toggle-verified', (req: Request, res: Response): void => {
     const id = parseInt(req.params.id as string, 10);
-    db.prepare('UPDATE contractors SET is_verified = NOT is_verified WHERE id = ?').run(id);
+    db.prepare('UPDATE users SET is_verified = NOT is_verified WHERE id = ?').run(id);
     res.redirect('/admin/contractors');
   });
 
   apiRouter.post('/contractors/:id/toggle-active', (req: Request, res: Response): void => {
     const id = parseInt(req.params.id as string, 10);
-    db.prepare('UPDATE contractors SET is_active = NOT is_active WHERE id = ?').run(id);
+    db.prepare('UPDATE users SET is_active = NOT is_active WHERE id = ?').run(id);
     res.redirect('/admin/contractors');
   });
 
@@ -432,7 +433,7 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
       res.redirect('/admin/contractors?error=invalid_credits');
       return;
     }
-    db.prepare('UPDATE contractors SET credits = credits + ? WHERE id = ?').run(amount, contractorId);
+    db.prepare('UPDATE users SET credits = credits + ? WHERE id = ?').run(amount, contractorId);
     res.redirect('/admin/contractors?success=credits_added');
   });
 
@@ -442,19 +443,12 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
     const id = parseInt(req.params.id as string, 10);
     const { role } = req.body;
     if (role === 'admin' || role === 'client' || role === 'contractor') {
-      const user = db.prepare('SELECT email, role, name FROM users WHERE id = ?').get(id) as any;
+      const user = db.prepare('SELECT email, role, name, is_contractor FROM users WHERE id = ?').get(id) as any;
       if (user && user.role !== role) {
         db.transaction(() => {
-          if (user.role === 'contractor') {
-            db.prepare('DELETE FROM contractors WHERE email = ?').run(user.email);
-          }
-          if (role === 'contractor') {
-            const exists = db.prepare('SELECT 1 FROM contractors WHERE email = ?').get(user.email);
-            if (!exists) {
-              db.prepare('INSERT INTO contractors (email, name, credits) VALUES (?, ?, 3)').run(user.email, user.name || 'Contractor');
-            }
-          }
-          db.prepare('UPDATE users SET role = ? WHERE id = ?').run(role, id);
+          const isCurrentlyContractor = user.role === 'contractor' || user.is_contractor;
+          const willBeContractor = role === 'contractor';
+          db.prepare('UPDATE users SET role = ?, is_contractor = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(role, willBeContractor ? 1 : 0, id);
         })();
       }
     }
@@ -501,7 +495,6 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
     const user = db.prepare('SELECT email FROM users WHERE id = ?').get(id) as any;
     if (user) {
       db.transaction(() => {
-        db.prepare('DELETE FROM contractors WHERE email = ?').run(user.email);
         db.prepare('DELETE FROM sessions WHERE user_id = ?').run(id);
         db.prepare('DELETE FROM magic_links WHERE email = ?').run(user.email);
         db.prepare('DELETE FROM users WHERE id = ?').run(id);

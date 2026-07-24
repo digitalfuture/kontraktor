@@ -106,7 +106,7 @@ pageRouter.get('/:id', optionalAuth, (req: Request, res: Response): void => {
     FROM projects p
     LEFT JOIN categories c ON p.category = c.slug
     LEFT JOIN subcategories s ON p.subcategory = s.slug
-    LEFT JOIN contractors con ON p.assigned_contractor_id = con.id
+    LEFT JOIN users con ON p.assigned_contractor_id = con.id
     WHERE p.id = ?
   `).get(id) as any;
 
@@ -123,7 +123,7 @@ pageRouter.get('/:id', optionalAuth, (req: Request, res: Response): void => {
     SELECT b.*, c.name as contractor_name, c.rating as contractor_rating,
       c.reviews_count, c.specialty, (SELECT name FROM categories WHERE slug = c.specialty) as specialty_name, c.is_verified, c.completed_projects
     FROM bids b
-    JOIN contractors c ON b.contractor_id = c.id
+    JOIN users c ON b.contractor_id = c.id
     WHERE b.project_id = ?
     ORDER BY b.created_at ASC
   `).all(id) as any[];
@@ -149,7 +149,7 @@ pageRouter.get('/:id', optionalAuth, (req: Request, res: Response): void => {
   let userCredits = 0;
   let paidMode = false;
   if ((req as any).user) {
-    const contractor = db.prepare('SELECT id, credits FROM contractors WHERE email = ?').get((req as any).user.email) as any;
+    const contractor = db.prepare('SELECT id, credits FROM users WHERE id = ? AND is_contractor = 1').get((req as any).user.id) as any;
     if (contractor) {
       isContractor = true;
       userCredits = contractor.credits || 0;
@@ -331,7 +331,7 @@ apiRouter.get('/:id/bids-partial', optionalAuth, (req: Request, res: Response): 
     SELECT b.*, c.name as contractor_name, c.rating as contractor_rating,
       c.reviews_count, c.specialty, (SELECT name FROM categories WHERE slug = c.specialty) as specialty_name, c.is_verified, c.completed_projects
     FROM bids b
-    JOIN contractors c ON b.contractor_id = c.id
+    JOIN users c ON b.contractor_id = c.id
     WHERE b.project_id = ?
     ORDER BY b.created_at ASC
   `).all(id) as any[];
@@ -466,7 +466,7 @@ apiRouter.post('/:projectId/bid', optionalAuth, (req: Request, res: Response): v
   }
 
   // Must be registered as contractor
-  const contractor = db.prepare('SELECT id, is_active FROM contractors WHERE email = ?').get(user.email) as any;
+  const contractor = db.prepare('SELECT id, is_active FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
   if (!contractor) {
     res.redirect('/contractors/register');
     return;
@@ -520,12 +520,12 @@ apiRouter.post('/:projectId/bid', optionalAuth, (req: Request, res: Response): v
   const isPaid = paidModeRow?.value === 'true';
 
   if (isPaid) {
-    const creditRow = db.prepare('SELECT credits FROM contractors WHERE id = ?').get(contractor.id) as any;
+    const creditRow = db.prepare('SELECT credits FROM users WHERE id = ? AND is_contractor = 1').get(contractor.id) as any;
     if (!creditRow || (creditRow.credits || 0) < 1) {
       res.redirect(`/post/${projectId}?error=${encodeURIComponent(locale === 'id' ? 'Kredit tidak mencukupi. Beli kredit untuk menawar.' : 'Insufficient credits. Buy credits to bid.')}`);
       return;
     }
-    db.prepare('UPDATE contractors SET credits = credits - 1 WHERE id = ?').run(contractor.id);
+    db.prepare('UPDATE users SET credits = credits - 1 WHERE id = ?').run(contractor.id);
   }
 
   db.prepare(`
@@ -589,14 +589,14 @@ apiRouter.post('/:projectId/bids/:bidId/accept', optionalAuth, (req: Request, re
   const adminChatId2 = process.env.TELEGRAM_ADMIN_CHAT_ID;
   if (adminChatId2) {
     const proj = db.prepare('SELECT title FROM projects WHERE id = ?').get(projectId) as any;
-    const cont = db.prepare('SELECT name FROM contractors WHERE id = ?').get(bid.contractor_id) as any;
+    const cont = db.prepare('SELECT name FROM users WHERE id = ? AND is_contractor = 1').get(bid.contractor_id) as any;
     sendBidAcceptedNotification(adminChatId2, proj.title, cont.name).catch(() => {});
   }
 
   // Notify contractor via email (async)
   if (isEmailConfigured()) {
     const proj = db.prepare('SELECT title, client_email FROM projects WHERE id = ?').get(projectId) as any;
-    const cont = db.prepare('SELECT email, name FROM contractors WHERE id = ?').get(bid.contractor_id) as any;
+    const cont = db.prepare('SELECT email, name FROM users WHERE id = ? AND is_contractor = 1').get(bid.contractor_id) as any;
     if (cont && cont.email) {
       sendBidAcceptedEmail(cont.email, proj.title, proj.client_email || 'Client', projectId).catch(() => {});
     }
@@ -662,7 +662,7 @@ apiRouter.post('/:projectId/status', optionalAuth, (req: Request, res: Response)
   if (isEmailConfigured() && status === 'completed') {
     const proj = db.prepare(`
       SELECT p.title, p.assigned_contractor_id, p.client_email, c.name as contractor_name, c.email as contractor_email
-      FROM projects p LEFT JOIN contractors c ON p.assigned_contractor_id = c.id
+      FROM projects p LEFT JOIN users c ON p.assigned_contractor_id = c.id
       WHERE p.id = ?
     `).get(projectId) as any;
     if (proj && proj.contractor_email) {
@@ -722,12 +722,12 @@ apiRouter.post('/:projectId/review', optionalAuth, (req: Request, res: Response)
   
 
   db.prepare(`
-    UPDATE contractors SET rating = ?, reviews_count = ? WHERE id = ?
+    UPDATE users SET rating = ?, reviews_count = ? WHERE id = ?
   `).run(stats.avg_rating, stats.total, contractor_id);
 
   // Auto-verify on first positive review (rating >= 4)
   if (parseInt(rating) >= 4) {
-    db.prepare('UPDATE contractors SET is_verified = 1 WHERE id = ? AND is_verified = 0')
+    db.prepare('UPDATE users SET is_verified = 1 WHERE id = ? AND is_verified = 0')
       .run(contractor_id);
   }
 
