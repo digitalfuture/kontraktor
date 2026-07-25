@@ -33,7 +33,7 @@
                 <% reviews.forEach(function(r) { %>
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition expand-trigger cursor-pointer" data-row-id="r<%= r.id %>">
                   <td class="px-2 sm:px-3 py-4 text-gray-400 dark:text-gray-500">
-                    <svg class="w-4 h-4 expand-icon transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    <span class="mat-icon text-base ">chevron_right</span>
                   </td>
                   <td class="px-2 sm:px-3 py-4 text-sm text-gray-500 dark:text-gray-300">#<%= r.id %></td>
                   <td class="px-2 sm:px-3 py-4 text-sm text-gray-600 dark:text-gray-300 max-w-[150px] truncate"><%= r.author_email %></td>

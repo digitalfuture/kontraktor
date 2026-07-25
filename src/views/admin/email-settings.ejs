@@ -88,30 +88,7 @@
         <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5"><%= t('email.templateEditorHint') %></p>
       </div>
       <button type="button" onclick="closeTemplateEditor()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
-    </div>
-    <!-- Body -->
-    <div class="flex-1 overflow-y-auto p-5 space-y-4">
-      <input type="hidden" id="edit-key" value="">
-      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= t('email.subject') %></label>
-        <input type="text" id="edit-subject" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= t('email.bodyHtml') %></label>
-        <!-- Toolbar -->
-        <div class="flex flex-wrap items-center gap-1 mb-2 p-1.5 bg-gray-50 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-700 rounded-lg">
-          <!-- Bold -->
-          <button type="button" onclick="wrapSelection('edit-body', '<b>', '</b>')" class="px-2 py-1 text-xs font-bold bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 cursor-pointer transition" title="Bold">B</button>
-          <!-- Italic -->
-          <button type="button" onclick="wrapSelection('edit-body', '<i>', '</i>')" class="px-2 py-1 text-xs italic bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 cursor-pointer transition" title="Italic">I</button>
-          <span class="w-px h-5 bg-gray-300 dark:bg-gray-600 mx-1"></span>
-          <!-- Insert Link -->
-          <button type="button" onclick="insertLink()" class="px-2 py-1 text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-50 dark:hover:bg-gray-600 cursor-pointer transition" title="Insert Link">
-            <svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+        <span class="mat-icon text-xl text-sm text-gray-700 dark:text-gray-300 text-sm text-sm text-gray-700 dark:text-gray-300 text-xs text-xs text-xs">link</span>
             Link
           </button>
           <span class="w-px h-5 bg-gray-300 dark:border-gray-600 mx-1"></span>

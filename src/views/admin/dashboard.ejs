@@ -118,8 +118,8 @@
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"><%= t('admin.sankeyDesc') %></p>
               </div>
               <button onclick="toggleExpand('sankey-card')" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer expand-btn" title="Expand">
-                <svg class="w-4 h-4 expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
-                <svg class="w-4 h-4 collapse-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25"/></svg>
+                <span class="mat-icon text-base expand-icon text-gray-400">fullscreen</span>
+                <span class="mat-icon text-base collapse-icon hidden text-gray-400">fullscreen_exit</span>
               </button>
             </div>
             <div class="relative w-full h-[280px] sm:h-[400px] bg-slate-50 dark:bg-slate-900/50">
@@ -138,8 +138,8 @@
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"><%= t('admin.mapDesc') || 'Projects across Indonesia' %></p>
               </div>
               <button onclick="toggleExpand('map-card')" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer expand-btn" title="Expand">
-                <svg class="w-4 h-4 expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
-                <svg class="w-4 h-4 collapse-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25"/></svg>
+                <span class="mat-icon text-base expand-icon text-gray-400">fullscreen</span>
+                <span class="mat-icon text-base collapse-icon hidden text-gray-400">fullscreen_exit</span>
               </button>
             </div>
             <div class="relative w-full h-[280px] sm:h-[400px] bg-slate-50 dark:bg-slate-900/50">
@@ -176,7 +176,7 @@
                 <% recentProjects.forEach(function(order) { %>
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition expand-trigger" data-row-id="do<%= order.id %>">
                   <td class="px-4 sm:px-6 py-4 text-gray-400 dark:text-gray-500">
-                    <svg class="w-4 h-4 expand-icon transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    <span class="mat-icon text-base expand-icon transition-transform text-gray-400">chevron_right</span>
                   </td>
                   <td class="px-2 sm:px-3 lg:px-6 py-4 text-sm text-gray-500 dark:text-gray-300">#<%= order.id %></td>
                   <td class="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900 dark:text-white max-w-[200px] truncate"><%= order.title %></td>
@@ -252,7 +252,7 @@
                 <% recentUsers.forEach(function(u) { %>
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition expand-trigger" data-row-id="du<%= u.id %>">
                   <td class="px-4 sm:px-6 py-4 text-gray-400 dark:text-gray-500">
-                    <svg class="w-4 h-4 expand-icon transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    <span class="mat-icon text-base expand-icon transition-transform text-gray-400">chevron_right</span>
                   </td>
                   <td class="px-2 sm:px-3 lg:px-6 py-4 text-sm text-gray-500 dark:text-gray-300">#<%= u.id %></td>
                   <td class="px-4 sm:px-6 py-4 text-sm text-gray-900 dark:text-white max-w-[200px] truncate"><%= u.email %></td>

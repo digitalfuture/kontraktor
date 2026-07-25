@@ -5,9 +5,7 @@
     <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white leading-none flex items-center gap-2">
       <span id="list-name-<%= list.id %>"><%= list.name %></span>
       <button type="button" class="text-gray-400 hover:text-orange-600 dark:text-gray-500 dark:hover:text-orange-400 p-1 rounded transition" hx-get="/api/admin/email/lists/<%= list.id %>/edit-name" hx-target="#list-name-<%= list.id %>" hx-swap="outerHTML" title="<%= typeof t !== 'undefined' ? t('email.edit') : 'Edit' %>">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-        </svg>
+        <span class="mat-icon text-base">edit</span>
       </button>
     </h1>
     <p class="text-gray-500 dark:text-gray-300 mt-2 text-sm sm:text-base leading-none"><%= list.description || (typeof t !== 'undefined' ? t('email.listDetails') : 'Mailing list') %> &middot; <%= contacts.length %> <%= typeof t !== 'undefined' ? t('email.contacts') : 'contact(s)' %></p>
@@ -216,9 +214,7 @@
             <form hx-post="/api/admin/email/lists/<%= list.id %>/contacts/<%= c.id %>/delete" hx-target="closest tr" hx-swap="outerHTML swap:300ms" style="display:inline" data-confirm="<%= typeof t !== 'undefined' ? t('email.deleteContact') : 'Remove this contact?' %>">
               <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
               <button class="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                </svg>
+                <span class="mat-icon text-base">delete</span>
               </button>
             </form>
             <% } %>

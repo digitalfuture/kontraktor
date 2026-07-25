@@ -25,23 +25,11 @@
 <%- include('../partials/csrf-field') %>
   <!-- Compact -->
   <button type="submit" class="hidden min-[1600px]:inline-flex text-xs px-2 py-1 rounded border transition cursor-pointer <%= c.is_active ? 'bg-gray-50 hover:bg-red-50 dark:bg-gray-800 dark:hover:bg-red-950/30 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 border-gray-200 dark:border-gray-700 hover:border-red-200 dark:hover:border-red-900/50' : 'bg-gray-50 hover:bg-green-50 dark:bg-gray-800 dark:hover:bg-green-950/30 text-red-500 hover:text-green-600 dark:text-red-400 dark:hover:text-green-400 border-gray-200 dark:border-gray-700 hover:border-green-200 dark:hover:border-green-900/50' %>" title="<%= c.is_active ? t('admin.block') : t('admin.activate') %>">
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <% if (c.is_active) { %>
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6"/>
-      <% } else { %>
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-      <% } %>
-    </svg>
+    <span class="mat-icon text-base"><%= c.is_active ? 'pause' : 'play_arrow' %></span>
   </button>
   <!-- Full -->
   <button type="submit" class="min-[1600px]:hidden text-xs px-2.5 py-1.5 rounded-lg border bg-white dark:bg-gray-800 transition cursor-pointer <%= c.is_active ? 'text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-600' : 'text-red-500 dark:text-red-400 border-red-300 dark:border-red-800' %>" title="<%= c.is_active ? t('admin.block') : t('admin.activate') %>">
-    <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <% if (c.is_active) { %>
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6"/>
-      <% } else { %>
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-      <% } %>
-    </svg>
+    <span class="mat-icon text-base"><%= c.is_active ? 'pause' : 'play_arrow' %></span>
     <%= c.is_active ? t('admin.block') : t('admin.activate') %>
   </button>
 </form>

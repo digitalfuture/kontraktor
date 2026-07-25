@@ -12,31 +12,7 @@ tr.htmx-swapping {
   <div class="relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg border border-white/30 dark:border-white/10 rounded-2xl shadow-2xl shadow-black/20 max-w-sm w-full p-6 transform transition-all duration-200 scale-95 opacity-0" id="confirm-modal-content">
     <!-- Icon -->
     <div class="mx-auto w-12 h-12 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center mb-4">
-      <svg class="w-6 h-6 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-      </svg>
-    </div>
-    <!-- Message -->
-    <p id="confirm-modal-msg" class="text-center text-gray-800 dark:text-gray-200 text-sm leading-relaxed mb-6"></p>
-    <!-- Buttons -->
-    <div class="flex gap-3 justify-center">
-      <button id="confirm-modal-cancel" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors cursor-pointer"><%= typeof t !== 'undefined' ? t('admin.cancel') : 'Cancel' %></button>
-      <button id="confirm-modal-ok" class="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors cursor-pointer"><%= typeof t !== 'undefined' ? t('admin.delete') : 'Delete' %></button>
-    </div>
-  </div>
-</div>
-
-<!-- Toast notification (auto-hide) -->
-<div id="notification-toast" class="fixed top-4 right-4 z-50 hidden">
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg shadow-black/10 border border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center gap-3 max-w-sm transform transition-all duration-300 translate-x-full opacity-0" id="notification-toast-content">
-    <div id="notification-icon" class="flex-shrink-0">
-      <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-      </svg>
-    </div>
-    <p id="notification-text" class="text-sm text-gray-800 dark:text-gray-200 flex-1"></p>
-    <button onclick="document.getElementById('notification-toast').classList.add('hidden')" class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      <span class="mat-icon text-2xl text-red-500 dark:text-red-400 text-center text-gray-800 dark:text-gray-200 text-sm text-sm text-gray-700 dark:text-gray-300 text-sm text-white text-green-500 text-sm text-gray-800 dark:text-gray-200 text-gray-400">close</span>
     </button>
   </div>
 </div>

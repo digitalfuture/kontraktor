@@ -19,48 +19,7 @@
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
     <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
       <div class="flex items-center gap-2 text-sm text-gray-400 mb-1">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-        Litestream
-      </div>
-      <div class="text-lg font-semibold">
-        <span class="status-dot <%= litestream.running ? 'status-green' : 'status-red' %>"></span>
-        <%= litestream.running ? 'Running' : 'Stopped' %>
-      </div>
-      <div class="text-xs text-gray-500 mt-1">
-        Archive: <%= litestream.archiveSize || '—' %>
-      </div>
-    </div>
-
-    <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
-      <div class="flex items-center gap-2 text-sm text-gray-400 mb-1">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-        Maintenance
-      </div>
-      <div class="text-lg font-semibold">
-        <span class="status-dot <%= maintenance ? 'status-yellow' : 'status-green' %>"></span>
-        <%= maintenance ? 'Active' : 'Off' %>
-      </div>
-      <div class="text-xs text-gray-500 mt-1">
-        <%= maintenance ? 'Site is in maintenance mode' : 'Site is live' %>
-      </div>
-    </div>
-
-    <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
-      <div class="flex items-center gap-2 text-sm text-gray-400 mb-1">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-        Restore Points
-      </div>
-      <div class="text-lg font-semibold"><%= points.length %> available</div>
-      <div class="text-xs text-gray-500 mt-1">
-        Archive: <%= points.filter(p => p.type === 'archive').length %> files
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Pending restore alert ── -->
-  <% if (pendingRequest) { %>
-  <div class="bg-yellow-900/30 border border-yellow-700/50 rounded-lg p-4 mb-6 flex items-start gap-3">
-    <svg class="w-5 h-5 text-yellow-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+        <span class="mat-icon text-base text-lg text-xs text-gray-500 text-sm text-gray-400 text-lg text-xs text-gray-500 text-sm text-gray-400 text-lg text-xs text-gray-500 text-yellow-400">warning</span>
     <div class="flex-1">
       <p class="font-semibold text-yellow-300">⚠️ Restore in progress</p>
       <p class="text-sm text-yellow-200/70 mt-1"><%= statusMessage %></p>

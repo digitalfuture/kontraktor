@@ -24,8 +24,7 @@
             </div>
             <div class="flex items-center gap-2">
               <button onclick="toggleExpand('sitemap-card')" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer expand-btn" title="Expand">
-                <svg class="w-4 h-4 expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
-                <svg class="w-4 h-4 collapse-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25"/></svg>
+                <span class="mat-icon text-base ">fullscreen_exit</span>
               </button>
           </div>
         </div>
@@ -33,54 +32,14 @@
             <div id="sitemap-container">
               <div class="flex items-center justify-center w-full min-h-[200px] text-gray-400">
                 <div class="text-center">
-                  <svg class="w-10 h-10 mx-auto mb-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                  <p><%= typeof t !== 'undefined' ? t('common.loading') : 'Loading...' %></p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <p class="text-xs text-gray-400 mt-2"><%= typeof t !== 'undefined' ? t('admin.sitemapAutoNote') : 'Auto-generated from routes. Run npm run generate-sitemap to update.' %></p>
-      </div>
-
-      <!-- Tab: Codebase Tree -->
-      <div id="panel-codebase" class="hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden mb-4 chart-card" id="codebase-card">
-          <div class="p-4 sm:p-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-wrap gap-3">
-            <div>
-              <h3 class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">📁 Codebase Structure</h3>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Auto-generated from src/. Run npm run build to update.</p>
-            </div>
-            <div class="flex items-center gap-2">
-              <button onclick="toggleExpand('codebase-card')" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer expand-btn" title="Expand">
-                <svg class="w-4 h-4 expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
-                <svg class="w-4 h-4 collapse-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25"/></svg>
+                  <span class="mat-icon text-4xl text-xs text-gray-400 text-sm text-gray-900 dark:text-white text-xs text-gray-500 dark:text-gray-400 text-gray-400">fullscreen_exit</span>
               </button>
           </div>
         </div>
         <div class="p-4 sm:p-5">
             <div id="codebase-container">
               <div class="flex items-center justify-center w-full min-h-[200px] text-gray-400">
-                <svg class="w-10 h-10 mx-auto mb-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-              </div>
-            </div>
-          </div>
-        </div>
-        <p class="text-xs text-gray-400 mt-2"><%= typeof t !== 'undefined' ? t('admin.sitemapAutoNote') : 'Auto-generated from src/. Run npm run build to update.' %></p>
-      </div>
-
-      <!-- Tab: User Scenarios -->
-      <div id="panel-scenarios" class="hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden mb-4 chart-card" id="scenarios-card">
-          <div class="p-4 sm:p-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-wrap gap-3">
-            <div>
-              <h3 class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">🧑 User Scenario Flows</h3>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Role-based user journeys through the application.</p>
-            </div>
-            <div class="flex items-center gap-2">
-              <button onclick="toggleExpand('scenarios-card')" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer expand-btn" title="Expand">
-                <svg class="w-4 h-4 expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
-                <svg class="w-4 h-4 collapse-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25"/></svg>
+                <span class="mat-icon text-4xl text-xs text-gray-400 text-sm text-gray-900 dark:text-white text-xs text-gray-500 dark:text-gray-400 text-gray-400">fullscreen_exit</span>
               </button>
           </div>
         </div>
