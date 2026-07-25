@@ -22,11 +22,29 @@
     <!-- Service Header -->
     <section class="py-8 sm:py-12 bg-white dark:bg-gray-950">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3"><%= t('categories.' + service.slug) %></h1>
-        <p class="text-gray-600 dark:text-gray-300 text-lg mb-6"><%= service.description %></p>
-        <div class="flex flex-wrap gap-4 text-sm">
-          <span class="bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 px-3 py-1 rounded-full font-medium"><%= service.totalContractors %> <%= t('services.contractors') %></span>
-          <%- include('partials/_verified-badge', {label: t('services.verifiedProfessionals')}) %>
+        <div class="flex flex-col sm:flex-row gap-6 sm:gap-8 items-start">
+          <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-card overflow-hidden bg-orange-50 dark:bg-gray-800 flex-shrink-0 border border-orange-100 dark:border-gray-700">
+            <% const slugToImage = {
+              'demolition': 'Demolition.PNG',
+              'electrical-work': 'Electrical.PNG',
+              'facade': 'Facade.PNG',
+              'finishing': 'Finishing.PNG',
+              'construction': 'Home Building.PNG',
+              'landscaping': 'Landscaping.PNG',
+              'plumbing': 'Plumbing.PNG',
+              'apartment-renovation': 'Renovation.PNG',
+              'roofing': 'Roofing.PNG',
+            }; %>
+            <img src="/images/<%= slugToImage[service.slug] %>" alt="<%= t('categories.' + service.slug) %>" class="w-full h-full object-cover" loading="lazy">
+          </div>
+          <div class="flex-1 min-w-0">
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3"><%= t('categories.' + service.slug) %></h1>
+            <p class="text-gray-600 dark:text-gray-300 text-lg mb-6"><%= service.description %></p>
+            <div class="flex flex-wrap gap-4 text-sm">
+              <span class="bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 px-3 py-1 rounded-full font-medium"><%= service.totalContractors %> <%= t('services.contractors') %></span>
+              <%- include('partials/_verified-badge', {label: t('services.verifiedProfessionals')}) %>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -40,11 +58,7 @@
           <div class="bg-surface dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-card p-5 hover:shadow-card-hover shadow-card transition">
             <h3 class="font-semibold text-gray-900 dark:text-white mb-2"><%= t('subcategories.' + sub.slug) %></h3>
             <p class="text-orange-700 dark:text-orange-400 font-semibold flex items-center gap-1.5 flex-wrap">
-              <% if (sub.count > 0 && sub.priceFrom) { %>
-                <%= t('services.priceFrom') %> <%= sub.priceFrom %>
-              <% } else { %>
-                <%= sub.count %> <%= t('services.professionals') %>
-              <% } %>
+              <%= sub.count %> <%= t('services.professionals') %>
             </p>
           </div>
           <% }); %>

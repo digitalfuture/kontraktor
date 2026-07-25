@@ -69,7 +69,6 @@ router.get('/', (req: Request, res: Response): void => {
         name: sub.name,
         slug: sub.slug,
         count: sub.contractors_count,
-        priceFrom: sub.price_from || '',
       })),
     };
   });
@@ -126,7 +125,6 @@ router.get('/:slug', (req: Request, res: Response, _next: NextFunction): void =>
       name: sub.name,
       slug: sub.slug,
       count: sub.contractors_count,
-      priceFrom: sub.price_from || '',
     })),
     contractors: contractors.map((ctr) => ({
       id: ctr.id,

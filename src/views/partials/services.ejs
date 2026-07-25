@@ -30,12 +30,9 @@
               <p class="mt-2 text-gray-600 dark:text-gray-300 text-sm flex-1"><%= t('services.cats.' + slug + '.desc') %></p>
               <div class="mt-4 flex items-center justify-between">
                 <span class="text-orange-700 dark:text-orange-400 font-medium">
-                  <% if (svc.totalContractors > 0 && svc.priceFrom) { %>
-                    <%= t('services.priceFrom') %> <%= svc.priceFrom %>
+                  <% if (svc.totalContractors > 0) { %>
+                    <%= svc.totalContractors %> <%= t('services.contractors') %>
                   <% } %>
-                </span>
-                <span class="text-gray-600 dark:text-gray-300 text-sm">
-                  <%= svc.totalContractors %> <%= t('services.contractors') %>
                 </span>
               </div>
             </div>
