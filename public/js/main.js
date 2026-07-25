@@ -120,6 +120,12 @@ if (typeof htmx !== 'undefined') {
         const mMoon = document.querySelector('.mobile-theme-moon');
         if (mSun) mSun.classList.toggle('hidden', !isDark);
         if (mMoon) mMoon.classList.toggle('hidden', isDark);
+
+        // Mobile header theme icons
+        const mhSun = document.getElementById('mobile-header-theme-toggle-sun');
+        const mhMoon = document.getElementById('mobile-header-theme-toggle-moon');
+        if (mhSun) mhSun.classList.toggle('hidden', !isDark);
+        if (mhMoon) mhMoon.classList.toggle('hidden', isDark);
       }
 
       // Initialize: stored > system preference > light
@@ -162,7 +168,7 @@ if (typeof htmx !== 'undefined') {
       // Toggle handlers via Event Delegation (survives HTMX body swaps)
       document.addEventListener('click', (e) => {
         const target = e.target;
-        const toggleBtn = target.closest('#theme-toggle, #mobile-theme-toggle');
+        const toggleBtn = target.closest('#theme-toggle, #mobile-theme-toggle, #mobile-header-theme-toggle');
         if (toggleBtn) {
           const isDark = html.classList.contains('dark');
           const newTheme = isDark ? 'light' : 'dark';
