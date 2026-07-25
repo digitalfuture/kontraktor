@@ -31,7 +31,7 @@ import accountRouter from './routes/account';
 import gaOptRouter from './routes/ga-opt';
 import { apiRouter as contactApi } from './routes/contact';
 import { pageRouter as paymentsPages, apiRouter as paymentsApi } from './routes/payments';
-import { requireAuth, requireAdmin } from './middleware/auth';
+import { requireAuth, requireAdmin, optionalAuth } from './middleware/auth';
 import { getUserByToken } from './lib/auth';
 import { i18nMiddleware } from './middleware/i18n';
 import { csrfMiddleware } from './middleware/csrf';
@@ -186,7 +186,7 @@ app.get('/', (req: express.Request, res: express.Response): void => {
 
 app.use('/services', servicesRouter);
 app.use('/static/docs', express.static(path.join(__dirname, '../docs')));
-app.use('/projects', requireAuth, projectsRouter);
+app.use('/projects', optionalAuth, projectsRouter);
 app.use('/sitemap.xml', sitemapRouter);
 app.use('/contractors', contractorsPages);
 app.use('/post', postPages);

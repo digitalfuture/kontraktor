@@ -307,7 +307,7 @@
     {
       "name": "Projects",
       "category": "public",
-      "middleware": "🛡️Auth",
+      "middleware": "optionalAuth",
       "children": [
         {
           "name": "/projects",

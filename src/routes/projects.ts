@@ -15,13 +15,17 @@ router.get('/', (req: any, res: Response): void => {
   const limit = Math.min(MAX_LIMIT, Math.max(1, parseInt(req.query.limit as string, 10) || DEFAULT_LIMIT));
   const offset = (page - 1) * limit;
   const user = req.user;
-  const userRole = user?.role || 'client';
+  const userRole = user?.role || null;
 
   const conditions: string[] = [];
   const params: any[] = [];
 
   // Role-based filtering
-  if (userRole === 'admin') {
+  if (!user) {
+    // Guest: sees all open (unassigned) projects
+    conditions.push(`p.assigned_contractor_id IS NULL`);
+    conditions.push(`p.status IN ('pending', 'active')`);
+  } else if (userRole === 'admin') {
     // Admin sees ALL projects
     if (status) {
       conditions.push(`p.status = ?`);
