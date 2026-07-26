@@ -3,7 +3,7 @@
         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
           <div>
             <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white inline-flex items-center gap-2 leading-none">
-              <span class="mat-icon text-2xl text-gray-500 dark:text-gray-300 text-sm text-sm text-gray-700 dark:text-gray-200 text-lg text-gray-800 dark:text-gray-200 text-gray-500 text-sm text-gray-400 text-sm text-gray-400 dark:text-gray-500 text-gray-900 dark:text-white text-xs text-red-700 dark:text-red-300 text-sm text-gray-500 dark:text-gray-300 text-sm text-white text-sm text-red-600 text-lg text-gray-800 dark:text-gray-200 text-gray-500 text-sm text-gray-400 text-sm text-gray-400 dark:text-gray-500 text-gray-900 dark:text-white text-xs text-red-700 dark:text-red-300 text-sm text-gray-500 dark:text-gray-300 text-xs text-purple-700 dark:text-purple-300 text-orange-700 dark:text-orange-300 text-blue-700 dark:text-blue-300 text-sm text-white text-sm text-red-600 text-lg text-gray-800 dark:text-gray-200 text-gray-500 text-sm text-gray-400 text-sm text-gray-400 dark:text-gray-500 text-gray-900 dark:text-white text-yellow-500 text-xs text-red-700 dark:text-red-300 text-sm text-gray-500 dark:text-gray-300 text-xs text-gray-400 text-sm text-white text-sm text-red-600 text-lg text-gray-800 dark:text-gray-200 text-gray-500 text-sm text-gray-400 text-sm text-gray-400 dark:text-gray-500 text-gray-900 dark:text-white text-xs text-red-700 dark:text-red-300 text-sm text-gray-500 dark:text-gray-300 text-sm text-white text-sm text-red-600 text-lg text-gray-800 dark:text-gray-200 text-gray-500 text-sm text-gray-400 text-sm text-gray-400 dark:text-gray-500 text-gray-900 dark:text-white text-xs text-red-700 dark:text-red-300 text-sm text-gray-500 dark:text-gray-300 text-xs text-green-700 dark:text-green-300 text-blue-700 dark:text-blue-300 text-gray-600 dark:text-gray-300 text-sm text-white text-sm text-red-600 text-lg text-gray-800 dark:text-gray-200 text-gray-500">groups</span>
+              <span class="mat-icon text-2xl text-gray-500 dark:text-gray-300">groups</span>
             <%= t('email.mailingLists') || 'Mailing Lists' %> <span class="text-sm font-normal text-gray-400">(<%= mailingLists.length %>)</span>
           </h2>
 
@@ -35,10 +35,11 @@
         <!-- Mailing List Contacts Section -->
         <div class="mb-8">
           <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
-            <span class="mat-icon text-xl text-gray-500 text-sm text-gray-400 text-sm text-gray-400 dark:text-gray-500 text-gray-900 dark:text-white text-xs text-red-700 dark:text-red-300 text-sm text-gray-500 dark:text-gray-300 text-xs text-sm text-white text-center text-gray-400">delete</span>
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white"><%= t('admin.trashEmpty') || 'Trash is empty' %></h3>
-          </div>
-        <% } %>
+            <span class="mat-icon text-xl text-gray-500">delete</span>
+            <%= t('admin.deletedContacts') || 'Deleted Contacts' %>
+          </h2>
+          <p class="text-sm text-gray-400 dark:text-gray-500"><%= t('admin.trashEmpty') || 'Trash is empty' %></p>
+        </div>
 
 <%- include('_admin-layout-close') %>
 </body>

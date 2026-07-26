@@ -16,20 +16,23 @@
   <h1 class="text-2xl font-bold mb-6">🔄 Backup & Restore</h1>
 
   <!-- ── Status cards ── -->
+  <% if (pendingRequest) { %>
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
     <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
       <div class="flex items-center gap-2 text-sm text-gray-400 mb-1">
-        <span class="mat-icon text-base text-lg text-xs text-gray-500 text-sm text-gray-400 text-lg text-xs text-gray-500 text-sm text-gray-400 text-lg text-xs text-gray-500 text-yellow-400">warning</span>
-    <div class="flex-1">
-      <p class="font-semibold text-yellow-300">⚠️ Restore in progress</p>
-      <p class="text-sm text-yellow-200/70 mt-1"><%= statusMessage %></p>
-      <p class="text-xs text-yellow-200/50 mt-1">
-        Target: <%= pendingRequest?.target || '—' %> &middot;
-        Requested: <%= pendingRequest?.requestedAt || '—' %>
-      </p>
-      <button class="btn-cancel-restore text-xs mt-2 px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 text-gray-300" data-target="<%= pendingRequest?.target || '' %>">
-        Cancel restore
-      </button>
+        <span class="mat-icon text-base text-yellow-400">warning</span>
+      </div>
+      <div class="flex-1">
+        <p class="font-semibold text-yellow-300">&#9888;&#65039; Restore in progress</p>
+        <p class="text-sm text-yellow-200/70 mt-1"><%= statusMessage %></p>
+        <p class="text-xs text-yellow-200/50 mt-1">
+          Target: <%= pendingRequest?.target || '&mdash;' %> &middot;
+          Requested: <%= pendingRequest?.requestedAt || '&mdash;' %>
+        </p>
+        <button class="btn-cancel-restore text-xs mt-2 px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 text-gray-300" data-target="<%= pendingRequest?.target || '' %>">
+          Cancel restore
+        </button>
+      </div>
     </div>
   </div>
   <% } %>
