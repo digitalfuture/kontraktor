@@ -42,37 +42,19 @@
       <div class="hidden md:flex items-center space-x-4" role="navigation" aria-label="Account">
         <% if (typeof user !== 'undefined' && user) { %>
           <% if (user.is_contractor) { %>
-            <a href="/contractors/dashboard" class="text-orange-700 dark:text-orange-400 hover:text-orange-700 transition font-medium" aria-label="<%= t('contractorDashboard.myBids') %>">📋 <%= t('contractorDashboard.myBids') %></a>
+            <a href="/contractors/dashboard" class="text-orange-700 dark:text-orange-400 hover:text-orange-700 transition font-medium inline-flex items-center gap-1.5" aria-label="<%= t('contractorDashboard.myBids') %>"><span class="mat-icon text-base">receipt_long</span> <%= t('contractorDashboard.myBids') %></a>
           <% } else if (user.role === 'client') { %>
             <a href="/contractors/register" class="text-orange-700 dark:text-orange-400 hover:text-orange-700 transition font-medium text-sm whitespace-nowrap"><%= t('account.registerContractor') %></a>
           <% } %>
-          <a href="/account" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition font-medium">👤 <%= t('nav.account') %></a>
+          <a href="/account" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition font-medium inline-flex items-center gap-1.5"><span class="mat-icon text-base">person</span> <%= t('nav.account') %></a>
           <% if (user.role === 'admin') { %>
-            <a href="/admin" class="text-gray-500 dark:text-gray-300 hover:text-orange-600 transition text-sm">⚙️ <%= t('nav.admin') %></a>
+            <a href="/admin" class="text-gray-500 dark:text-gray-300 hover:text-orange-600 transition text-sm inline-flex items-center gap-1.5"><span class="mat-icon text-base">settings</span> <%= t('nav.admin') %></a>
           <% } %>
           <a href="/auth/logout" class="inline-flex items-center gap-1.5 text-gray-500 dark:text-gray-300 hover:text-red-600 transition text-sm"><span class="mat-icon text-base">logout</span><%= t('nav.logout') %></a>
         <% } else { %>
           <a href="/auth/login" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition font-medium"><%= t('nav.login') %></a>
         <% } %>
         <%- include('./_post-project-btn') %>
-      </div>
-      
-      <!-- Mobile Controls (lang + theme, visible below md) -->
-      <div class="md:hidden flex items-center space-x-2">
-        <div class="flex items-center space-x-1" role="group" aria-label="Language switcher">
-          <% typeof locales !== 'undefined' && locales.forEach(function(loc) { %>
-            <a href="?lang=<%= loc %>" 
-               class="px-2 py-1 rounded text-sm font-medium transition
-               <%= locale === loc ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-200' : 'text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200' %>"
-            >
-              <%= loc.toUpperCase() %>
-            </a>
-          <% }); %>
-        </div>
-        <button type="button" id="mobile-header-theme-toggle" class="p-2 rounded-lg text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition" aria-label="Toggle dark mode">
-          <span id="mobile-header-theme-toggle-sun" class="mat-icon text-xl hidden text-gray-500 dark:text-gray-300">light_mode</span>
-          <span id="mobile-header-theme-toggle-moon" class="mat-icon text-xl hidden text-gray-500 dark:text-gray-300">dark_mode</span>
-        </button>
       </div>
     </div>
   </div>
@@ -117,8 +99,8 @@
     <% if (typeof user !== 'undefined' && user) { %>
       <% if (user.is_contractor) { %>
       <a href="/contractors/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg transition text-orange-700 dark:text-orange-400 hover:bg-gray-100 dark:hover:bg-gray-800">
-        <span class="mat-icon text-xl">check_circle</span>
-        📋 <%= t('contractorDashboard.myBids') %>
+        <span class="mat-icon text-xl">receipt_long</span>
+        <%= t('contractorDashboard.myBids') %>
       </a>
       <% } else if (user.role === 'client') { %>
       <a href="/contractors/register" class="flex items-center gap-3 px-4 py-3 rounded-lg transition text-orange-700 dark:text-orange-400 hover:bg-gray-100 dark:hover:bg-gray-800">
