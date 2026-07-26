@@ -112,7 +112,7 @@
           var datalist = document.getElementById('district-list');
           var debounce;
           var allDistricts = <%- JSON.stringify(typeof districtsData !== 'undefined' ? districtsData : []) %>;
-          var locale = '<%= typeof locale !== \"undefined\" ? locale : \"en\" %>';
+          var locale = '<%= locale || "en" %>';
 
           function getName(k) { return locale === 'id' ? k.name_id : k.name; }
           function getProv(k) { return locale === 'id' ? k.province_id : k.province; }
