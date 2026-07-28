@@ -4,7 +4,7 @@
   "description": "Строительный маркетплейс",
   "main": "src/index.ts",
   "scripts": {
-    "dev:build": "npm run lint:ejs && npx @tailwindcss/cli -i ./src/input.css -o ./public/css/tailwind.css --minify && npx esbuild src/index.ts --bundle --platform=node --format=cjs --external:better-sqlite3 --external:express --external:googleapis --external:imapflow --external:nodemailer --external:dotenv --external:helmet --external:compression --external:express-rate-limit --external:express-fileupload --external:node-cron --external:path --external:fs --external:crypto --outfile=dist/index.js && cp -r src/views dist/ && cp -r src/locales dist/ && cp -r src/data dist/ && rm -rf dist/data/views dist/data/locales && cp -r docs dist/docs",
+    "dev:build": "npm run lint:ejs && npx @tailwindcss/cli -i ./src/input.css -o ./public/css/tailwind.css --minify && npx esbuild src/index.ts --bundle --platform=node --format=cjs --external:better-sqlite3 --external:express --external:googleapis --external:imapflow --external:nodemailer --external:dotenv --external:helmet --external:compression --external:express-rate-limit --external:express-fileupload --external:node-cron --external:path --external:fs --external:crypto --outfile=dist/index.js && node scripts/copy-assets.mjs",
     "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" npm run dev:build && npm run generate-sitemap && npm run generate-codetree",
     "lint": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" eslint src/**/*.ts",
     "lint:ejs": "node scripts/lint-ejs.mjs",
