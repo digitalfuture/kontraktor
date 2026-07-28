@@ -1,31 +1,48 @@
-<section class="bg-gradient-to-b from-orange-50 via-orange-50/70 to-orange-100/50 dark:from-gray-900 dark:via-gray-900 dark:to-orange-950/30 py-12 sm:py-16 lg:py-24" aria-labelledby="hero-title">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center">
-      <h1 id="hero-title" class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white leading-tight">
+<section class="relative overflow-hidden bg-gradient-to-b from-orange-50/80 via-white to-orange-50/30 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 py-16 sm:py-20 lg:py-28" aria-labelledby="hero-title">
+  <!-- Ambient background glow blobs -->
+  <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-orange-500/20 via-amber-500/15 to-transparent blur-[120px] pointer-events-none rounded-full"></div>
+  
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-3xl mx-auto">
+      <div class="inline-flex items-center gap-2 mb-6">
+        <span class="badge-modern shadow-sm">
+          <span class="mat-icon text-sm text-orange-500">auto_awesome</span>
+          <span>Строительный маркетплейс №1</span>
+        </span>
+      </div>
+
+      <h1 id="hero-title" class="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white leading-[1.15] tracking-tight">
         <%= t('hero.title') %>
       </h1>
-      <p class="mt-4 text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+
+      <p class="mt-6 text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed font-normal">
         <%= t('hero.subtitle') %>
       </p>
-      <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-        <a href="/post" class="bg-gradient-to-r from-orange-600 to-amber-500 text-white px-8 py-3 rounded-lg hover:from-orange-700 hover:to-amber-600 transition font-semibold text-lg shadow-button hover:shadow-button-hover focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2">
-          <%= t('hero.postCta') %>
+
+      <!-- Action Buttons -->
+      <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <a href="/post" class="btn-modern-primary !py-3.5 !px-8 text-lg w-full sm:w-auto shadow-xl">
+          <span class="mat-icon text-xl">add_circle</span>
+          <span><%= t('hero.postCta') %></span>
         </a>
-        <a href="/services" class="bg-white dark:bg-gray-800 text-orange-700 dark:text-orange-400 border-2 border-orange-600 px-8 py-3 rounded-lg hover:bg-orange-50 dark:hover:bg-gray-700 transition font-semibold text-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2">
-          <%= t('hero.cta') %>
+        <a href="/services" class="btn-modern-glass !py-3.5 !px-8 text-lg w-full sm:w-auto">
+          <span class="mat-icon text-xl text-orange-500">grid_view</span>
+          <span><%= t('hero.cta') %></span>
         </a>
       </div>
-      <div class="mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-gray-700 dark:text-gray-300">
-        <span class="flex items-center gap-1">
-          <span class="material-symbols-outlined text-xl text-green-500">check_circle</span>
+
+      <!-- Trust Badges -->
+      <div class="mt-12 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-sm font-medium text-gray-700 dark:text-gray-300">
+        <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-gray-800/70 backdrop-blur-md border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <span class="mat-icon text-lg text-emerald-500">verified</span>
           <%= t('hero.trust1') %>
         </span>
-        <span class="flex items-center gap-1">
-          <span class="material-symbols-outlined text-xl text-green-500">check_circle</span>
+        <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-gray-800/70 backdrop-blur-md border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <span class="mat-icon text-lg text-emerald-500">verified</span>
           <%= t('hero.trust2') %>
         </span>
-        <span class="flex items-center gap-1">
-          <span class="material-symbols-outlined text-xl text-green-500">check_circle</span>
+        <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-gray-800/70 backdrop-blur-md border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <span class="mat-icon text-lg text-emerald-500">verified</span>
           <%= t('hero.trust3') %>
         </span>
       </div>
