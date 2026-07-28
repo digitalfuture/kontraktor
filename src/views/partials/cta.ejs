@@ -1,25 +1,15 @@
-<section id="cta" class="relative overflow-hidden py-16 sm:py-20 lg:py-24" aria-labelledby="cta-title">
-  <!-- Background image with gradient overlay -->
+<section id="cta" class="relative overflow-hidden py-12 sm:py-16 lg:py-24" aria-labelledby="cta-title">
+  <!-- Background image -->
   <div class="absolute inset-0" aria-hidden="true">
     <img src="/images/Backgroung.png" alt="" class="w-full h-full object-cover">
-    <div class="absolute inset-0 bg-gradient-to-br from-gray-950/90 via-orange-950/90 to-gray-900/90 backdrop-blur-sm"></div>
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-orange-500/20 blur-[100px] pointer-events-none rounded-full"></div>
+    <div class="absolute inset-0 bg-gradient-to-br from-orange-700/85 to-orange-600/85 dark:from-orange-800/85 dark:to-orange-700/85"></div>
   </div>
-  
   <!-- Content -->
-  <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-    <span class="badge-modern mb-6 inline-flex border-orange-400/30 bg-orange-500/20 text-orange-200">
-      <span class="mat-icon text-sm">rocket_launch</span>
-      <span>Быстро и удобно</span>
-    </span>
-    <h2 id="cta-title" class="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight mb-5 leading-tight"><%= t('cta.title') %></h2>
-    <p class="text-lg sm:text-xl text-gray-200 mb-10 max-w-2xl mx-auto leading-relaxed font-normal"><%= t('cta.subtitle') %></p>
-    
-    <div class="flex justify-center">
-      <a href="/post" class="btn-modern-primary !py-4 !px-10 text-lg shadow-2xl">
-        <span class="mat-icon text-xl">add_circle</span>
-        <span><%= t('cta.button') %></span>
-      </a>
-    </div>
+  <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <h2 id="cta-title" class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4"><%= t('cta.title') %></h2>
+    <p class="text-lg text-white dark:text-white mb-8 max-w-xl mx-auto"><%= t('cta.subtitle') %></p>
+    <a href="/post" class="bg-gradient-to-r from-orange-600 to-amber-500 text-white px-8 py-3 rounded-lg hover:from-orange-700 hover:to-amber-600 transition font-semibold text-lg shadow-button hover:shadow-button-hover focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-orange-700">
+      <%= t('cta.button') %>
+    </a>
   </div>
 </section>

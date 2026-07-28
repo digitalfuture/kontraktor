@@ -3,27 +3,28 @@
   <%= t("header.skipToMain") %>
 </a>
 
-<header class="bg-white/85 dark:bg-gray-900/85 backdrop-blur-xl sticky top-0 z-50 transition-all duration-300 border-b border-gray-200/60 dark:border-gray-800/60 shadow-sm" role="banner">
+<header class="bg-white dark:bg-gray-900 sticky top-0 z-50" role="banner">
   <!-- Thin gradient accent bar -->
-  <div class="h-0.5 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600"></div>
+  <div class="h-0.5 bg-gradient-to-r from-orange-500 via-orange-400 to-amber-500"></div>
+  <div class="border-b border-gray-200 dark:border-gray-700">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <!-- Logo + Mobile Hamburger (left) -->
-      <div class="flex items-center gap-3 flex-shrink-0">
-        <button id="mobile-menu-btn" class="md:hidden p-2 rounded-xl text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-gray-800 focus:outline-none text-sm font-semibold transition" aria-label="<%= t("header.openMenu") %>" aria-expanded="false">
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg text-orange-700 dark:text-orange-400 hover:text-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-700 text-sm font-semibold" aria-label="<%= t("header.openMenu") %>" aria-expanded="false">
           <span id="hamburger-icon" class="mat-icon text-2xl">menu</span>
           <span id="close-icon" class="mat-icon text-2xl hidden">close</span>
         </button>
-        <a href="/" class="text-2xl font-black tracking-tight bg-gradient-to-r from-orange-600 via-amber-500 to-orange-500 bg-clip-text text-transparent hover:opacity-90 transition" aria-label="<%= t("header.logoLabel") %>">
+        <a href="/" class="text-2xl font-bold text-orange-700 hover:text-orange-700 transition" aria-label="<%= t("header.logoLabel") %>">
           Kontraktor
         </a>
       </div>
       
       <!-- Desktop Nav -->
-      <nav class="hidden md:flex items-center space-x-1 lg:space-x-2" aria-label="Main navigation">
-        <a href="/services" class="px-3.5 py-2 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50/60 dark:hover:bg-gray-800/60 transition"><%= t('nav.services') %></a>
-        <a href="/projects" class="px-3.5 py-2 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50/60 dark:hover:bg-gray-800/60 transition"><%= t('nav.browseProjects') %></a>
-        <a href="/contractors" class="px-3.5 py-2 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50/60 dark:hover:bg-gray-800/60 transition"><%= t('nav.contractors') %></a>
+      <nav class="hidden md:flex items-center space-x-6" aria-label="Main navigation">
+        <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition"><%= t('nav.services') %></a>
+        <a href="/projects" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition"><%= t('nav.browseProjects') %></a>
+        <a href="/contractors" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition"><%= t('nav.contractors') %></a>
       </nav>
       
       <!-- Desktop Controls (Lang + Theme) -->
@@ -38,25 +39,26 @@
       </div>
       
       <!-- Auth / Account (desktop) -->
-      <div class="hidden md:flex items-center space-x-3" role="navigation" aria-label="Account">
+      <div class="hidden md:flex items-center space-x-4" role="navigation" aria-label="Account">
         <% if (typeof user !== 'undefined' && user) { %>
           <% if (user.is_contractor) { %>
-            <a href="/contractors/dashboard" class="text-orange-600 dark:text-orange-400 hover:text-orange-700 transition font-semibold text-sm inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-orange-50 dark:hover:bg-gray-800" aria-label="<%= t('contractorDashboard.myBids') %>"><span class="mat-icon text-base">receipt_long</span> <%= t('contractorDashboard.myBids') %></a>
+            <a href="/contractors/dashboard" class="text-orange-700 dark:text-orange-400 hover:text-orange-700 transition font-medium inline-flex items-center gap-1.5" aria-label="<%= t('contractorDashboard.myBids') %>"><span class="mat-icon text-base">receipt_long</span> <%= t('contractorDashboard.myBids') %></a>
           <% } else if (user.role === 'client') { %>
-            <a href="/contractors/register" class="text-orange-600 dark:text-orange-400 hover:text-orange-700 transition font-semibold text-sm whitespace-nowrap px-3 py-1.5 rounded-xl hover:bg-orange-50 dark:hover:bg-gray-800"><%= t('account.registerContractor') %></a>
+            <a href="/contractors/register" class="text-orange-700 dark:text-orange-400 hover:text-orange-700 transition font-medium text-sm whitespace-nowrap"><%= t('account.registerContractor') %></a>
           <% } %>
-          <a href="/account" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition font-semibold text-sm inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"><span class="mat-icon text-base">person</span> <%= t('nav.account') %></a>
+          <a href="/account" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition font-medium inline-flex items-center gap-1.5"><span class="mat-icon text-base">person</span> <%= t('nav.account') %></a>
           <% if (user.role === 'admin') { %>
-            <a href="/admin" class="text-gray-500 dark:text-gray-400 hover:text-orange-600 transition text-sm inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"><span class="mat-icon text-base">settings</span> <%= t('nav.admin') %></a>
+            <a href="/admin" class="text-gray-500 dark:text-gray-300 hover:text-orange-600 transition text-sm inline-flex items-center gap-1.5"><span class="mat-icon text-base">settings</span> <%= t('nav.admin') %></a>
           <% } %>
-          <a href="/auth/logout" class="inline-flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-red-600 transition text-sm px-2.5 py-1.5 rounded-xl hover:bg-red-50 dark:hover:bg-gray-800"><span class="mat-icon text-base">logout</span><%= t('nav.logout') %></a>
+          <a href="/auth/logout" class="inline-flex items-center gap-1.5 text-gray-500 dark:text-gray-300 hover:text-red-600 transition text-sm"><span class="mat-icon text-base">logout</span><%= t('nav.logout') %></a>
         <% } else { %>
-          <a href="/auth/login" class="btn-modern-glass !py-2 !px-4 text-sm"><%= t('nav.login') %></a>
+          <a href="/auth/login" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition font-medium"><%= t('nav.login') %></a>
         <% } %>
         <%- include('./_post-project-btn') %>
       </div>
     </div>
   </div>
+  </div> <!-- /border-b -->
 </header>
 
 <!-- Mobile Sidebar (slides from left, md:hidden) -->
