@@ -2,7 +2,7 @@
   "site": {
     "name": "Kontraktor",
     "tagline": "Construction marketplace",
-    "description": "Find verified construction professionals or post your project. Quality work, transparent prices, guaranteed results."
+    "description": "Find verified construction contractors or post your project. Quality work, transparent prices, guaranteed results."
   },
   "nav": {
     "services": "Services",
@@ -19,11 +19,11 @@
     "browseProjects": "Browse Projects"
   },
   "hero": {
-    "title": "Construction services from verified professionals",
+    "title": "Construction services from verified contractors",
     "subtitle": "Find a master for any project in your area. Verified contractors, honest prices, quality guarantee.",
-    "cta": "Find a Professional",
+    "cta": "Find a Contractor",
     "postCta": "Post a Project",
-    "trust1": "Verified Professionals",
+    "trust1": "Verified Contractors",
     "trust2": "Quality Guarantee",
     "trust3": "Transparent Pricing"
   },
@@ -37,7 +37,7 @@
       },
       {
         "title": "Get Responses",
-        "desc": "Verified professionals will contact you"
+        "desc": "Verified contractors will contact you"
       },
       {
         "title": "Choose a Master",
@@ -54,7 +54,7 @@
       "city": "Jakarta"
     },
     "r2": {
-      "text": "Bathroom renovation done on time. The professional explained everything. Results exceeded expectations!",
+      "text": "Bathroom renovation done on time. The contractor explained everything. Results exceeded expectations!",
       "author": "Sarah W.",
       "city": "Surabaya"
     },
@@ -66,15 +66,15 @@
   },
   "cta": {
     "title": "Ready to Start Your Project?",
-    "subtitle": "Post a project and get offers from verified construction professionals today",
+    "subtitle": "Post a project and get offers from verified construction contractors today",
     "button": "Post a Project"
   },
   "footer": {
     "about": "About",
-    "aboutText": "Kontraktor is a platform connecting construction clients with verified professionals.",
+    "aboutText": "Kontraktor is a platform connecting construction clients with verified contractors.",
     "links": "Links",
     "services": "Services",
-    "forProfessionals": "For Professionals",
+    "forProfessionals": "For Contractors",
     "postProject": "Post a Project",
     "browseProjects": "Browse Projects",
     "terms": "Terms of Service",
@@ -159,7 +159,7 @@
     "contractorOrders": "My Projects",
     "noContractorOrders": "No projects assigned to you yet",
     "noContractorOrdersSub": "Register as a contractor to receive project invitations",
-    "noContractorOrdersLink": "For Professionals",
+    "noContractorOrdersLink": "For Contractors",
     "notifications": "Notifications",
     "notificationsSubtitle": "Manage email notifications for new projects in your categories",
     "notificationsSaved": "Notification settings saved successfully",
@@ -272,7 +272,7 @@
     "noContractors": "No contractors in this category yet",
     "findService": "Find a service...",
     "needSomethingElse": "Need something else?",
-    "ctaPostProject": "Post a project — professionals will reach out",
+    "ctaPostProject": "Post a project — contractors will reach out",
     "more": "more",
     "contractors": "contractors",
     "notFound": "Layanan tidak ditemukan",
@@ -280,7 +280,7 @@
   },
   "post": {
     "title": "Post a Project",
-    "subtitle": "Describe your project and get offers from professionals",
+    "subtitle": "Describe your project and get offers from contractors",
     "nameLabel": "Your Name",
     "namePlaceholder": "ex. John Smith",
     "phoneLabel": "Phone",
@@ -302,7 +302,7 @@
     "editSubtitle": "Update your project details below.",
     "saveButton": "Save Changes",
     "successTitle": "Project Posted!",
-    "successSubtitle": "Professionals will start contacting you soon",
+    "successSubtitle": "Contractors will start contacting you soon",
     "successButton": "Back to Homepage",
     "termsAgree": "By posting, you agree to our <a href=\"/terms\" class=\"text-orange-700 dark:text-orange-400 hover:underline\">Terms of Service</a> and <a href=\"/privacy\" class=\"text-orange-700 dark:text-orange-400 hover:underline\">Privacy Policy</a>",
     "category": "Category",
@@ -921,7 +921,7 @@
     "section1Title": "1. Acceptance of Terms",
     "section1Text": "By accessing or using the Kontraktor platform, you agree to be bound by these Terms of Service, all applicable laws and regulations, and agree that you are responsible for compliance with any applicable local laws.",
     "section2Title": "2. Use of Platform",
-    "section2Text": "Kontraktor is a matching platform connecting project owners (clients) and verified professionals (contractors). We facilitate communication and bidding, but we do not employ contractors or take responsibility for the quality of the physical work performed.",
+    "section2Text": "Kontraktor is a matching platform connecting project owners (clients) and verified contractors (contractors). We facilitate communication and bidding, but we do not employ contractors or take responsibility for the quality of the physical work performed.",
     "section3Title": "3. User Accounts",
     "section3Text": "When you create an account with us, you must provide information that is accurate, complete, and current at all times. Failure to do so constitutes a breach of the terms, which may result in immediate termination of your account.",
     "section4Title": "4. Limitation of Liability",
@@ -934,7 +934,7 @@
     "section1Title": "1. Information We Collect",
     "section1Text": "We collect information you provide directly to us when registering, posting projects, or communicating with other users. This includes your name, email address, phone number, profile photo, and project details.",
     "section2Title": "2. How We Use Information",
-    "section2Text": "We use the collected information to provide, maintain, and improve the Kontraktor platform. We also use it to connect clients with contractors, process payments, and verify professional profiles.",
+    "section2Text": "We use the collected information to provide, maintain, and improve the Kontraktor platform. We also use it to connect clients with contractors, process payments, and verify contractor profiles.",
     "section3Title": "3. Protection of Your Information",
     "section3Text": "The security of your personal data is highly important to us. We implement appropriate technical and organizational security measures to protect your information from unauthorized access, disclosure, or modification.",
     "section4Title": "4. Your Rights",
@@ -961,9 +961,9 @@
         "desc": "Choose only the projects you want — no obligations"
       }
     ],
-    "cta": "Register as a Professional",
+    "cta": "Register as a Contractor",
     "ctaSubtitle": "Fill out the form below and we'll create your profile",
-    "whyTitle": "Why professionals choose us",
+    "whyTitle": "Why contractors choose us",
     "guaranteedTitle": "Guaranteed Payment",
     "guaranteedDesc": "Funds are reserved by the client in advance. You will receive payment upon completion.",
     "localTitle": "Local Projects",
@@ -977,7 +977,7 @@
     "ctaTitle": "Start receiving projects today",
     "exampleBid": "Example bid response",
     "statsProjects": "projects per month",
-    "statsIncome": "avg. professional income",
+    "statsIncome": "avg. contractor income",
     "statsResponse": "to first response",
     "statsFreeLabel": "Free",
     "statsRegistration": "registration",
