@@ -4,10 +4,10 @@
   "description": "Строительный маркетплейс",
   "main": "src/index.ts",
   "scripts": {
-    "dev:build": "npm run lint:ejs && npx @tailwindcss/cli -i ./src/input.css -o ./public/css/tailwind.css --minify && /usr/local/lib/hermes-agent/node_modules/.bin/esbuild src/index.ts --bundle --platform=node --format=cjs --external:better-sqlite3 --external:express --external:crypto --external:googleapis --external:imapflow --external:nodemailer --external:dotenv --external:helmet --external:compression --external:express-rate-limit --external:express-fileupload --external:node-cron --external:path --external:fs --external:crypto --outfile=dist/index.js && cp -r src/views dist/ && cp -r src/locales dist/ && cp -r src/data dist/ && rm -rf dist/data/views dist/data/locales && cp -r docs dist/docs",
-    "build": "NODE_OPTIONS=\"--max-old-space-size=4096\" npm run dev:build && npm run generate-sitemap && npm run generate-codetree",
-    "lint": "NODE_OPTIONS=\"--max-old-space-size=4096\" eslint src/**/*.ts",
-    "lint:ejs": "for f in $(find src/views -name '*.ejs'); do npx ejs-lint -d '%' \"$f\" 2>&1 || exit 1; done",
+    "dev:build": "npm run lint:ejs && npx @tailwindcss/cli -i ./src/input.css -o ./public/css/tailwind.css --minify && npx esbuild src/index.ts --bundle --platform=node --format=cjs --external:better-sqlite3 --external:express --external:googleapis --external:imapflow --external:nodemailer --external:dotenv --external:helmet --external:compression --external:express-rate-limit --external:express-fileupload --external:node-cron --external:path --external:fs --external:crypto --outfile=dist/index.js && cp -r src/views dist/ && cp -r src/locales dist/ && cp -r src/data dist/ && rm -rf dist/data/views dist/data/locales && cp -r docs dist/docs",
+    "build": "npx cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" npm run dev:build && npm run generate-sitemap && npm run generate-codetree",
+    "lint": "npx cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" eslint src/**/*.ts",
+    "lint:ejs": "node scripts/lint-ejs.mjs",
     "validate-locale": "node scripts/validate-locale-keys.mjs",
     "generate-sitemap": "node scripts/generate-sitemap.mjs",
     "generate-codetree": "node scripts/generate-codetree.mjs",
@@ -15,7 +15,7 @@
     "start": "NODE_ENV=production node dist/index.js",
     "pm2": "pm2 start pm2.config.cjs",
     "pm2:stop": "pm2 stop kontraktor-prod kontraktor-dev",
-    "clean-db": "node -e \"const fs = require('fs'); ['/root/kontraktor/data/kontraktor.dev.db', '/root/kontraktor/data/kontraktor.prod.db', '/root/kontraktor/data/kontraktor.db'].forEach(f => { ['', '-shm', '-wal'].forEach(ext => { try { fs.unlinkSync(f + ext); } catch(e) {} }) })\""
+    "clean-db": "node -e \"const fs = require('fs'), path = require('path'); const dataDir = path.resolve(__dirname, 'data'); ['kontraktor.dev.db', 'kontraktor.prod.db', 'kontraktor.db'].forEach(f => { ['', '-shm', '-wal'].forEach(ext => { try { fs.unlinkSync(path.join(dataDir, f + ext)); } catch(e) {} }) })\""
   },
   "dependencies": {
     "@google-analytics/data": "^6.1.0",
@@ -50,7 +50,9 @@
     "@types/nodemailer": "^8.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
+    "cross-env": "^7.0.3",
     "ejs-lint": "^2.0.1",
+    "esbuild": "^0.25.0",
     "eslint": "^9.0.0",
     "html-validate": "^11.5.6",
     "nodemon": "^3.1.0",

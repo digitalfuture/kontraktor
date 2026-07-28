@@ -287,8 +287,8 @@ process.on('unhandledRejection', (reason: unknown) => {
 });
 process.on('uncaughtException', (err: Error) => {
   console.error('[FATAL] Uncaught Exception:', err.stack);
-  // Don't exit — let the process try to recover.
-  // PM2 will restart if needed.
+  // Exit cleanly so PM2 can restart a fresh worker process
+  process.exit(1);
 });
 process.on('warning', (warning: Warning) => {
   if (warning.name === 'MaxListenersExceededWarning') return; // suppress noise

@@ -122,14 +122,14 @@ db.exec(`CREATE TABLE IF NOT EXISTS photos (
   caption TEXT,
   is_portfolio INTEGER DEFAULT 1,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (contractor_id) REFERENCES contractors(id) ON DELETE CASCADE,
+  FOREIGN KEY (contractor_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
 );`);
 
 db.exec(`CREATE TABLE IF NOT EXISTS bids (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-  contractor_id INTEGER NOT NULL REFERENCES contractors(id) ON DELETE CASCADE,
+  contractor_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   price REAL,
   estimated_days INTEGER,
   description TEXT NOT NULL,
@@ -140,7 +140,7 @@ db.exec(`CREATE TABLE IF NOT EXISTS bids (
 
 db.exec(`CREATE TABLE IF NOT EXISTS payments (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  contractor_id INTEGER NOT NULL REFERENCES contractors(id) ON DELETE CASCADE,
+  contractor_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   external_id TEXT UNIQUE NOT NULL,
   amount REAL NOT NULL,
   credits INTEGER NOT NULL,
@@ -155,6 +155,19 @@ db.exec(`CREATE TABLE IF NOT EXISTS settings (
   value TEXT NOT NULL,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );`);
+
+// Performance Indexes
+db.exec(`
+  CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+  CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+  CREATE INDEX IF NOT EXISTS idx_users_is_approved ON users(is_approved);
+  CREATE INDEX IF NOT EXISTS idx_projects_status ON projects(status);
+  CREATE INDEX IF NOT EXISTS idx_projects_category ON projects(category);
+  CREATE INDEX IF NOT EXISTS idx_bids_project_id ON bids(project_id);
+  CREATE INDEX IF NOT EXISTS idx_bids_contractor_id ON bids(contractor_id);
+  CREATE INDEX IF NOT EXISTS idx_reviews_contractor_id ON reviews(contractor_id);
+  CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
+`);
 
 // === MIGRATIONS ===
 // Each migration runs exactly once, tracked in schema_migrations table.
