@@ -198,12 +198,12 @@
   },
   "services": {
     "title": "Jasa Konstruksi",
-    "subtitle": "Temukan profesional untuk tugas apa pun",
+    "subtitle": "Temukan kontraktor untuk tugas apa pun",
     "priceFrom": "mulai",
     "back": "Kembali ke Layanan",
-    "verifiedProfessionals": "Profesional Terverifikasi",
+    "verifiedProfessionals": "Kontraktor Terverifikasi",
     "typesOfWork": "Jenis Pekerjaan",
-    "professionals": "profesional",
+    "professionals": "kontraktor",
     "howToFind": "Cara menemukan profesional untuk",
     "step1Title": "Jelaskan tugas Anda",
     "step1Desc": "Tentukan jenis pekerjaan, area, dan jadwal",
@@ -211,7 +211,7 @@
     "step2Desc": "Pilih profesional berdasarkan harga dan rating",
     "step3Title": "Terima pekerjaan",
     "step3Desc": "Bayar setelah inspeksi melalui layanan",
-    "needProfessional": "Butuh profesional?",
+    "needProfessional": "Butuh kontraktor?",
     "ctaSubtitle": "Pasang proyek — dapatkan respons cepat dari profesional",
     "cats": {
       "apartment-renovation": {
