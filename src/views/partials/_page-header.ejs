@@ -28,10 +28,10 @@
       extraLangParams: typeof extraLangParams !== 'undefined' ? extraLangParams : ''
     }) %>
     <% if (typeof showAdminLink !== 'undefined' && showAdminLink && typeof user !== 'undefined' && user && user.role === 'admin') { %>
-      <a href="/admin" class="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 transition whitespace-nowrap"><span class="mat-icon text-sm">settings</span> <%= typeof t !== 'undefined' ? t('nav.admin') : 'Admin' %></a>
+      <%- include('_header-link', { href: '/admin', icon: 'settings', label: typeof t !== 'undefined' ? t('nav.admin') : 'Admin' }) %>
     <% } %>
     <% if (typeof showAccountLink !== 'undefined' && showAccountLink && typeof user !== 'undefined' && user) { %>
-      <a href="/account" class="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 transition font-medium whitespace-nowrap"><span class="mat-icon text-sm">person</span> <%= typeof t !== 'undefined' ? t('nav.account') : 'Account' %></a>
+      <%- include('_header-link', { href: '/account', icon: 'person', label: typeof t !== 'undefined' ? t('nav.account') : 'Account', font: true }) %>
     <% } %>
   </div>
   <!-- Tailwind safelist: min-[1200px]:hidden min-[1600px]:hidden (used dynamically via sidebarBreakpoint) -->

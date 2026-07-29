@@ -1,0 +1,10 @@
+<%# _header-link.ejs — Reusable header nav link with Material icon
+  Parameters:
+    href : link URL
+    icon : Material icon name (e.g. 'settings', 'person', 'logout')
+    label: link text (HTML-safe, already translated)
+    font : boolean — add font-medium (default: false)
+%>
+<a href="<%= href %>" class="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 transition<%= typeof font !== 'undefined' && font ? ' font-medium' : '' %> whitespace-nowrap">
+  <span class="mat-icon text-sm"><%= icon %></span> <%- label %>
+</a>
