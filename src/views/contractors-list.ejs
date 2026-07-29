@@ -34,7 +34,8 @@
           <% }); } %>
         </select>
       </div>
-      <button type="submit" class="bg-orange-700 text-white px-6 py-2.5 rounded-lg hover:bg-orange-800 transition font-medium text-sm whitespace-nowrap">
+      <button type="submit" class="bg-orange-700 text-white px-6 py-2.5 rounded-lg hover:bg-orange-800 transition font-medium text-sm whitespace-nowrap flex items-center gap-2">
+        <span class="material-symbols-outlined text-lg">search</span>
         <%= t('contractors.search') %>
       </button>
       <% if (search || specialty) { %>
