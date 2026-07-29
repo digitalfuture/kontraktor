@@ -66,7 +66,7 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
     <a href="/post" class="block bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md hover:border-orange-300 dark:hover:border-orange-700 transition group">
       <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-xl shrink-0">📋</div>
+        <div class="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center shrink-0"><span class="mat-icon text-2xl text-orange-600 dark:text-orange-400">post_add</span></div>
         <div>
           <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-orange-600 transition"><%= t('account.quickPost') %></h3>
           <p class="text-sm text-gray-500 dark:text-gray-300 mt-0.5"><%= t('account.quickPostDesc') %></p>
@@ -75,7 +75,7 @@
     </a>
     <a href="/projects" class="block bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md hover:border-orange-300 dark:hover:border-orange-700 transition group">
       <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-xl shrink-0">🔍</div>
+        <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center shrink-0"><span class="mat-icon text-2xl text-blue-600 dark:text-blue-400">search</span></div>
         <div>
           <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-orange-600 transition"><%= t('account.quickBrowse') %></h3>
           <p class="text-sm text-gray-500 dark:text-gray-300 mt-0.5"><%= t('account.quickBrowseDesc') %></p>
@@ -92,7 +92,7 @@
       <p class="text-sm text-gray-600 dark:text-gray-300 mt-1"><%= t('account.becomeContractorDesc') %></p>
     </div>
     <a href="/contractors/register" class="inline-flex items-center gap-2 bg-orange-700 text-white px-6 py-2.5 rounded-lg hover:bg-orange-800 transition font-medium whitespace-nowrap shrink-0">
-      🛠️ <%= t('account.registerContractor') %>
+      <span class="mat-icon text-base">handyman</span> <%= t('account.registerContractor') %>
     </a>
   </div>
   <% } %>
@@ -183,12 +183,12 @@
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white truncate"><%= project.title %></h3>
               <p class="text-gray-600 dark:text-gray-300 text-sm mt-1 line-clamp-2"><%= project.description ? project.description.substring(0, 150) + '...' : '' %></p>
               <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-sm text-gray-500 dark:text-gray-300">
-                <span>📁 <%= t('categories.' + project.category_slug) %></span>
+                <span><span class="mat-icon text-base align-text-bottom">folder</span> <%= t('categories.' + project.category_slug) %></span>
                 <% if (project.subcategory_slug) { %>
-                <span>📂 <%= t('subcategories.' + project.subcategory_slug) %></span>
+                <span><span class="mat-icon text-base align-text-bottom">folder_open</span> <%= t('subcategories.' + project.subcategory_slug) %></span>
                 <% } %>
                 <% if (project.address) { %>
-                <span>📍 <%= project.address %></span>
+                <span><span class="mat-icon text-base align-text-bottom">location_on</span> <%= project.address %></span>
                 <% } %>
               </div>
             </div>
@@ -215,7 +215,7 @@
       <p class="text-sm text-gray-500 dark:text-gray-300 mt-1"><%= t('account.allBidsDesc') %></p>
     </div>
     <a href="/projects" class="inline-flex items-center gap-1.5 bg-orange-700 text-white px-4 py-2 rounded-lg hover:bg-orange-800 transition text-sm font-medium">
-      🔍 <%= t('nav.browseProjects') %>
+      <span class="mat-icon text-base">search</span> <%= t('nav.browseProjects') %>
     </a>
   </div>
 
@@ -232,7 +232,7 @@
       <p class="text-gray-500 dark:text-gray-300 text-lg mb-4"><%= t('account.noBidsYet') %></p>
       <p class="text-gray-400 dark:text-gray-500 text-sm mb-6"><%= t('account.noBidsYetSub') %></p>
       <a href="/projects" class="inline-block bg-orange-700 text-white px-6 py-2 rounded-lg hover:bg-orange-800 transition font-medium">
-        🔍 <%= t('nav.browseProjects') %>
+        <span class="mat-icon text-base align-text-bottom">search</span> <%= t('nav.browseProjects') %>
       </a>
     </div>
   <% } else { %>
@@ -243,9 +243,9 @@
             <div class="flex-1 min-w-0">
               <a href="/post/<%= bid.project_id %>" class="text-lg font-semibold text-gray-900 dark:text-white hover:text-orange-600 truncate block"><%= bid.project_title %></a>
               <div class="flex items-center gap-3 mt-1 text-sm text-gray-500 dark:text-gray-300">
-                <span>📁 <%= bid.category_display %></span>
+                <span><span class="mat-icon text-base align-text-bottom">folder</span> <%= bid.category_display %></span>
                 <% if (bid.price) { %>
-                <span>💵 Rp <%= bid.price %></span>
+                <span><span class="mat-icon text-base align-text-bottom">attach_money</span> Rp <%= bid.price %></span>
                 <% } %>
               </div>
             </div>
