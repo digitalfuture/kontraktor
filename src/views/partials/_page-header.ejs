@@ -28,10 +28,10 @@
       extraLangParams: typeof extraLangParams !== 'undefined' ? extraLangParams : ''
     }) %>
     <% if (typeof showAdminLink !== 'undefined' && showAdminLink && typeof user !== 'undefined' && user && user.role === 'admin') { %>
-      <a href="/admin" class="text-xs text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition whitespace-nowrap">⚙️ <%= typeof t !== 'undefined' ? t('nav.admin') : 'Admin' %></a>
+      <a href="/admin" class="inline-flex items-center gap-1 text-xs text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition whitespace-nowrap"><span class="mat-icon text-sm">settings</span> <%= typeof t !== 'undefined' ? t('nav.admin') : 'Admin' %></a>
     <% } %>
     <% if (typeof showAccountLink !== 'undefined' && showAccountLink && typeof user !== 'undefined' && user) { %>
-      <a href="/account" class="text-xs text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition whitespace-nowrap">👤 <%= typeof t !== 'undefined' ? t('nav.account') : 'Account' %></a>
+      <a href="/account" class="inline-flex items-center gap-1 text-xs text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition whitespace-nowrap"><span class="mat-icon text-sm">person</span> <%= typeof t !== 'undefined' ? t('nav.account') : 'Account' %></a>
     <% } %>
   </div>
   <!-- Tailwind safelist: min-[1200px]:hidden min-[1600px]:hidden (used dynamically via sidebarBreakpoint) -->
