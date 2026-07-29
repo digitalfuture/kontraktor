@@ -31,34 +31,52 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
       <div class="flex items-center gap-4">
-        <!-- Avatar upload form -->
-        <div class="relative group">
-          <% if (contractor.avatar_url) { %>
-          <img src="<%= contractor.avatar_url %>" alt="<%= t("contractorDashboard.avatar") %>" class="w-16 h-16 rounded-full object-cover border-2 border-orange-200 dark:border-orange-800" loading="lazy" width="64" height="64">
-          <% } else { %>
-          <div class="w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-2xl font-bold text-orange-700 dark:text-orange-200 border-2 border-orange-200 dark:border-orange-800">
-            <%= (contractor.name || '?')[0].toUpperCase() %>
+        <!-- Avatar + upload form -->
+        <form action="/api/contractors/dashboard/avatar" method="POST" enctype="multipart/form-data">
+          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+          <div class="relative group">
+            <% if (contractor.avatar_url) { %>
+            <img src="<%= contractor.avatar_url %>" alt="<%= t("contractorDashboard.avatar") %>" class="w-16 h-16 rounded-full object-cover border-2 border-orange-200 dark:border-orange-800" loading="lazy" width="64" height="64">
+            <% } else { %>
+            <div class="w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-2xl font-bold text-orange-700 dark:text-orange-200 border-2 border-orange-200 dark:border-orange-800">
+              <%= (contractor.name || '?')[0].toUpperCase() %>
+            </div>
+            <% } %>
+            <label class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition cursor-pointer" title="Change avatar">
+              <span class="mat-icon text-2xl text-white">camera_alt</span>
+              <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp" class="hidden" onchange="this.form.submit()">
+            </label>
           </div>
-          <% } %>
-          <label class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition cursor-pointer" title="Change avatar">
-            <span class="mat-icon text-2xl text-white text-2xl text-gray-600 dark:text-gray-300 text-sm text-gray-600 dark:text-gray-300 text-xl text-orange-700 text-orange-700 dark:text-orange-400 text-sm text-white text-sm text-sm text-gray-500 dark:text-gray-300 text-2xl text-gray-900 dark:text-white text-sm text-yellow-600 dark:text-yellow-400 text-2xl text-yellow-600 dark:text-yellow-400 text-sm text-green-600 dark:text-green-400 text-2xl text-green-600 dark:text-green-400 text-sm text-gray-500 dark:text-gray-300 text-2xl text-gray-500 dark:text-gray-300 text-lg text-center text-gray-500 dark:text-gray-300 text-lg text-white text-gray-900 dark:text-white text-sm text-gray-500 dark:text-gray-300 text-sm text-gray-400 dark:text-gray-500 text-lg text-white text-sm">image</span>
+        </form>
+      </div>
+    </div>
+
+    <!-- Portfolio upload -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 mb-8">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white"><%= t('contractorDashboard.portfolio') %></h2>
+      </div>
+      <form action="/api/contractors/dashboard/portfolio" method="POST" enctype="multipart/form-data" class="p-6">
+        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+        <div class="flex items-center gap-3 mb-4">
+          <label class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition text-sm text-gray-700 dark:text-gray-300 font-medium">
+            <span class="mat-icon text-base">add_photo_alternate</span>
             <%= t('contractorDashboard.addPhotos') %>
             <input type="file" name="photos" accept="image/jpeg,image/png,image/webp,image/gif" multiple class="hidden" id="portfolio-upload">
           </label>
-          <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-900 transition text-sm font-medium"><%= t('contractorDashboard.upload') %></button>
-        </form>
-      </div>
+          <button type="submit" class="bg-orange-700 text-white px-4 py-2 rounded-lg hover:bg-orange-800 transition text-sm font-medium cursor-pointer"><%= t('contractorDashboard.upload') %></button>
+        </div>
+      </form>
 
       <% if (photos && photos.length > 0) { %>
-      <div class="p-6">
+      <div class="p-6 pt-0">
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           <% photos.forEach(function(photo) { %>
-          <div class="relative group">
+          <div class="relative">
             <img src="/uploads/<%= photo.filename %>" alt="<%= photo.caption || '' %>" class="w-full h-40 object-cover rounded-lg border border-gray-200 dark:border-gray-700" loading="lazy">
-            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition rounded-lg flex flex-col items-center justify-center gap-2">
-              <p class="text-white text-xs text-center px-2 truncate w-full"><%= photo.caption || photo.original_name %></p>
+            <div class="absolute top-2 right-2">
               <form action="/api/contractors/dashboard/photo/<%= photo.id %>/delete?_csrf=<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>" method="POST" onsubmit="return confirm('<%= t('contractorDashboard.deletePhotoConfirm') %>')">
-                <button type="submit" class="text-red-400 hover:text-red-300 text-sm font-medium">🗑️ <%= t('contractorDashboard.deletePhoto') %></button>
+                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded cursor-pointer"><%= t('contractorDashboard.deletePhoto') %></button>
               </form>
             </div>
           </div>
