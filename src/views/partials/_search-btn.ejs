@@ -1,0 +1,15 @@
+<%# _search-btn.ejs — Reusable search button
+  Parameters:
+    type    : 'button' | 'submit' (default: 'submit')
+    onclick : optional JS handler
+    size    : 'md' | 'sm' (default: 'md')
+      md → py-3, text-base icon
+      sm → py-2.5, text-sm icon
+%>
+<button
+  type="<%= typeof type !== 'undefined' ? type : 'submit' %>"
+  class="bg-orange-700 text-white px-4 <%= typeof size !== 'undefined' && size === 'sm' ? 'py-2.5 text-sm' : 'py-3' %> rounded-lg hover:bg-orange-800 transition font-medium whitespace-nowrap flex items-center gap-1.5"
+  <%= typeof onclick !== 'undefined' ? 'onclick="' + onclick + '"' : '' %>>
+  <span class="mat-icon <%= typeof size !== 'undefined' && size === 'sm' ? 'text-sm' : 'text-base' %> leading-none">search</span>
+  <%= t('contractors.search') %>
+</button>
