@@ -12,8 +12,22 @@ tr.htmx-swapping {
   <div class="relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg border border-white/30 dark:border-white/10 rounded-2xl shadow-2xl shadow-black/20 max-w-sm w-full p-6 transform transition-all duration-200 scale-95 opacity-0" id="confirm-modal-content">
     <!-- Icon -->
     <div class="mx-auto w-12 h-12 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center mb-4">
-      <span class="mat-icon text-2xl text-red-500 dark:text-red-400 text-center text-gray-800 dark:text-gray-200 text-sm text-sm text-gray-700 dark:text-gray-300 text-sm text-white text-green-500 text-sm text-gray-800 dark:text-gray-200 text-gray-400">close</span>
-    </button>
+      <span class="mat-icon text-2xl text-red-500 dark:text-red-400">close</span>
+    </div>
+    <h3 class="text-lg font-bold text-gray-900 dark:text-white text-center mb-2"><%= typeof t !== 'undefined' ? t('admin.confirm') : 'Confirm' %></h3>
+    <p class="text-sm text-gray-600 dark:text-gray-400 text-center mb-6" id="confirm-modal-msg"></p>
+    <div class="flex gap-3 justify-center">
+      <button id="confirm-modal-cancel" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer"><%= typeof t !== 'undefined' ? t('admin.cancel') : 'Cancel' %></button>
+      <button id="confirm-modal-ok" class="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition cursor-pointer"><%= typeof t !== 'undefined' ? t('admin.confirm') : 'OK' %></button>
+    </div>
+  </div>
+</div>
+
+<!-- Notification Toast -->
+<div id="notification-toast" class="fixed top-4 right-4 z-50 hidden">
+  <div id="notification-toast-content" class="flex items-center gap-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg px-4 py-3 transform transition-all duration-300 translate-x-full opacity-0">
+    <span id="notification-icon"></span>
+    <span id="notification-text" class="text-sm text-gray-800 dark:text-gray-200"></span>
   </div>
 </div>
 
