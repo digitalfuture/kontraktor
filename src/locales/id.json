@@ -328,6 +328,8 @@
   },
   "admin": {
     "dashboard": "Dasbor Admin",
+    "confirm": "Konfirmasi",
+    "deletedContacts": "Kontak Terhapus",
     "projects": "Proyek",
     "contractors": "Kontraktor",
     "categories": "Kategori",
@@ -1115,5 +1117,6 @@
     "validate": "Validasi HTML",
     "validationErrors": "Masalah Validasi HTML"
   },
-  "themeToggle": "Mode Gelap"
+  "themeToggle": "Mode Gelap",
+  "errors": "Kesalahan"
 }

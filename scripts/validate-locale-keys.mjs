@@ -16,15 +16,23 @@ const srcDir = join(__dirname, '..', 'src');
 const localesDir = join(srcDir, 'locales');
 const viewsDir = join(srcDir, 'views');
 
-// ── 1. Extract all t('...') calls from templates ──
-const tKeyPattern = /t\(\s*'([^']+)'\s*\)/g;
+// ── 1. Extract all t('...') calls from EJS template tags ──
+// Only match t() calls INSIDE <% %> / <%= %> / <%- %> tags, not in JS strings or HTML
+const ejsBlockPattern = /<%[=-]?([\s\S]*?)%>/g;
+const tKeyPattern = /(?<![a-zA-Z])t\(\s*'([^']+)'\s*\)/g;
 
 function extractKeysFromFile(filePath) {
   const content = readFileSync(filePath, 'utf-8');
   const keys = [];
-  let match;
-  while ((match = tKeyPattern.exec(content)) !== null) {
-    keys.push(match[1]);
+  // First extract all EJS blocks
+  let blockMatch;
+  while ((blockMatch = ejsBlockPattern.exec(content)) !== null) {
+    const ejsCode = blockMatch[1];
+    // Then find t() calls within each block
+    let tMatch;
+    while ((tMatch = tKeyPattern.exec(ejsCode)) !== null) {
+      keys.push(tMatch[1]);
+    }
   }
   return keys;
 }

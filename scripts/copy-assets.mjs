@@ -1,11 +1,20 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { spawnSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 const distDir = path.join(rootDir, 'dist');
+
+// ── Run locale validator before build ──
+const validatorPath = path.join(__dirname, 'validate-locale-keys.mjs');
+const result = spawnSync('node', [validatorPath], { cwd: rootDir, stdio: 'inherit' });
+if (result.status !== 0) {
+  console.error('❌ Locale validation failed. Fix missing keys before deploying.');
+  process.exit(1);
+}
 
 function copyDirSync(src, dest) {
   if (!fs.existsSync(src)) return;
