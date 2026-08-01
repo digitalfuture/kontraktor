@@ -9,24 +9,6 @@
         <a href="/" class="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-300 hover:text-orange-600 transition mb-4">
           ← <%= t('nav.home') %>
         </a>
-    <!-- Success/Error messages -->
-    <% if (success === 'avatar') { %>
-    <div class="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-300">
-      ✅ <%= t('contractorDashboard.avatarUpdated') %>
-    </div>
-    <% } else if (success === 'portfolio') { %>
-    <div class="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-300">
-      ✅ <%= t('contractorDashboard.photosUploaded') %>
-    </div>
-    <% } else if (success === 'photo_deleted') { %>
-    <div class="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-300">
-      ✅ <%= t('contractorDashboard.photoDeleted') %>
-    </div>
-    <% } else if (error) { %>
-    <div class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300">
-      ❌ <%= t('contractorDashboard.uploadFailed') %>
-    </div>
-    <% } %>
 
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
