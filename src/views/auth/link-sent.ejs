@@ -16,10 +16,10 @@
 
       <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-6 text-left space-y-2">
         <% if (emailSent) { %>
-        <p class="text-sm text-gray-700 dark:text-gray-300">📧 <%= t('auth.sentToEmail') %> <strong><%= email %></strong></p>
+        <p class="text-sm text-gray-700 dark:text-gray-300 inline-flex items-center gap-2"><span class="mat-icon text-base">mail</span> <%= t('auth.sentToEmail') %> <strong><%= email %></strong></p>
         <% } %>
         <% if (telegramSent) { %>
-        <p class="text-sm text-gray-700 dark:text-gray-300">📱 <%= t('auth.sentToTelegram') %></p>
+        <p class="text-sm text-gray-700 dark:text-gray-300 inline-flex items-center gap-2"><span class="mat-icon text-base">send</span> <%= t('auth.sentToTelegram') %></p>
         <% } %>
       </div>
       <% } else { %>

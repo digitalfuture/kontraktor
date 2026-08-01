@@ -9,10 +9,10 @@
 
       <!-- Tab Navigation -->
       <div class="flex gap-1 mb-6 border-b border-gray-200 dark:border-gray-700">
-        <button onclick="switchTab('sitemap')" id="tab-sitemap" class="px-4 py-2.5 text-sm font-medium border-b-2 border-orange-500 text-orange-600 dark:text-orange-400 transition">🧭 <%= typeof t !== 'undefined' ? t('admin.sitemap') : 'Sitemap' %></button>
-        <button onclick="switchTab('codebase')" id="tab-codebase" class="px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition">📁 <%= typeof t !== 'undefined' ? 'Codebase' : 'Codebase' %></button>
-        <button onclick="switchTab('scenarios')" id="tab-scenarios" class="px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition">🧑 <%= typeof t !== 'undefined' ? 'Scenarios' : 'Scenarios' %></button>
-        <button onclick="switchTab('charts')" id="tab-charts" class="px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition">📊 <%= typeof t !== 'undefined' ? t('admin.charts') : 'Charts' %></button>
+        <button onclick="switchTab('sitemap')" id="tab-sitemap" class="px-4 py-2.5 text-sm font-medium border-b-2 border-orange-500 text-orange-600 dark:text-orange-400 transition inline-flex items-center gap-1"><span class="mat-icon text-base">explore</span> <%= typeof t !== 'undefined' ? t('admin.sitemap') : 'Sitemap' %></button>
+        <button onclick="switchTab('codebase')" id="tab-codebase" class="px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition inline-flex items-center gap-1"><span class="mat-icon text-base">folder</span> <%= typeof t !== 'undefined' ? 'Codebase' : 'Codebase' %></button>
+        <button onclick="switchTab('scenarios')" id="tab-scenarios" class="px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition inline-flex items-center gap-1"><span class="mat-icon text-base">account_tree</span> <%= typeof t !== 'undefined' ? 'Scenarios' : 'Scenarios' %></button>
+        <button onclick="switchTab('charts')" id="tab-charts" class="px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition inline-flex items-center gap-1"><span class="mat-icon text-base">bar_chart</span> <%= typeof t !== 'undefined' ? t('admin.charts') : 'Charts' %></button>
       </div>
 
       <!-- Tab: Sitemap -->

@@ -38,7 +38,7 @@
             <div>
               <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"><%= project.title %></h1>
               <div class="flex items-center gap-3 mt-2 text-sm text-gray-500 dark:text-gray-300">
-                <span>📁 <%= project.category_display %></span>
+                <span class="inline-flex items-center gap-1"><span class="mat-icon text-sm">folder</span> <%= project.category_display %></span>
                 <% if (project.subcategory_display) { %>
                 <span>•</span>
                 <span><%= project.subcategory_display %></span>
@@ -48,7 +48,7 @@
             <%- include('partials/_status-badge', { status: project.status, type: 'project' }) %>
             <% if (typeof editable !== 'undefined' && editable) { %>
               <a href="/post/<%= project.id %>/edit?lang=<%= locale %>" class="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-200 dark:hover:bg-orange-900/50 transition">
-                ✏️ <%= t('projects.edit') %>
+                <span class="mat-icon text-base align-text-bottom">edit</span> <%= t('projects.edit') %>
               </a>
             <% } else if (typeof isOwner !== 'undefined' && isOwner && project.assigned_contractor_id) { %>
               <span class="inline-flex items-center gap-1 text-sm bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-lg">
@@ -266,12 +266,12 @@
           <div class="space-y-2 text-sm border-t border-gray-100 dark:border-gray-800 pt-4">
             <% if (project.contractor_specialty) { %>
             <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-              <span>🔧</span> <span><%= project.contractor_specialty %></span>
+              <span class="mat-icon text-base">construction</span> <span><%= project.contractor_specialty %></span>
             </div>
             <% } %>
             <% if (project.contractor_completed) { %>
             <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-              <span>✅</span> <span><%= project.contractor_completed %> <%= t('projectDetail.projectsCompleted') %></span>
+              <span class="mat-icon text-base">check_circle</span> <span><%= project.contractor_completed %> <%= t('projectDetail.projectsCompleted') %></span>
             </div>
             <% } %>
             <% if (project.contractor_phone) { %>

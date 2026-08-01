@@ -32,7 +32,7 @@
     <!-- Error/Success states -->
     <% if (typeof error !== 'undefined' || (typeof req !== 'undefined' && req.query.error)) { %>
       <div class="max-w-md mx-auto mb-8 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-300 flex items-center gap-3">
-        <span class="text-xl">⚠️</span>
+        <span class="mat-icon text-xl text-red-600 dark:text-red-400">warning</span>
         <div>
           <p class="font-bold"><%= locale === 'id' ? 'Terjadi Kesalahan' : 'Action Failed' %></p>
           <p class="text-sm"><%= locale === 'id' ? 'Gagal menginisialisasi pembayaran. Silakan coba lagi.' : 'Failed to initialize payment. Please try again.' %></p>

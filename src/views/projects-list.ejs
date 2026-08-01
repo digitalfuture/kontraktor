@@ -71,10 +71,10 @@
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-3 mb-2 flex-wrap">
               <%- include('partials/_status-badge', { status: p.status, type: 'project' }) %>
-              <span class="text-sm text-gray-500 dark:text-gray-300">📁 <%= p.category_display %></span>
+              <span class="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-300"><span class="mat-icon text-sm">folder</span> <%= p.category_display %></span>
               <% if (userRole === 'client' && p.assigned_contractor_id) { %>
                 <span class="inline-flex items-center gap-1 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full">
-                  🔒 <%= t('projects.assignedLock') %>
+                  <span class="mat-icon text-sm">lock</span> <%= t('projects.assignedLock') %>
                 </span>
               <% } %>
             </div>
@@ -84,16 +84,16 @@
             <p class="text-sm text-gray-600 dark:text-gray-300 mt-1 line-clamp-2"><%= p.description %></p>
             <div class="flex items-center gap-4 mt-3 text-sm text-gray-500 dark:text-gray-300">
               <% if (p.district_display || p.address) { %>
-              <span>📍 <%= p.district_display || '' %><% if (p.district_display && p.address) { %>, <% } %><%= p.address || '' %></span>
+              <span class="inline-flex items-center gap-1"><span class="mat-icon text-sm">location_on</span> <%= p.district_display || '' %><% if (p.district_display && p.address) { %>, <% } %><%= p.address || '' %></span>
               <% } %>
-              <span>📅 <%= new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %></span>
-              <span>💬 <%= p.bid_count || 0 %> <%= (p.bid_count === 1) ? t('projects.bids') : t('projects.bidsPlural') %></span>
+              <span class="inline-flex items-center gap-1"><span class="mat-icon text-sm">calendar_today</span> <%= new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %></span>
+              <span class="inline-flex items-center gap-1"><span class="mat-icon text-sm">chat_bubble</span> <%= p.bid_count || 0 %> <%= (p.bid_count === 1) ? t('projects.bids') : t('projects.bidsPlural') %></span>
             </div>
           </div>
           <div class="flex items-center gap-2 relative z-20">
             <% if (userRole === 'client' && p.editable) { %>
               <a href="/post/<%= p.id %>/edit?lang=<%= locale %>" class="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-orange-200 dark:hover:bg-orange-900/50 transition">
-                ✏️ <%= t('projects.edit') %>
+                <span class="mat-icon text-base align-text-bottom">edit</span> <%= t('projects.edit') %>
               </a>
             <% } %>
             <span class="text-orange-700 group-hover:translate-x-1 transition-transform text-lg">→</span>

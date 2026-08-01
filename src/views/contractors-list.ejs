@@ -109,7 +109,7 @@
         <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
           <% var avg = parseFloat(c.avg_rating || 0); %>
           <% if (avg > 0) { %>
-          <span>⭐ <%= avg.toFixed(1) %></span>
+          <span class="inline-flex items-center gap-1"><span class="mat-icon text-sm">star</span> <%= avg.toFixed(1) %></span>
           <% } else { %>
           <span class="text-gray-400"><%= t('contractors.noReviews') %></span>
           <% } %>

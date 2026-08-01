@@ -10,20 +10,20 @@
 
 <div class="grid gap-4">
   <% var tmplList = [
-    { key: 'magic_link', icon: '🔑' },
-    { key: 'welcome', icon: '👋' },
-    { key: 'project_assigned', icon: '📋' },
-    { key: 'bid_received', icon: '💬' },
-    { key: 'payment_receipt', icon: '🧾' },
-    { key: 'contractor_invite', icon: '📨' },
-    { key: 'new-project-notification', icon: '🆕' },
+    { key: 'magic_link', icon: 'key' },
+    { key: 'welcome', icon: 'waving_hand' },
+    { key: 'project_assigned', icon: 'assignment' },
+    { key: 'bid_received', icon: 'chat_bubble' },
+    { key: 'payment_receipt', icon: 'receipt' },
+    { key: 'contractor_invite', icon: 'mail' },
+    { key: 'new-project-notification', icon: 'campaign' },
   ]; %>
   <% tmplList.forEach(function(item) { %>
     <% var tmpl = null; %>
     <% templates.forEach(function(t) { if (t.system_key === item.key) tmpl = t; }); %>
     <a href="/admin/email/templates/<%= item.key %>" class="block bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-5 shadow-card border border-gray-200 dark:border-gray-700 hover:border-orange-300 dark:hover:border-orange-600 transition group">
       <div class="flex items-start gap-4">
-        <div class="text-2xl shrink-0"><%= item.icon %></div>
+        <div class="shrink-0"><span class="mat-icon text-2xl"><%= item.icon %></span></div>
         <div class="min-w-0 flex-1">
           <h3 class="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition">
             <%= t('email.template' + item.key.replace(/[-_]./g, function(m) { return m[1].toUpperCase(); }).replace(/^./, function(m) { return m.toUpperCase(); })) %>

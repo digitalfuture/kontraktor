@@ -33,9 +33,9 @@
           </div>
           <div class="flex items-center gap-4 mt-2 text-sm text-gray-600 dark:text-gray-300">
             <% if (contractor.avg_rating > 0) { %>
-            <span>⭐ <%= contractor.avg_rating.toFixed(1) %> (<%= contractor.review_count || 0 %> <%= t('contractorProfile.reviews') %>)</span>
+            <span class="inline-flex items-center gap-1"><span class="mat-icon text-sm">star</span> <%= contractor.avg_rating.toFixed(1) %> (<%= contractor.review_count || 0 %> <%= t('contractorProfile.reviews') %>)</span>
             <% } %>
-            <span>📁 <%= contractor.completed_projects || 0 %> <%= t('contractorProfile.projectsCompleted') %></span>
+            <span class="inline-flex items-center gap-1"><span class="mat-icon text-sm">folder</span> <%= contractor.completed_projects || 0 %> <%= t('contractorProfile.projectsCompleted') %></span>
           </div>
           <% if (contractor.bio) { %>
           <p class="mt-4 text-gray-700 dark:text-gray-300"><%= contractor.bio %></p>
@@ -89,7 +89,7 @@
       <% if (photos && photos.length > 0) { %>
       <section class="md:col-span-2" aria-labelledby="portfolio-heading">
         <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h3 id="portfolio-heading" class="text-lg font-semibold mb-4">📸 <%= t('contractorProfile.portfolio') %></h3>
+          <h3 id="portfolio-heading" class="text-lg font-semibold mb-4 flex items-center gap-2"><span class="mat-icon">photo_library</span> <%= t('contractorProfile.portfolio') %></h3>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             <% photos.forEach(function(photo, idx) { %>
             <div class="relative group" id="profile-photo-<%= photo.id %>">
