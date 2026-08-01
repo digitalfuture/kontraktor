@@ -43,10 +43,6 @@
     <span class="mat-icon text-3xl">chevron_right</span>
   </button>
 
-  <% if (_photos.length > 0 && _photos[0].caption) { %>
-  <!-- Caption -->
-  <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 text-white/80 text-sm text-center max-w-[80%] truncate" data-gallery-caption></div>
-  <% } %>
 </div>
 
 <script>
@@ -57,7 +53,6 @@
 
   var imgEl = overlay.querySelector('[data-gallery-image]');
   var counterEl = overlay.querySelector('[data-gallery-counter]');
-  var captionEl = overlay.querySelector('[data-gallery-caption]');
   var closeBtn = overlay.querySelector('[data-gallery-close]');
   var prevBtn = overlay.querySelector('[data-gallery-prev]');
   var nextBtn = overlay.querySelector('[data-gallery-next]');
@@ -87,14 +82,15 @@
 
   function showImage(index) {
     if (photos.length === 0) return;
-    if (index < 0) index = photos.length - 1;
-    if (index >= photos.length) index = 0;
+    // No wrap-around: clamp and hide arrows at the ends
+    if (index < 0 || index >= photos.length) return;
     currentIndex = index;
     var photo = photos[currentIndex];
     imgEl.src = photo.src;
     imgEl.alt = photo.caption || '';
     if (counterEl) counterEl.textContent = (currentIndex + 1) + ' / ' + photos.length;
-    if (captionEl) captionEl.textContent = photo.caption || '';
+    if (prevBtn) prevBtn.style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
+    if (nextBtn) nextBtn.style.visibility = currentIndex === photos.length - 1 ? 'hidden' : 'visible';
     // Preload adjacent images
     var nextIdx = (currentIndex + 1) % photos.length;
     var prevIdx = (currentIndex - 1 + photos.length) % photos.length;
