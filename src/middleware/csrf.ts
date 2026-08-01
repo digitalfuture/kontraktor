@@ -48,14 +48,9 @@ export function csrfMiddleware(req: Request, res: Response, next: NextFunction) 
     return res.status(403).send('Invalid CSRF token');
   }
 
-  // Rotate token after validation
-  const newToken = randomBytes(32).toString('hex');
-  res.cookie('csrf_token', newToken, {
-    httpOnly: false,
-    sameSite: 'lax',
-    secure: false, // must work over HTTP too (dev, proxied setups)
-    maxAge: 86400000,
-  });
-  res.locals.csrfToken = newToken;
+  // No rotation: HTMX forms keep the token in their URL/hidden input and
+  // never re-render after a POST, so rotating here breaks every request
+  // after the first one (403 Invalid CSRF token).
+  res.locals.csrfToken = tokenCookie;
   next();
 }
