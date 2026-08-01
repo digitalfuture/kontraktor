@@ -1,0 +1,32 @@
+<%# Общий грид портфолио (картинки + клик в галерею).
+   Параметры:
+     photos    — массив { id, filename, caption }
+     galleryId — имя JS-объекта галереи (напр. 'dashboardGallery', 'portfolioGallery')
+     gridId    — id контейнера (опц., по умолчанию 'portfolio-grid')
+     showDelete — true на дашборде подрядчика (кнопка удаления фото)
+   Используется и на дашборде подрядчика, и на публичном профиле. %>
+<%
+var _pg_gallery = typeof galleryId !== 'undefined' ? galleryId : 'portfolioGallery';
+var _pg_grid = typeof gridId !== 'undefined' ? gridId : 'portfolio-grid';
+var _pg_photos = typeof photos !== 'undefined' ? photos : [];
+var _pg_delete = typeof showDelete !== 'undefined' && showDelete;
+var _pg_csrf = typeof csrfToken !== 'undefined' ? csrfToken : '';
+%>
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4" id="<%= _pg_grid %>">
+  <% _pg_photos.forEach(function(photo, idx) { %>
+  <div class="relative group aspect-[3/2] overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700" id="<%= _pg_grid %>-photo-<%= photo.id %>">
+    <img src="/uploads/<%= photo.filename %>" alt="<%= photo.caption || '' %>" class="w-full h-full object-cover group-hover:brightness-75 transition duration-200 cursor-pointer" onclick="<%= _pg_gallery %>.open(<%= idx %>)" loading="lazy">
+    <% if (_pg_delete) { %>
+    <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+      <form hx-post="/api/contractors/dashboard/photo/<%= photo.id %>/delete"
+            hx-target="#<%= _pg_grid %>-photo-<%= photo.id %>"
+            hx-swap="delete"
+            hx-confirm="<%= t('contractorDashboard.deletePhotoConfirm') %>">
+        <input type="hidden" name="_csrf" value="<%= _pg_csrf %>">
+        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded cursor-pointer"><%= t('contractorDashboard.deletePhoto') %></button>
+      </form>
+    </div>
+    <% } %>
+  </div>
+  <% }); %>
+</div>

@@ -20,22 +20,7 @@
 
     <% if (photos && photos.length > 0) { %>
     <div class="p-6 pt-0">
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4" id="portfolio-grid">
-        <% photos.forEach(function(photo, idx) { %>
-        <div class="relative group" id="photo-<%= photo.id %>">
-          <img src="/uploads/<%= photo.filename %>" alt="<%= photo.caption || '' %>" class="w-full h-40 object-cover rounded-lg border border-gray-200 dark:border-gray-700 group-hover:brightness-75 transition duration-200 cursor-pointer" onclick="dashboardGallery.open(<%= idx %>)" loading="lazy">
-          <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <form hx-post="/api/contractors/dashboard/photo/<%= photo.id %>/delete"
-                  hx-target="#photo-<%= photo.id %>"
-                  hx-swap="delete"
-                  hx-confirm="<%= t('contractorDashboard.deletePhotoConfirm') %>">
-              <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-              <button type="submit" class="bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded cursor-pointer"><%= t('contractorDashboard.deletePhoto') %></button>
-            </form>
-          </div>
-        </div>
-        <% }); %>
-      </div>
+      <%- include('_portfolio-grid', { photos: photos, galleryId: 'dashboardGallery', gridId: 'portfolio-grid', showDelete: true }) %>
     </div>
     <% } else { %>
     <div class="p-12 text-center">

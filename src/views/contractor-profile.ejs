@@ -90,13 +90,7 @@
       <section class="md:col-span-2" aria-labelledby="portfolio-heading">
         <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <h3 id="portfolio-heading" class="text-lg font-semibold mb-4 flex items-center gap-2"><span class="mat-icon">photo_library</span> <%= t('contractorProfile.portfolio') %></h3>
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            <% photos.forEach(function(photo, idx) { %>
-            <div class="relative group" id="profile-photo-<%= photo.id %>">
-              <img src="/uploads/<%= photo.filename %>" alt="<%= photo.caption || '' %>" class="w-full h-40 object-cover rounded-lg border border-gray-200 dark:border-gray-700 group-hover:brightness-75 transition duration-200 cursor-pointer" onclick="portfolioGallery.open(<%= idx %>)" loading="lazy">
-            </div>
-            <% }); %>
-          </div>
+          <%- include('partials/_portfolio-grid', { photos: photos, galleryId: 'portfolioGallery', gridId: 'profile-portfolio-grid' }) %>
         </div>
       </section>
       <% } %>
