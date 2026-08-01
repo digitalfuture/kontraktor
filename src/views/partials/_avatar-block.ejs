@@ -1,0 +1,22 @@
+<div id="avatar-block" class="flex-shrink-0">
+  <form action="/api/contractors/dashboard/avatar?_csrf=<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>" method="POST" enctype="multipart/form-data"
+        hx-post="/api/contractors/dashboard/avatar?_csrf=<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"
+        hx-encoding="multipart/form-data"
+        hx-trigger="change"
+        hx-target="#avatar-block"
+        hx-swap="outerHTML">
+    <div class="relative group">
+      <% if (contractor.avatar_url) { %>
+      <img src="<%= contractor.avatar_url %>" alt="<%= t("contractorDashboard.avatar") %>" class="w-16 h-16 rounded-full object-cover border-2 border-orange-200 dark:border-orange-800" loading="lazy" width="64" height="64">
+      <% } else { %>
+      <div class="w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-2xl font-bold text-orange-700 dark:text-orange-200 border-2 border-orange-200 dark:border-orange-800">
+        <%= (contractor.name || '?')[0].toUpperCase() %>
+      </div>
+      <% } %>
+      <label class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition cursor-pointer" title="Change avatar">
+        <span class="mat-icon text-2xl text-white">camera_alt</span>
+        <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp" class="hidden">
+      </label>
+    </div>
+  </form>
+</div>

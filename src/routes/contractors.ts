@@ -301,23 +301,30 @@ apiRouter.post('/register', optionalAuth, (req: Request, res: Response): void =>
 apiRouter.post('/dashboard/avatar', requireAuth, upload.single('avatar'), async (req: Request, res: Response): Promise<void> => {
   const user = (req as any).user;
   const isHtmx = req.headers['hx-request'] === 'true';
-  const finish = (url: string) => {
+  const t = (res.locals.t as (key: string) => string) || ((key: string) => key);
+
+  const renderBlock = (): void => {
+    res.render('partials/_avatar-block', {
+      contractor: db.prepare('SELECT * FROM users WHERE id = ?').get(user.id),
+    });
+  };
+  const fail = (errorKey: string): void => {
     if (isHtmx) {
-      res.set('HX-Redirect', url);
-      res.send('');
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: t('contractorDashboard.uploadFailed'), type: 'error' } }));
+      renderBlock();
     } else {
-      res.redirect(url);
+      res.redirect(`/contractors/dashboard?error=${errorKey}`);
     }
   };
 
   if (!req.file) {
-    finish('/contractors/dashboard?error=no_file');
+    fail('no_file');
     return;
   }
 
   const contractor = db.prepare('SELECT id, avatar_url FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
   if (!contractor) {
-    finish('/contractors/dashboard?error=no_contractor');
+    fail('no_contractor');
     return;
   }
 
@@ -330,10 +337,15 @@ apiRouter.post('/dashboard/avatar', requireAuth, upload.single('avatar'), async 
   try {
     const { filename } = await processAndSaveImage(req.file, { isAvatar: true });
     db.prepare('UPDATE users SET avatar_url = ? WHERE id = ? AND is_contractor = 1').run(`/uploads/${filename}`, contractor.id);
-    finish('/contractors/dashboard?success=avatar');
+    if (isHtmx) {
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: t('contractorDashboard.avatarUpdated'), type: 'success' } }));
+      renderBlock();
+    } else {
+      res.redirect('/contractors/dashboard?success=avatar');
+    }
   } catch (err) {
     console.error('Failed to process and save avatar:', err);
-    finish('/contractors/dashboard?error=processing_failed');
+    fail('processing_failed');
   }
 });
 
@@ -341,12 +353,19 @@ apiRouter.post('/dashboard/avatar', requireAuth, upload.single('avatar'), async 
 apiRouter.post('/dashboard/portfolio', requireAuth, upload.fields([{ name: 'photos', maxCount: 10 }]), async (req: Request, res: Response): Promise<void> => {
   const user = (req as any).user;
   const isHtmx = req.headers['hx-request'] === 'true';
-  const finish = (url: string) => {
+  const t = (res.locals.t as (key: string) => string) || ((key: string) => key);
+
+  const renderSection = (): void => {
+    res.render('partials/_portfolio-section', {
+      photos: db.prepare('SELECT id, filename, original_name, caption, file_size, created_at FROM photos WHERE contractor_id = ? AND is_portfolio = 1 ORDER BY created_at DESC').all(user.id) as any[],
+    });
+  };
+  const fail = (errorKey: string): void => {
     if (isHtmx) {
-      res.set('HX-Redirect', url);
-      res.send('');
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: t('contractorDashboard.uploadFailed'), type: 'error' } }));
+      renderSection();
     } else {
-      res.redirect(url);
+      res.redirect(`/contractors/dashboard?error=${errorKey}`);
     }
   };
   const fileFields = (req.files as Record<string, Express.Multer.File[]>) || {};
@@ -354,7 +373,7 @@ apiRouter.post('/dashboard/portfolio', requireAuth, upload.fields([{ name: 'phot
 
   if (!files || files.length === 0) {
     console.log('[upload] No files, redirecting');
-    finish('/contractors/dashboard?error=no_files');
+    fail('no_files');
     return;
   }
 
@@ -362,7 +381,7 @@ apiRouter.post('/dashboard/portfolio', requireAuth, upload.fields([{ name: 'phot
     const contractor = db.prepare('SELECT id FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
     if (!contractor) {
       console.log('[upload] No contractor found');
-      finish('/contractors/dashboard?error=no_contractor');
+      fail('no_contractor');
       return;
     }
 
@@ -387,11 +406,16 @@ apiRouter.post('/dashboard/portfolio', requireAuth, upload.fields([{ name: 'phot
     }
 
     console.log('[upload] All done, redirecting');
-    finish(`/contractors/dashboard?success=portfolio`);
+    if (isHtmx) {
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: t('contractorDashboard.photosUploaded'), type: 'success' } }));
+      renderSection();
+    } else {
+      res.redirect('/contractors/dashboard?success=portfolio');
+    }
   } catch (err) {
     console.log('[upload] Error caught:', err);
     console.error('Failed to process and save portfolio photos:', err);
-    finish('/contractors/dashboard?error=processing_failed');
+    fail('processing_failed');
   }
 });
 
