@@ -1,6 +1,9 @@
 <%# Gallery Fullscreen Viewer — call with { galleryId: 'portfolio-gallery', photos: [...] } %>
 <% var _galleryId = typeof galleryId !== 'undefined' ? galleryId : 'gallery-viewer'; %>
 <% var _photos = typeof photos !== 'undefined' ? photos : []; %>
+<%# Optional: CSS selector of the grid to re-read photos from on every open() — %>
+<%# needed when the grid is re-rendered via HTMX (dashboard portfolio). %>
+<% var _refreshSelector = typeof refreshSelector !== 'undefined' ? refreshSelector : ''; %>
 
 <div id="<%= _galleryId %>-overlay"
      class="fixed inset-0 z-[100] bg-black/90 hidden items-center justify-center"
@@ -64,12 +67,26 @@
     photos = JSON.parse(overlay.getAttribute('data-photos') || '[]');
   } catch(e) { photos = []; }
 
-  if (photos.length === 0) return;
-
   var currentIndex = 0;
   var lastFocus = null;
+  var refreshSelector = '<%= _refreshSelector %>';
+
+  // Re-read photos from the live DOM grid (stays correct after HTMX swaps)
+  function refreshPhotos() {
+    if (!refreshSelector) return;
+    var imgs = document.querySelectorAll(refreshSelector + ' img');
+    var newPhotos = [];
+    for (var i = 0; i < imgs.length; i++) {
+      newPhotos.push({
+        src: imgs[i].getAttribute('src'),
+        caption: imgs[i].getAttribute('alt') || ''
+      });
+    }
+    if (newPhotos.length > 0) photos = newPhotos;
+  }
 
   function showImage(index) {
+    if (photos.length === 0) return;
     if (index < 0) index = photos.length - 1;
     if (index >= photos.length) index = 0;
     currentIndex = index;
@@ -94,6 +111,7 @@
   }
 
   function open(index) {
+    refreshPhotos();
     lastFocus = document.activeElement;
     currentIndex = typeof index === 'number' ? index : 0;
     overlay.classList.remove('hidden');
