@@ -90,14 +90,11 @@
       <section class="md:col-span-2" aria-labelledby="portfolio-heading">
         <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <h3 id="portfolio-heading" class="text-lg font-semibold mb-4">📸 <%= t('contractorProfile.portfolio') %></h3>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             <% photos.forEach(function(photo, idx) { %>
-            <figure class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer" onclick="portfolioGallery.open(<%= idx %>)" role="button" tabindex="0" onkeydown="if(event.key==='Enter')portfolioGallery.open(<%= idx %>)">
-              <img src="/uploads/<%= photo.filename %>" alt="<%= photo.caption || '' %>" class="w-full h-40 object-cover hover:scale-105 transition duration-300" loading="lazy">
-              <% if (photo.caption) { %>
-              <figcaption class="p-2 text-xs text-gray-600 dark:text-gray-300 truncate"><%= photo.caption %></figcaption>
-              <% } %>
-            </figure>
+            <div class="relative group" id="profile-photo-<%= photo.id %>">
+              <img src="/uploads/<%= photo.filename %>" alt="<%= photo.caption || '' %>" class="w-full h-40 object-cover rounded-lg border border-gray-200 dark:border-gray-700 group-hover:brightness-75 transition duration-200 cursor-pointer" onclick="portfolioGallery.open(<%= idx %>)" loading="lazy">
+            </div>
             <% }); %>
           </div>
         </div>
