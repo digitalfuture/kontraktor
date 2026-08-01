@@ -69,7 +69,7 @@
                   </td>
                   <td class="px-2 sm:px-3 py-4 hidden min-[1600px]:table-cell" onclick="event.stopPropagation()">
                     <div class="flex gap-1.5 items-center flex-nowrap whitespace-nowrap">
-                      <%- include('../partials/_admin-contractor-actions', { c: s }) %>
+                      <%- include('../partials/_admin-contractor-actions', { c: s, prefix: 'row' }) %>
                     </div>
                   </td>
                 </tr>
@@ -115,13 +115,7 @@
                         <div class="flex flex-wrap gap-2">
                           <% if (s.services && s.services.length > 0) { %>
                             <% s.services.forEach(function(svc) { %>
-                            <form action="/api/admin/contractors/<%= s.id %>/services/<%= svc.id %>/toggle" method="POST" class="inline">
-                              <%- include('../partials/csrf-field') %>
-                              <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition cursor-pointer <%= svc.is_active ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800 hover:bg-green-100 dark:hover:bg-green-900/30' : 'bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700' %>">
-                                <span class="w-1.5 h-1.5 rounded-full <%= svc.is_active ? 'bg-green-500' : 'bg-gray-400' %>"></span>
-                                <%= svc.display_name %>
-                              </button>
-                            </form>
+                            <%- include('partials/_service-toggle', { s, svc }) %>
                             <% }); %>
                           <% } else { %>
                             <span class="text-gray-400 text-xs"><%= t('admin.noServices') %></span>
@@ -132,7 +126,7 @@
                       <div class="min-[1600px]:hidden">
                         <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1"><%= t("admin.actions") %></p>
                         <div class="flex gap-2 items-center flex-wrap mt-1">
-                          <%- include('../partials/_admin-contractor-actions', { c: s }) %>
+                          <%- include('../partials/_admin-contractor-actions', { c: s, prefix: 'detail' }) %>
                         </div>
                       </div>
                     </div>

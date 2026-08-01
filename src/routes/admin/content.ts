@@ -282,6 +282,11 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
       return;
     }
     db.prepare('UPDATE projects SET status = ? WHERE id = ?').run(status, id);
+    if (req.headers['hx-request']) {
+      const order = db.prepare('SELECT id, status, title, contact_name, contact_phone, description, district_display, address, category, created_at FROM projects WHERE id = ?').get(id) as any;
+      res.render('partials/_admin-order-status', { order, prefix: req.body.prefix || '' });
+      return;
+    }
     res.redirect('/admin/projects');
   });
 
@@ -289,6 +294,12 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
     const id = parseInt(req.params.id as string, 10);
     const contractorId = parseInt(req.body.contractor_id as string, 10);
     db.prepare('UPDATE projects SET assigned_contractor_id = ?, status = ? WHERE id = ?').run(contractorId, 'in_progress', id);
+    if (req.headers['hx-request']) {
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Contractor assigned', type: 'success' } }));
+      res.set('HX-Refresh', 'true');
+      res.status(200).send('');
+      return;
+    }
     res.redirect('/admin/projects');
   });
 
@@ -302,6 +313,11 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
     } else {
       db.prepare('UPDATE reviews SET is_moderated = 1, is_approved = 0 WHERE id = ?').run(id);
     }
+    if (req.headers['hx-request']) {
+      const review = db.prepare('SELECT * FROM reviews WHERE id = ?').get(id) as any;
+      res.render('partials/_admin-review-actions', { review });
+      return;
+    }
     res.redirect('/admin/reviews');
   });
 
@@ -309,7 +325,7 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
     const id = parseInt(req.params.id as string, 10);
     db.prepare('UPDATE reviews SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?').run(id);
     if (req.headers['hx-request']) {
-      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Review deleted', type: 'success' } }));
+      res.set('HX-Redirect', '/admin/reviews');
       res.status(200).send('');
       return;
     }
@@ -343,6 +359,11 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
   apiRouter.post('/categories/create', (req: Request, res: Response): void => {
     const { name, slug } = req.body;
     if (!name || !slug) {
+      if (req.headers['hx-request']) {
+        res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Name and slug are required', type: 'error' } }));
+        res.status(400).send('');
+        return;
+      }
       res.redirect('/admin/categories');
       return;
     }
@@ -350,6 +371,12 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
       INSERT INTO categories (name, slug, is_active)
       VALUES (?, ?, ?, ?, ?, ?, 1)
     `).run(name, slug);
+    if (req.headers['hx-request']) {
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Category created', type: 'success' } }));
+      res.set('HX-Refresh', 'true');
+      res.status(200).send('');
+      return;
+    }
     res.redirect('/admin/categories');
   });
 
@@ -360,12 +387,24 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
       UPDATE categories SET name = ?, is_active = ?
       WHERE id = ?
     `).run(catName, is_active ? 1 : 0, id);
+    if (req.headers['hx-request']) {
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Category updated', type: 'success' } }));
+      res.set('HX-Refresh', 'true');
+      res.status(200).send('');
+      return;
+    }
     res.redirect('/admin/categories');
   });
 
   apiRouter.post('/categories/:id/toggle', (req: Request, res: Response): void => {
     const id = parseInt(req.params.id as string, 10);
     db.prepare('UPDATE categories SET is_active = NOT is_active WHERE id = ?').run(id);
+    if (req.headers['hx-request']) {
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Category toggled', type: 'success' } }));
+      res.set('HX-Refresh', 'true');
+      res.status(200).send('');
+      return;
+    }
     res.redirect('/admin/categories');
   });
 
@@ -407,21 +446,36 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
   apiRouter.post('/contractors/:id/toggle-verified', (req: Request, res: Response): void => {
     const id = parseInt(req.params.id as string, 10);
     db.prepare('UPDATE users SET is_verified = NOT is_verified WHERE id = ?').run(id);
+    if (req.headers['hx-request']) {
+      const c = db.prepare('SELECT id, is_verified, is_active FROM users WHERE id = ?').get(id) as any;
+      res.render('partials/_admin-contractor-actions', { c, prefix: req.body.prefix || '' });
+      return;
+    }
     res.redirect('/admin/contractors');
   });
 
   apiRouter.post('/contractors/:id/toggle-active', (req: Request, res: Response): void => {
     const id = parseInt(req.params.id as string, 10);
     db.prepare('UPDATE users SET is_active = NOT is_active WHERE id = ?').run(id);
+    if (req.headers['hx-request']) {
+      const c = db.prepare('SELECT id, is_verified, is_active FROM users WHERE id = ?').get(id) as any;
+      res.render('partials/_admin-contractor-actions', { c, prefix: req.body.prefix || '' });
+      return;
+    }
     res.redirect('/admin/contractors');
   });
 
   apiRouter.post('/contractors/:id/services/:serviceId/toggle', (req: Request, res: Response): void => {
     const contractorId = parseInt(req.params.id as string, 10);
     const serviceId = parseInt(req.params.serviceId as string, 10);
-    const service = db.prepare('SELECT id FROM contractor_services WHERE id = ? AND contractor_id = ?').get(serviceId, contractorId) as any;
+    const service = db.prepare('SELECT cs.id, cs.is_active, c.slug as display_name FROM contractor_services cs JOIN categories c ON c.id = cs.category_id WHERE cs.id = ? AND cs.contractor_id = ?').get(serviceId, contractorId) as any;
     if (service) {
       db.prepare('UPDATE contractor_services SET is_active = NOT is_active WHERE id = ?').run(serviceId);
+      service.is_active = !service.is_active;
+    }
+    if (req.headers['hx-request']) {
+      res.render('admin/partials/_service-toggle', { ...res.locals, s: { id: contractorId }, svc: service });
+      return;
     }
     res.redirect('/admin/contractors');
   });
@@ -430,10 +484,20 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
     const contractorId = parseInt(req.params.id as string, 10);
     const amount = parseInt(req.body.amount as string, 10) || 5;
     if (amount <= 0 || amount > 100) {
+      if (req.headers['hx-request']) {
+        const c = db.prepare('SELECT id, is_verified, is_active FROM users WHERE id = ?').get(contractorId) as any;
+        res.render('partials/_admin-contractor-actions', { c, prefix: req.body.prefix || '' });
+        return;
+      }
       res.redirect('/admin/contractors?error=invalid_credits');
       return;
     }
     db.prepare('UPDATE users SET credits = credits + ? WHERE id = ?').run(amount, contractorId);
+    if (req.headers['hx-request']) {
+      const c = db.prepare('SELECT id, is_verified, is_active FROM users WHERE id = ?').get(contractorId) as any;
+      res.render('partials/_admin-contractor-actions', { c, prefix: req.body.prefix || '' });
+      return;
+    }
     res.redirect('/admin/contractors?success=credits_added');
   });
 
@@ -452,6 +516,11 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
         })();
       }
     }
+    if (req.headers['hx-request']) {
+      const updatedUser = db.prepare('SELECT * FROM users WHERE id = ?').get(id) as any;
+      res.render('partials/_admin-user-actions', { user: updatedUser });
+      return;
+    }
     res.redirect('/admin/users');
   });
 
@@ -466,7 +535,7 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
       })();
     }
     if (req.headers['hx-request']) {
-      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'User deleted', type: 'success' } }));
+      res.set('HX-Redirect', '/admin/users');
       res.status(200).send('');
       return;
     }
@@ -476,6 +545,12 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
   apiRouter.post('/users/:id/toggle-active', (req: Request, res: Response): void => {
     const id = parseInt(req.params.id as string, 10);
     db.prepare('UPDATE users SET is_active = COALESCE(NOT is_active, 1) WHERE id = ? AND deleted_at IS NULL').run(id);
+    if (req.headers['hx-request']) {
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'User status toggled', type: 'success' } }));
+      res.set('HX-Refresh', 'true');
+      res.status(200).send('');
+      return;
+    }
     res.redirect('/admin/users');
   });
 

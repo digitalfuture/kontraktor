@@ -182,6 +182,15 @@ pageRouter.get('/:id', optionalAuth, (req: Request, res: Response): void => {
 
 export const apiRouter: express.Router = express.Router();
 
+// Helper: redirect for HTMX (HX-Redirect header) or regular requests
+function hxRedirect(req: Request, res: Response, url: string): void {
+  if (req.headers['hx-request']) {
+    res.set('HX-Redirect', url).send('');
+  } else {
+    res.redirect(url);
+  }
+}
+
 // Edit form (POST)
 apiRouter.post('/:id/edit', requireAuth, (req: any, res: Response): void => {
   const locale = (res.locals.locale as string) || 'en';
@@ -237,8 +246,7 @@ apiRouter.post('/:id/edit', requireAuth, (req: any, res: Response): void => {
   if (errors.length > 0) {
     const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
     project.district_display = getDistrictDisplay(project.district, locale);
-    res.render('post', {
-      title: locale === 'id' ? 'Edit Proyek — Kontraktor' : 'Edit Project — Kontraktor',
+    res.render('partials/_post-form', {
       categories: (categories as any[]).map((c: any) => ({
         ...c,
         display_name: c.name
@@ -246,6 +254,7 @@ apiRouter.post('/:id/edit', requireAuth, (req: any, res: Response): void => {
       districtsData,
       editMode: true,
       project: { ...project, ...formData },
+      formData,
       errors,
     });
     return;
@@ -259,7 +268,7 @@ apiRouter.post('/:id/edit', requireAuth, (req: any, res: Response): void => {
     formData.contactName, formData.contactEmail || null, formData.contactPhone, formData.district_en || formData.district,
     formData.address || null, id);
 
-  res.redirect(`/post/${id}?lang=${locale}`);
+  hxRedirect(req, res, `/post/${id}?lang=${locale}`);
 });
 
 // HTMX endpoint: get subcategories for a category
@@ -393,9 +402,7 @@ apiRouter.post('/', requireAuth, (req: Request, res: Response): void => {
 
   if (errors.length > 0) {
     const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
-  res.render('post', {
-    seo: seoLib.postProjectSeo(locale as 'en' | 'id'),
-    title: locale === 'id' ? 'Pasang Proyek — Kontraktor' : 'Post a Project — Kontraktor',
+    res.render('partials/_post-form', {
       categories: (categories as any[]).map((c: any) => ({
         ...c,
         display_name: c.name
@@ -422,9 +429,7 @@ apiRouter.post('/', requireAuth, (req: Request, res: Response): void => {
           ? 'Anda sudah memiliki proyek aktif. Selesaikan proyek yang ada sebelum membuat yang baru, atau hubungi kami untuk paket yang lebih besar.'
           : 'You already have an active project. Complete your existing project before creating a new one, or contact us for larger plans.');
         const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
-        res.render('post', {
-          seo: seoLib.postProjectSeo(locale as 'en' | 'id'),
-          title: locale === 'id' ? 'Pasang Proyek — Kontraktor' : 'Post a Project — Kontraktor',
+        res.render('partials/_post-form', {
           categories: (categories as any[]).map((c: any) => ({
             ...c,
             display_name: c.name
@@ -438,20 +443,13 @@ apiRouter.post('/', requireAuth, (req: Request, res: Response): void => {
     }
   }
 
-  db.prepare(`
+  const result = db.prepare(`
     INSERT INTO projects (title, description, category, subcategory, contact_name, contact_email, contact_phone, district, address, client_email, status)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
   `).run(formData.title, formData.description, formData.category, formData.subcategory || null, formData.contactName, formData.contactEmail || null, formData.contactPhone, formData.district_en || formData.district, formData.address || null, clientEmail);
 
-  // Localize district & category for display
-  const storedDistrict = formData.district_en || formData.district;
-  const categoryRow = db.prepare('SELECT name FROM categories WHERE slug = ?').get(formData.category) as { name: string } | undefined;
-  const serviceDisplay = categoryRow?.name || formData.category;
-  const successFormData = { ...formData, district_display: getDistrictDisplay(storedDistrict, locale), service: serviceDisplay };
-  res.render('post-success', {
-    title: 'Project Posted — Kontraktor',
-    formData: successFormData
-  });
+  const newId = result.lastInsertRowid;
+  hxRedirect(req, res, `/post/${newId}?lang=${locale}`);
 });
 
 // Submit a bid on a project (contractors only)
@@ -461,21 +459,21 @@ apiRouter.post('/:projectId/bid', optionalAuth, (req: Request, res: Response): v
   const locale = (res.locals.locale as string) || 'en';
 
   if (!user) {
-    res.redirect(`/auth/login?redirect=/post/${projectId}`);
+    hxRedirect(req, res, `/auth/login?redirect=/post/${projectId}`);
     return;
   }
 
   // Must be registered as contractor
   const contractor = db.prepare('SELECT id, is_active FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
   if (!contractor) {
-    res.redirect('/contractors/register');
+    hxRedirect(req, res, '/contractors/register');
     return;
   }
 
   // Must be active (not disabled services)
   if (!contractor.is_active) {
     const msg = locale === 'id' ? 'Layanan Anda sedang dihentikan. Aktifkan di dashboard untuk menawar.' : 'Your services are paused. Enable them in your dashboard to bid.';
-    res.redirect(`/post/${projectId}?error=${encodeURIComponent(msg)}`);
+    hxRedirect(req, res, `/post/${projectId}?error=${encodeURIComponent(msg)}`);
     return;
   }
 
@@ -486,20 +484,20 @@ apiRouter.post('/:projectId/bid', optionalAuth, (req: Request, res: Response): v
   }
 
   if (project.status === 'completed' || project.status === 'cancelled') {
-    res.redirect(`/post/${projectId}`);
+    hxRedirect(req, res, `/post/${projectId}`);
     return;
   }
 
   // Cannot bid on own project
   if (project.client_email === user.email) {
-    res.redirect(`/post/${projectId}`);
+    hxRedirect(req, res, `/post/${projectId}`);
     return;
   }
 
   // Check if already bid
   const existingBid = db.prepare('SELECT id FROM bids WHERE project_id = ? AND contractor_id = ?').get(projectId, contractor.id) as any;
   if (existingBid) {
-    res.redirect(`/post/${projectId}`);
+    hxRedirect(req, res, `/post/${projectId}`);
     return;
   }
 
@@ -511,7 +509,7 @@ apiRouter.post('/:projectId/bid', optionalAuth, (req: Request, res: Response): v
   if (estimated_days && isNaN(Number(estimated_days))) bidErrors.push(locale === 'id' ? 'Estimasi hari harus berupa angka' : 'Estimated days must be a number');
 
   if (bidErrors.length > 0) {
-    res.redirect(`/post/${projectId}?errors=${encodeURIComponent(bidErrors.join('|'))}`);
+    hxRedirect(req, res, `/post/${projectId}?errors=${encodeURIComponent(bidErrors.join('|'))}`);
     return;
   }
 
@@ -522,7 +520,7 @@ apiRouter.post('/:projectId/bid', optionalAuth, (req: Request, res: Response): v
   if (isPaid) {
     const creditRow = db.prepare('SELECT credits FROM users WHERE id = ? AND is_contractor = 1').get(contractor.id) as any;
     if (!creditRow || (creditRow.credits || 0) < 1) {
-      res.redirect(`/post/${projectId}?error=${encodeURIComponent(locale === 'id' ? 'Kredit tidak mencukupi. Beli kredit untuk menawar.' : 'Insufficient credits. Buy credits to bid.')}`);
+      hxRedirect(req, res, `/post/${projectId}?error=${encodeURIComponent(locale === 'id' ? 'Kredit tidak mencukupi. Beli kredit untuk menawar.' : 'Insufficient credits. Buy credits to bid.')}`);
       return;
     }
     db.prepare('UPDATE users SET credits = credits - 1 WHERE id = ?').run(contractor.id);
@@ -549,7 +547,7 @@ apiRouter.post('/:projectId/bid', optionalAuth, (req: Request, res: Response): v
     sendNewBidEmail(project.client_email, project.title, contractor.name, projectId).catch(() => {});
   }
 
-  res.redirect(`/post/${projectId}`);
+  hxRedirect(req, res, `/post/${projectId}`);
 });
 
 // Accept a bid (project owner only)
@@ -559,7 +557,7 @@ apiRouter.post('/:projectId/bids/:bidId/accept', optionalAuth, (req: Request, re
   const user = (req as any).user;
 
   if (!user) {
-    res.redirect(`/auth/login?redirect=/post/${projectId}`);
+    hxRedirect(req, res, `/auth/login?redirect=/post/${projectId}`);
     return;
   }
 
@@ -576,7 +574,7 @@ apiRouter.post('/:projectId/bids/:bidId/accept', optionalAuth, (req: Request, re
 
   const bid = db.prepare('SELECT id, contractor_id FROM bids WHERE id = ? AND project_id = ?').get(bidId, projectId) as any;
   if (!bid) {
-    res.redirect(`/post/${projectId}`);
+    hxRedirect(req, res, `/post/${projectId}`);
     return;
   }
 
@@ -602,7 +600,7 @@ apiRouter.post('/:projectId/bids/:bidId/accept', optionalAuth, (req: Request, re
     }
   }
 
-  res.redirect(`/post/${projectId}`);
+  hxRedirect(req, res, `/post/${projectId}`);
 });
 
 // Reject a bid (project owner only)
@@ -612,7 +610,7 @@ apiRouter.post('/:projectId/bids/:bidId/reject', optionalAuth, (req: Request, re
   const user = (req as any).user;
 
   if (!user) {
-    res.redirect(`/auth/login?redirect=/post/${projectId}`);
+    hxRedirect(req, res, `/auth/login?redirect=/post/${projectId}`);
     return;
   }
 
@@ -623,7 +621,7 @@ apiRouter.post('/:projectId/bids/:bidId/reject', optionalAuth, (req: Request, re
   }
 
   db.prepare('UPDATE bids SET status = ? WHERE id = ? AND project_id = ?').run('rejected', bidId, projectId);
-  res.redirect(`/post/${projectId}`);
+  hxRedirect(req, res, `/post/${projectId}`);
 });
 
 // Change project status (owner only)
@@ -633,14 +631,14 @@ apiRouter.post('/:projectId/status', optionalAuth, (req: Request, res: Response)
   const user = (req as any).user;
 
   if (!user) {
-    res.redirect(`/auth/login?redirect=/post/${projectId}`);
+    hxRedirect(req, res, `/auth/login?redirect=/post/${projectId}`);
     return;
   }
 
   // Only allow valid transitions
   const validStatuses = ['completed', 'cancelled'];
   if (!validStatuses.includes(status)) {
-    res.redirect(`/post/${projectId}`);
+    hxRedirect(req, res, `/post/${projectId}`);
     return;
   }
 
@@ -652,7 +650,7 @@ apiRouter.post('/:projectId/status', optionalAuth, (req: Request, res: Response)
 
   // Only allow status change from in_progress
   if (project.status !== 'in_progress') {
-    res.redirect(`/post/${projectId}`);
+    hxRedirect(req, res, `/post/${projectId}`);
     return;
   }
 
@@ -670,7 +668,7 @@ apiRouter.post('/:projectId/status', optionalAuth, (req: Request, res: Response)
     }
   }
 
-  res.redirect(`/post/${projectId}`);
+  hxRedirect(req, res, `/post/${projectId}`);
 });
 
 // Submit review for a contractor
@@ -680,7 +678,7 @@ apiRouter.post('/:projectId/review', optionalAuth, (req: Request, res: Response)
   const authorEmail = req.user?.email || null;
 
   if (!rating || !comment || !authorEmail) {
-    res.redirect(`/post/${projectId}`);
+    hxRedirect(req, res, `/post/${projectId}`);
     return;
   }
 
@@ -694,7 +692,7 @@ apiRouter.post('/:projectId/review', optionalAuth, (req: Request, res: Response)
   `).get(projectId, authorEmail, parseInt(contractor_id)) as any;
 
   if (!completedProject) {
-    res.redirect(`/post/${projectId}`);
+    hxRedirect(req, res, `/post/${projectId}`);
     return;
   }
 
@@ -705,7 +703,7 @@ apiRouter.post('/:projectId/review', optionalAuth, (req: Request, res: Response)
   `).get(projectId, parseInt(contractor_id), authorEmail) as any;
 
   if (existingReview) {
-    res.redirect(`/post/${projectId}`);
+    hxRedirect(req, res, `/post/${projectId}`);
     return;
   }
 
@@ -731,7 +729,7 @@ apiRouter.post('/:projectId/review', optionalAuth, (req: Request, res: Response)
       .run(contractor_id);
   }
 
-  res.redirect(`/post/${projectId}`);
+  hxRedirect(req, res, `/post/${projectId}`);
 });
 
 export default pageRouter;

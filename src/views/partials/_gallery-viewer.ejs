@@ -1,0 +1,140 @@
+<%# Gallery Fullscreen Viewer — call with { galleryId: 'portfolio-gallery', photos: [...] } %>
+<% var _galleryId = typeof galleryId !== 'undefined' ? galleryId : 'gallery-viewer'; %>
+<% var _photos = typeof photos !== 'undefined' ? photos : []; %>
+
+<div id="<%= _galleryId %>-overlay"
+     class="fixed inset-0 z-[100] bg-black/90 hidden items-center justify-center"
+     role="dialog" aria-label="<%= t('gallery.viewer') || 'Photo viewer' %>"
+     data-photos='<%= JSON.stringify(_photos.map(function(p) { return { src: '/uploads/' + p.filename, caption: p.caption || '' }; }) ) %>'>
+
+  <!-- Close button -->
+  <button type="button" data-gallery-close
+          class="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white transition cursor-pointer"
+          aria-label="<%= t('gallery.close') || 'Close' %>">
+    <span class="mat-icon text-2xl">close</span>
+  </button>
+
+  <!-- Counter -->
+  <div class="absolute top-4 left-4 z-10 text-white/80 text-sm font-medium" data-gallery-counter></div>
+
+  <!-- Prev arrow -->
+  <button type="button" data-gallery-prev
+          class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white transition cursor-pointer"
+          aria-label="<%= t('gallery.previous') || 'Previous' %>">
+    <span class="mat-icon text-3xl">chevron_left</span>
+  </button>
+
+  <!-- Image container -->
+  <div class="flex items-center justify-center w-full h-full px-16 sm:px-20">
+    <img data-gallery-image
+         class="max-w-full max-h-[90vh] object-contain select-none"
+         src=""
+         alt=""
+         draggable="false">
+  </div>
+
+  <!-- Next arrow -->
+  <button type="button" data-gallery-next
+          class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white transition cursor-pointer"
+          aria-label="<%= t('gallery.next') || 'Next' %>">
+    <span class="mat-icon text-3xl">chevron_right</span>
+  </button>
+
+  <% if (_photos.length > 0 && _photos[0].caption) { %>
+  <!-- Caption -->
+  <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 text-white/80 text-sm text-center max-w-[80%] truncate" data-gallery-caption></div>
+  <% } %>
+</div>
+
+<script>
+(function() {
+  'use strict';
+  var overlay = document.getElementById('<%= _galleryId %>-overlay');
+  if (!overlay) return;
+
+  var imgEl = overlay.querySelector('[data-gallery-image]');
+  var counterEl = overlay.querySelector('[data-gallery-counter]');
+  var captionEl = overlay.querySelector('[data-gallery-caption]');
+  var closeBtn = overlay.querySelector('[data-gallery-close]');
+  var prevBtn = overlay.querySelector('[data-gallery-prev]');
+  var nextBtn = overlay.querySelector('[data-gallery-next]');
+
+  var photos = [];
+  try {
+    photos = JSON.parse(overlay.getAttribute('data-photos') || '[]');
+  } catch(e) { photos = []; }
+
+  if (photos.length === 0) return;
+
+  var currentIndex = 0;
+  var lastFocus = null;
+
+  function showImage(index) {
+    if (index < 0) index = photos.length - 1;
+    if (index >= photos.length) index = 0;
+    currentIndex = index;
+    var photo = photos[currentIndex];
+    imgEl.src = photo.src;
+    imgEl.alt = photo.caption || '';
+    if (counterEl) counterEl.textContent = (currentIndex + 1) + ' / ' + photos.length;
+    if (captionEl) captionEl.textContent = photo.caption || '';
+    // Preload adjacent images
+    var nextIdx = (currentIndex + 1) % photos.length;
+    var prevIdx = (currentIndex - 1 + photos.length) % photos.length;
+    var link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = photos[nextIdx].src;
+    document.head.appendChild(link);
+    var link2 = document.createElement('link');
+    link2.rel = 'preload';
+    link2.as = 'image';
+    link2.href = photos[prevIdx].src;
+    document.head.appendChild(link2);
+  }
+
+  function open(index) {
+    lastFocus = document.activeElement;
+    currentIndex = typeof index === 'number' ? index : 0;
+    overlay.classList.remove('hidden');
+    overlay.classList.add('flex');
+    showImage(currentIndex);
+    // Focus prev button (first focusable)
+    if (prevBtn) setTimeout(function() { prevBtn.focus(); }, 100);
+    document.body.style.overflow = 'hidden';
+  }
+
+  function close() {
+    overlay.classList.add('hidden');
+    overlay.classList.remove('flex');
+    document.body.style.overflow = '';
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  // Arrow nav
+  function prev() { showImage(currentIndex - 1); }
+  function next() { showImage(currentIndex + 1); }
+
+  // Event listeners
+  if (closeBtn) closeBtn.addEventListener('click', close);
+  if (prevBtn) prevBtn.addEventListener('click', prev);
+  if (nextBtn) nextBtn.addEventListener('click', next);
+
+  // Keyboard navigation
+  overlay.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { e.preventDefault(); close(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
+  });
+
+  // Click on backdrop to close
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay || e.target === imgEl.parentElement) {
+      close();
+    }
+  });
+
+  // Expose open function globally per gallery
+  window['<%= _galleryId %>'] = { open: open, close: close };
+})();
+</script>

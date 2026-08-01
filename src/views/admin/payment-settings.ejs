@@ -20,7 +20,7 @@
                 <%= typeof t !== 'undefined' ? t('admin.freeModeDesc') : 'When ON: unlimited projects for all users. When OFF: 1 active project per user. Existing projects continue unaffected.' %>
               </p>
             </div>
-            <form method="POST" action="/api/admin/payments/toggle-free-mode?lang=<%= locale %>">
+            <form method="POST" action="/api/admin/payments/toggle-free-mode?lang=<%= locale %>" hx-post="/api/admin/payments/toggle-free-mode?lang=<%= locale %>" hx-swap="none">
               <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
               <button type="submit" class="relative inline-flex items-center h-7 rounded-full w-12 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 cursor-pointer <%= freeMode ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600' %>">
                 <span class="inline-block w-5 h-5 transform bg-white rounded-full shadow-sm transition-transform <%= freeMode ? 'translate-x-6' : 'translate-x-1' %>"></span>
@@ -51,7 +51,7 @@
                 <%= typeof t !== 'undefined' ? t('admin.platformFeeModeDesc') : 'When disabled (free), contractors can bid without credits. When enabled, each bid costs 1 credit.' %>
               </p>
             </div>
-            <form method="POST" action="/api/admin/payments/toggle-paid-mode?lang=<%= locale %>">
+            <form method="POST" action="/api/admin/payments/toggle-paid-mode?lang=<%= locale %>" hx-post="/api/admin/payments/toggle-paid-mode?lang=<%= locale %>" hx-swap="none">
               <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
               <button type="submit" class="relative inline-flex items-center h-7 rounded-full w-12 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 cursor-pointer <%= paidMode ? 'bg-orange-700' : 'bg-gray-300 dark:bg-gray-600' %>">
                 <span class="inline-block w-5 h-5 transform bg-white rounded-full shadow-sm transition-transform <%= paidMode ? 'translate-x-6' : 'translate-x-1' %>"></span>
@@ -87,7 +87,7 @@
         </div>
 
         <!-- Credit Packages -->
-        <form method="POST" action="/api/admin/payments/settings?lang=<%= locale %>" class="space-y-4">
+        <form method="POST" action="/api/admin/payments/settings?lang=<%= locale %>" class="space-y-4" hx-post="/api/admin/payments/settings?lang=<%= locale %>" hx-swap="none">
           <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
 
           <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">

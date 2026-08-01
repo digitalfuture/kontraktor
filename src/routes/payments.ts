@@ -94,20 +94,42 @@ apiRouter.post('/create-invoice', requireAuth, async (req: Request, res: Respons
   const user = (req as any).user;
   const locale = (res.locals.locale as string) || 'en';
   const { package_id } = req.body;
+  const isHtmx = req.headers['hx-request'] === 'true';
 
   if (!user.is_contractor && user.role !== 'admin') {
+    if (isHtmx) {
+      res.status(403).send(renderError(locale,
+        locale === 'id' ? 'Akses Ditolak' : 'Access Denied',
+        locale === 'id' ? 'Anda bukan kontraktor.' : 'You are not a contractor.'
+      ));
+      return;
+    }
     res.redirect('/account/profile');
     return;
   }
 
   const contractor = db.prepare('SELECT id FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
   if (!contractor) {
+    if (isHtmx) {
+      res.status(403).send(renderError(locale,
+        locale === 'id' ? 'Akses Ditolak' : 'Access Denied',
+        locale === 'id' ? 'Akun kontraktor tidak ditemukan.' : 'Contractor account not found.'
+      ));
+      return;
+    }
     res.redirect('/contractors/dashboard?error=not_contractor');
     return;
   }
 
   const pkg = CREDIT_PACKAGES.find(p => p.id === package_id);
   if (!pkg) {
+    if (isHtmx) {
+      res.status(400).send(renderError(locale,
+        locale === 'id' ? 'Paket Tidak Valid' : 'Invalid Package',
+        locale === 'id' ? 'Paket kredit yang dipilih tidak ditemukan.' : 'Selected credit package not found.'
+      ));
+      return;
+    }
     res.redirect('/payments/buy?error=invalid_package');
     return;
   }
@@ -138,12 +160,34 @@ apiRouter.post('/create-invoice', requireAuth, async (req: Request, res: Respons
       db.prepare("UPDATE payments SET status = 'completed', payment_method = 'SIMULATOR', updated_at = CURRENT_TIMESTAMP WHERE external_id = ?").run(externalId);
     }
 
-    res.redirect(checkoutUrl);
+    if (isHtmx) {
+      res.set('HX-Redirect', checkoutUrl).status(200).send('');
+    } else {
+      res.redirect(checkoutUrl);
+    }
   } catch (err: any) {
     console.error('[Payments] Invoice creation failed:', err.message);
+    if (isHtmx) {
+      res.status(500).send(renderError(locale,
+        locale === 'id' ? 'Terjadi Kesalahan' : 'Action Failed',
+        locale === 'id' ? 'Gagal menginisialisasi pembayaran. Silakan coba lagi.' : 'Failed to initialize payment. Please try again.'
+      ));
+      return;
+    }
     res.redirect('/payments/buy?error=init_failed');
   }
 });
+
+/** Render an error snippet for HTMX swap into #payment-error */
+function renderError(locale: string, title: string, message: string): string {
+  return `<div class="max-w-md mx-auto mb-8 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-300 flex items-center gap-3">
+  <span class="text-xl">⚠️</span>
+  <div>
+    <p class="font-bold">${title}</p>
+    <p class="text-sm">${message}</p>
+  </div>
+</div>`;
+}
 
 // Xendit callback webhook (Excluded from CSRF)
 apiRouter.post('/webhook', (req: Request, res: Response): void => {

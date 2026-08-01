@@ -1,0 +1,95 @@
+<div id="post-form">
+  <form hx-post="<%= typeof editMode !== 'undefined' && editMode ? '/api/post/' + project.id + '/edit' : '/api/post' %>?lang=<%= locale %>"
+        hx-target="#post-form"
+        hx-swap="outerHTML"
+        class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
+    <%- include('partials/csrf-field') %>
+    <!-- Validation Errors -->
+    <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+    <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+      <ul class="list-disc list-inside text-sm text-red-700 dark:text-red-400">
+        <% errors.forEach(function(err) { %>
+        <li><%= err %></li>
+        <% }); %>
+      </ul>
+    </div>
+    <% } %>
+    <!-- Category -->
+    <div class="mb-6">
+      <label for="category" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.categoryLabel') %> *</label>
+      <select id="category" name="category" required
+        hx-get="/post/subcategories"
+        hx-trigger="change"
+        hx-target="#subcategory-container"
+        hx-swap="innerHTML"
+        hx-include="this"
+        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+        <option value=""><%= t('post.selectCategory') %></option>
+        <% if (typeof categories !== 'undefined') { categories.forEach(function(cat) { %>
+        <option value="<%= cat.slug %>" <%= typeof formData !== 'undefined' && formData.category === cat.slug ? 'selected' : '' %>><%= cat.display_name || t('categories.' + cat.slug) %></option>
+        <% }); } %>
+      </select>
+    </div>
+
+    <!-- Subcategory (HTMX loaded) -->
+    <div id="subcategory-container">
+      <% if (typeof formData !== 'undefined' && formData.subcategory) { %>
+      <div class="mb-6" id="subcategory-group">
+        <label for="subcategory" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.subcategoryLabel') %></label>
+        <select id="subcategory" name="subcategory" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+          <option value=""><%= t('post.selectSubcategory') %></option>
+        </select>
+      </div>
+      <% } %>
+    </div>
+    
+    <!-- Title -->
+    <div class="mb-6">
+      <label for="title" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.titleLabel') %> *</label>
+      <input type="text" id="title" name="title" required value="<%= typeof formData !== 'undefined' && formData.title ? formData.title.replace(/\"/g, '&quot;') : '' %>" placeholder="<%= t('post.titlePlaceholder') %>" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
+    </div>
+
+    <!-- Description -->
+    <div class="mb-6">
+      <label for="description" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.descriptionLabel') %> *</label>
+      <textarea id="description" name="description" rows="5" required placeholder="<%= t('post.descriptionPlaceholder') %>" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 resize-none"><%= typeof formData !== 'undefined' && formData.description ? formData.description.replace(/</g, '&lt;') : '' %></textarea>
+    </div>
+    
+    <!-- Contact info pulled from user profile -->
+    <div class="mb-6 p-4 bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800 rounded-lg">
+      <p class="text-sm text-orange-800 dark:text-orange-300"><%= t('post.autoFromAccount') %></p>
+    </div>
+    
+    <!-- District/Kota -->
+    <div class="mb-6">
+      <label for="district" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.districtLabel') %> *</label>
+      <input type="hidden" id="district_en" name="district_en" value="<%= typeof formData !== 'undefined' && formData.district_en ? formData.district_en.replace(/\"/g, '&quot;') : '' %>">
+      <input type="text" id="district" name="district" required
+        list="district-list"
+        value="<%= typeof formData !== 'undefined' && formData.district ? formData.district.replace(/\"/g, '&quot;') : '' %>"
+        placeholder="<%= t('post.districtPlaceholder') %>"
+        autocomplete="off"
+        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
+      <datalist id="district-list"></datalist>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1"><%= t('post.districtHint') %></p>
+    </div>
+
+    <!-- Address detail -->
+    <div class="mb-6">
+      <div>
+        <label for="address" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"><%= t('post.addressLabel') %></label>
+        <input type="text" id="address" name="address" value="<%= typeof formData !== 'undefined' && formData.address ? formData.address.replace(/\"/g, '&quot;') : '' %>" placeholder="<%= t('post.addressPlaceholder') %>" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
+      </div>
+    </div>
+    
+    <!-- Divider -->
+    <div class="border-t border-gray-200 dark:border-gray-700 my-6"></div>
+    
+    <!-- Submit -->
+    <button type="submit" class="w-full bg-orange-700 text-white py-3 rounded-lg hover:bg-orange-800 transition font-semibold text-lg shadow-lg shadow-orange-600/30">
+      <%= typeof editMode !== 'undefined' && editMode ? t('post.saveButton') : t('post.submitButton') %>
+    </button>
+    
+    <p class="text-center text-sm text-gray-500 dark:text-gray-300 mt-4"><%- t('post.termsAgree') %></p>
+  </form>
+</div>

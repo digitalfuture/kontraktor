@@ -217,6 +217,7 @@ export const apiRouter: express.Router = express.Router();
 // Handle registration
 apiRouter.post('/register', optionalAuth, (req: Request, res: Response): void => {
   const locale = (res.locals.locale as string) || 'en';
+  const isHtmx = req.headers['hx-request'] === 'true';
   const errors: string[] = [];
   const formData = {
     name: (req.body.name || '').trim(),
@@ -245,9 +246,9 @@ apiRouter.post('/register', optionalAuth, (req: Request, res: Response): void =>
   const selectedCategories = Array.isArray(formData.specialty) ? formData.specialty : (formData.specialty ? [formData.specialty] : []);
   if (selectedCategories.length === 0) errors.push('At least one specialty/category is required');
 
-  if (errors.length > 0) {
+  const renderError = () => {
     const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
-    res.render('contractor-register', {
+    const data = {
       title: locale === 'id' ? 'Daftar sebagai Kontraktor' : 'Register as Contractor',
       categories: categories.map((c: any) => ({
         ...c,
@@ -255,40 +256,26 @@ apiRouter.post('/register', optionalAuth, (req: Request, res: Response): void =>
       })),
       formData,
       errors,
-    });
-    return;
-  }
+    };
+    if (isHtmx) {
+      res.render('partials/_register-form', { ...res.locals, ...data });
+    } else {
+      res.render('contractor-register', data);
+    }
+  };
+
+  if (errors.length > 0) { renderError(); return; }
 
   const existing = db.prepare('SELECT id FROM users WHERE email = ? AND is_contractor = 1').get(formData.email) as any;
   if (existing) {
     errors.push('This email is already registered as a contractor');
-    const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
-    res.render('contractor-register', {
-      title: locale === 'id' ? 'Daftar sebagai Kontraktor' : 'Register as Contractor',
-      categories: categories.map((c: any) => ({
-        ...c,
-        display_name: c.name
-      })),
-      formData,
-      errors,
-    });
-    return;
+    renderError(); return;
   }
 
   const currentUserId = (req as any).user?.id;
   if (!currentUserId) {
     errors.push('You must be logged in to register as a contractor');
-    const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
-    res.render('contractor-register', {
-      title: locale === 'id' ? 'Daftar sebagai Kontraktor' : 'Register as Contractor',
-      categories: categories.map((c: any) => ({
-        ...c,
-        display_name: c.name
-      })),
-      formData,
-      errors,
-    });
-    return;
+    renderError(); return;
   }
 
   db.prepare(`
@@ -302,20 +289,35 @@ apiRouter.post('/register', optionalAuth, (req: Request, res: Response): void =>
     insertService.run(currentUserId, catSlug);
   }
 
-  res.redirect(`/contractors/${currentUserId}`);
+  if (isHtmx) {
+    res.set('HX-Redirect', `/contractors/${currentUserId}`);
+    res.send('');
+  } else {
+    res.redirect(`/contractors/${currentUserId}`);
+  }
 });
 
 // Upload avatar (single image)
 apiRouter.post('/dashboard/avatar', requireAuth, upload.single('avatar'), async (req: Request, res: Response): Promise<void> => {
   const user = (req as any).user;
+  const isHtmx = req.headers['hx-request'] === 'true';
+  const finish = (url: string) => {
+    if (isHtmx) {
+      res.set('HX-Redirect', url);
+      res.send('');
+    } else {
+      res.redirect(url);
+    }
+  };
+
   if (!req.file) {
-    res.redirect('/contractors/dashboard?error=no_file');
+    finish('/contractors/dashboard?error=no_file');
     return;
   }
 
   const contractor = db.prepare('SELECT id, avatar_url FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
   if (!contractor) {
-    res.redirect('/contractors/dashboard?error=no_contractor');
+    finish('/contractors/dashboard?error=no_contractor');
     return;
   }
 
@@ -328,51 +330,68 @@ apiRouter.post('/dashboard/avatar', requireAuth, upload.single('avatar'), async 
   try {
     const { filename } = await processAndSaveImage(req.file, { isAvatar: true });
     db.prepare('UPDATE users SET avatar_url = ? WHERE id = ? AND is_contractor = 1').run(`/uploads/${filename}`, contractor.id);
-    res.redirect('/contractors/dashboard?success=avatar');
+    finish('/contractors/dashboard?success=avatar');
   } catch (err) {
     console.error('Failed to process and save avatar:', err);
-    res.redirect('/contractors/dashboard?error=processing_failed');
+    finish('/contractors/dashboard?error=processing_failed');
   }
 });
 
 // Upload portfolio photos (multiple)
-apiRouter.post('/dashboard/portfolio', requireAuth, upload.array('photos', 10), async (req: Request, res: Response): Promise<void> => {
+apiRouter.post('/dashboard/portfolio', requireAuth, upload.fields([{ name: 'photos', maxCount: 10 }]), async (req: Request, res: Response): Promise<void> => {
   const user = (req as any).user;
-  const files = req.files as Express.Multer.File[];
+  const isHtmx = req.headers['hx-request'] === 'true';
+  const finish = (url: string) => {
+    if (isHtmx) {
+      res.set('HX-Redirect', url);
+      res.send('');
+    } else {
+      res.redirect(url);
+    }
+  };
+  const fileFields = (req.files as Record<string, Express.Multer.File[]>) || {};
+  const files = fileFields.photos || [];
 
   if (!files || files.length === 0) {
-    res.redirect('/contractors/dashboard?error=no_files');
+    console.log('[upload] No files, redirecting');
+    finish('/contractors/dashboard?error=no_files');
     return;
   }
-
-  const contractor = db.prepare('SELECT id FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
-  if (!contractor) {
-    res.redirect('/contractors/dashboard?error=no_contractor');
-    return;
-  }
-
-  const insertPhoto = db.prepare(
-    'INSERT INTO photos (contractor_id, filename, original_name, mime_type, file_size, caption, is_portfolio) VALUES (?, ?, ?, ?, ?, ?, 1)'
-  );
 
   try {
+    const contractor = db.prepare('SELECT id FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
+    if (!contractor) {
+      console.log('[upload] No contractor found');
+      finish('/contractors/dashboard?error=no_contractor');
+      return;
+    }
+
+    const insertPhoto = db.prepare(
+      'INSERT INTO photos (contractor_id, filename, original_name, mime_type, file_size, caption, is_portfolio) VALUES (?, ?, ?, ?, ?, ?, 1)'
+    );
+
     for (const file of files) {
+      console.log('[upload] Processing file:', file.originalname, 'size:', file.size);
       const captionVal = (req.body as any)[`caption_${file.fieldname}`];
       const caption = Array.isArray(captionVal) ? captionVal[0] : (captionVal || file.originalname);
       
       const { filename, size } = await processAndSaveImage(file, { isAvatar: false });
+      console.log('[upload] Saved as:', filename, 'size:', size);
       
       // Keep original name but replace its extension with .webp for clarity
       const ext = path.extname(file.originalname);
       const originalWebpName = file.originalname.slice(0, -ext.length) + '.webp';
       
       insertPhoto.run(contractor.id, filename, originalWebpName, 'image/webp', size, caption);
+      console.log('[upload] DB insert done');
     }
 
-    res.redirect(`/contractors/dashboard?success=portfolio`);
+    console.log('[upload] All done, redirecting');
+    finish(`/contractors/dashboard?success=portfolio`);
   } catch (err) {
+    console.log('[upload] Error caught:', err);
     console.error('Failed to process and save portfolio photos:', err);
-    res.redirect('/contractors/dashboard?error=processing_failed');
+    finish('/contractors/dashboard?error=processing_failed');
   }
 });
 
@@ -402,59 +421,93 @@ apiRouter.post('/dashboard/photo/:photoId/delete', requireAuth, (req: Request, r
 
   deleteFile(photo.filename);
   db.prepare('DELETE FROM photos WHERE id = ?').run(photoId);
-  res.redirect('/contractors/dashboard?success=photo_deleted');
+
+  const isAjax = (req.headers['x-requested-with'] as string || '').toLowerCase() === 'xmlhttprequest'
+    || req.headers['hx-request'] === 'true';
+  if (isAjax) {
+    res.send(''); // hx-swap="delete" removes the element, no content needed
+  } else {
+    res.redirect('/contractors/dashboard?success=photo_deleted');
+  }
 });
 
 // Request credits (contractor requests free credits)
 apiRouter.post('/request-credits', requireAuth, (req: Request, res: Response): void => {
   const user = (req as any).user;
-  
+  const isHtmx = req.headers['hx-request'] === 'true';
+  const finish = (url: string) => {
+    if (isHtmx) {
+      res.set('HX-Redirect', url);
+      res.send('');
+    } else {
+      res.redirect(url);
+    }
+  };
+
   const contractor = db.prepare('SELECT id, credits FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
   if (!contractor) {
-    res.redirect('/contractors/dashboard?error=not_contractor');
+    finish('/contractors/dashboard?error=not_contractor');
     return;
   }
   
   // Grant 5 free credits per request
   db.prepare('UPDATE users SET credits = credits + 5 WHERE id = ? AND is_contractor = 1').run(contractor.id);
   
-  res.redirect('/contractors/dashboard?success=credits_granted');
+  finish('/contractors/dashboard?success=credits_granted');
 });
 
 // Toggle contractor active/inactive status (self-service)
 apiRouter.post('/dashboard/toggle-active', requireAuth, (req: Request, res: Response): void => {
   const user = (req as any).user;
+  const isHtmx = req.headers['hx-request'] === 'true';
+  const finish = (url: string) => {
+    if (isHtmx) {
+      res.set('HX-Redirect', url);
+      res.send('');
+    } else {
+      res.redirect(url);
+    }
+  };
 
   const contractor = db.prepare('SELECT id, is_active FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
   if (!contractor) {
-    res.redirect('/contractors/dashboard?error=not_contractor');
+    finish('/contractors/dashboard?error=not_contractor');
     return;
   }
 
   db.prepare('UPDATE users SET is_active = NOT is_active WHERE id = ? AND is_contractor = 1').run(contractor.id);
-  res.redirect('/contractors/dashboard');
+  finish('/contractors/dashboard');
 });
 
 // Toggle individual contractor_service (self-service)
 apiRouter.post('/dashboard/services/:serviceId/toggle', requireAuth, (req: Request, res: Response): void => {
   const user = (req as any).user;
   const serviceId = parseInt(req.params.serviceId as string, 10);
+  const isHtmx = req.headers['hx-request'] === 'true';
+  const finish = (url: string) => {
+    if (isHtmx) {
+      res.set('HX-Redirect', url);
+      res.send('');
+    } else {
+      res.redirect(url);
+    }
+  };
 
   const contractor = db.prepare('SELECT id FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
   if (!contractor) {
-    res.redirect('/contractors/dashboard?error=not_contractor');
+    finish('/contractors/dashboard?error=not_contractor');
     return;
   }
 
   // Ensure the service belongs to this contractor
   const service = db.prepare('SELECT id FROM contractor_services WHERE id = ? AND contractor_id = ?').get(serviceId, contractor.id) as any;
   if (!service) {
-    res.redirect('/contractors/dashboard?error=service_not_found');
+    finish('/contractors/dashboard?error=service_not_found');
     return;
   }
 
   db.prepare('UPDATE contractor_services SET is_active = NOT is_active WHERE id = ?').run(serviceId);
-  res.redirect('/contractors/dashboard');
+  finish('/contractors/dashboard');
 });
 
 export default pageRouter;

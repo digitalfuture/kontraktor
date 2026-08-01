@@ -1,24 +1,32 @@
-<!-- Admin User Actions - reusable role selector + delete -->
+<!-- Admin User Actions - reusable role selector + delete with HTMX -->
 <%#
   Params:
     user — user object with .id, .role
 %>
-<form action="/api/admin/users/<%= user.id %>/update-role" method="POST" class="flex items-center gap-1.5 whitespace-nowrap">
+<div class="user-actions inline-flex items-center gap-1.5 whitespace-nowrap">
+<form action="/api/admin/users/<%= user.id %>/update-role" method="POST" class="flex items-center gap-1.5 whitespace-nowrap"
+  hx-post="/api/admin/users/<%= user.id %>/update-role"
+  hx-target="closest .user-actions"
+  hx-swap="outerHTML">
 <%- include('../partials/csrf-field') %>
   <!-- Compact select -->
-  <select name="role" onchange="this.form.submit()" class="hidden min-[1600px]:inline-block text-xs px-2 py-1 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-gray-900 dark:text-white cursor-pointer">
+  <select name="role" hx-trigger="change" class="hidden min-[1600px]:inline-block text-xs px-2 py-1 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-gray-900 dark:text-white cursor-pointer">
     <option value="client" <%= user.role === 'client' ? 'selected' : '' %>><%= t('admin.client') %></option>
     <option value="contractor" <%= user.role === 'contractor' ? 'selected' : '' %>><%= t('admin.contractor') %></option>
     <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>><%= t('admin.admin') %></option>
   </select>
   <!-- Full select (mobile/tablet) -->
-  <select name="role" onchange="this.form.submit()" class="min-[1600px]:hidden text-xs px-2.5 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white cursor-pointer">
+  <select name="role" hx-trigger="change" class="min-[1600px]:hidden text-xs px-2.5 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white cursor-pointer">
     <option value="client" <%= user.role === 'client' ? 'selected' : '' %>><%= t('admin.client') %></option>
     <option value="contractor" <%= user.role === 'contractor' ? 'selected' : '' %>><%= t('admin.contractor') %></option>
     <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>><%= t('admin.admin') %></option>
   </select>
 </form>
-<form action="/api/admin/users/<%= user.id %>/delete" method="POST" class="inline" data-confirm="<%= typeof t !== 'undefined' ? t('admin.deleteUserConfirm') : 'Delete this user?' %>">
+<form action="/api/admin/users/<%= user.id %>/delete" method="POST" class="inline"
+  hx-post="/api/admin/users/<%= user.id %>/delete"
+  hx-target="closest .user-actions"
+  hx-swap="outerHTML"
+  data-confirm="<%= typeof t !== 'undefined' ? t('admin.deleteUserConfirm') : 'Delete this user?' %>">
 <%- include('../partials/csrf-field') %>
   <!-- Compact delete -->
   <button type="submit" title="<%= t('admin.delete') %>" class="hidden min-[1600px]:inline-flex text-xs px-2 py-1 rounded bg-gray-50 dark:bg-gray-800 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 border border-gray-300 dark:border-gray-600 hover:border-red-200 dark:hover:border-red-900/50 transition cursor-pointer whitespace-nowrap">
@@ -29,3 +37,4 @@
     <span class="mat-icon text-base">delete</span>
   </button>
 </form>
+</div>

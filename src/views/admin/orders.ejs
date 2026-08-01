@@ -58,7 +58,7 @@
                   <td class="px-2 sm:px-3 py-4 text-sm text-gray-500 dark:text-gray-300 hidden xl:table-cell"><%= o.created_at %></td>
                   <td class="px-2 sm:px-3 py-4 hidden min-[1600px]:table-cell" onclick="event.stopPropagation()">
                     <div class="flex flex-col gap-1">
-                      <%- include('../partials/_admin-order-status', { order: o }) %>
+                      <%- include('../partials/_admin-order-status', { order: o, prefix: 'row' }) %>
                     </div>
                   </td>
                 </tr>
@@ -92,7 +92,7 @@
                       </div>
                       <div class="sm:col-span-2 lg:col-span-2 border-t border-gray-200 dark:border-gray-700 pt-4 mt-2">
                         <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-2"><%= t("admin.assignContractor") %></p>
-                        <form action="/api/admin/projects/<%= o.id %>/assign" method="POST" class="flex gap-2 items-center flex-wrap">
+                        <form action="/api/admin/projects/<%= o.id %>/assign" method="POST" class="flex gap-2 items-center flex-wrap" hx-post="/api/admin/projects/<%= o.id %>/assign" hx-swap="none">
                         <%- include('../partials/csrf-field') %>
                           <select name="contractor_id" data-original="" onchange="this.form.querySelector('button[type=submit]').disabled=!this.value" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-orange-500 outline-none">
                             <option value=""><%= t("admin.selectContractor") %></option>
@@ -105,7 +105,7 @@
                       </div>
                       <div class="min-[1600px]:hidden sm:col-span-2 lg:col-span-1 border-t border-gray-200 dark:border-gray-700 pt-4 mt-2">
                         <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2"><%= t('admin.projectStatus') %></p>
-                        <%- include('../partials/_admin-order-status', { order: o }) %>
+                        <%- include('../partials/_admin-order-status', { order: o, prefix: 'detail' }) %>
                       </div>
                     </div>
                   </td>

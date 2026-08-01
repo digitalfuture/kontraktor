@@ -76,6 +76,12 @@ export function registerPaymentRoutes(pageRouter: express.Router, apiRouter: exp
         ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
       `).run(JSON.stringify(overrides));
     }
+    if (req.headers['hx-request']) {
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Payment settings saved', type: 'success' } }));
+      res.set('HX-Refresh', 'true');
+      res.status(200).send('');
+      return;
+    }
     res.redirect('/admin/payments/settings');
   });
 
@@ -86,6 +92,12 @@ export function registerPaymentRoutes(pageRouter: express.Router, apiRouter: exp
       VALUES ('paid_mode', ?, CURRENT_TIMESTAMP)
       ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
     `).run(newValue);
+    if (req.headers['hx-request']) {
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Paid mode toggled', type: 'success' } }));
+      res.set('HX-Refresh', 'true');
+      res.status(200).send('');
+      return;
+    }
     res.redirect('/admin/payments/settings');
   });
 
@@ -96,6 +108,12 @@ export function registerPaymentRoutes(pageRouter: express.Router, apiRouter: exp
       VALUES ('free_mode', ?, CURRENT_TIMESTAMP)
       ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
     `).run(newValue);
+    if (req.headers['hx-request']) {
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Free mode toggled', type: 'success' } }));
+      res.set('HX-Refresh', 'true');
+      res.status(200).send('');
+      return;
+    }
     res.redirect('/admin/payments/settings');
   });
 }

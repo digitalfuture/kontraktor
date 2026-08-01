@@ -40,6 +40,9 @@
       </div>
     <% } %>
 
+    <!-- HTMX error target -->
+    <div id="payment-error" class="max-w-md mx-auto mb-8"></div>
+
     <!-- Cards Grid -->
     <div class="grid grid-cols-1 gap-8 md:grid-cols-3 max-w-5xl mx-auto items-stretch">
       <% packages.forEach(function(pkg) { %>
@@ -96,8 +99,8 @@
             </ul>
           </div>
 
-          <!-- Checkout Form -->
-          <form action="/api/payments/create-invoice" method="POST" class="mt-auto">
+          <!-- Checkout Form (HTMX) -->
+          <form hx-post="/api/payments/create-invoice" hx-target="#payment-error" hx-swap="innerHTML" class="mt-auto">
             <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
             <input type="hidden" name="package_id" value="<%= pkg.id %>">
             <button type="submit" class="w-full rounded-2xl py-4 px-6 text-center text-sm font-extrabold text-white shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 <%= isPopular ? 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600' : 'bg-gray-800 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600' %>">

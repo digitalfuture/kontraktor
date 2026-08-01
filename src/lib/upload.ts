@@ -4,7 +4,7 @@ import fs from 'fs';
 import crypto from 'crypto';
 import sharp from 'sharp';
 
-const UPLOADS_DIR = path.join(__dirname, '../../public/uploads');
+const UPLOADS_DIR = path.join(__dirname, '../public/uploads');
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 // Ensure uploads directory exists
@@ -41,31 +41,46 @@ export async function processAndSaveImage(
   file: Express.Multer.File,
   options: { isAvatar?: boolean; quality?: number } = {}
 ): Promise<{ filename: string; size: number }> {
-  const ext = '.webp';
-  const uniqueName = crypto.randomBytes(16).toString('hex') + ext;
-  const destinationPath = path.join(UPLOADS_DIR, uniqueName);
-
-  let pipeline = sharp(file.buffer);
+  let ext: string;
+  let destinationPath: string;
+  let uniqueName: string;
 
   if (options.isAvatar) {
+    ext = '.webp';
+    uniqueName = crypto.randomBytes(16).toString('hex') + ext;
+    destinationPath = path.join(UPLOADS_DIR, uniqueName);
+
+    let pipeline = sharp(file.buffer);
     // Premium square cover crop to avoid layout shifts (CLS) on the web
     pipeline = pipeline.resize(300, 300, {
       fit: 'cover',
       position: 'center',
     });
-  } else {
-    // Preserve aspect ratio but limit to a reasonable 1200x1200px box to save bandwidth
-    pipeline = pipeline.resize(1200, 1200, {
-      fit: 'inside',
-      withoutEnlargement: true,
-    });
+
+    // Compress and convert to high-fidelity WebP
+    const quality = options.quality || 90;
+    const processedBuffer = await pipeline.webp({ quality }).toBuffer();
+    await fs.promises.writeFile(destinationPath, processedBuffer);
+
+    return {
+      filename: uniqueName,
+      size: processedBuffer.length,
+    };
   }
 
-  // Compress and convert to high-fidelity WebP
-  const quality = options.quality || 80;
-  const processedBuffer = await pipeline.webp({ quality }).toBuffer();
+  // Portfolio — resize to a reasonable display size then convert to WebP
+  ext = '.webp';
+  uniqueName = crypto.randomBytes(16).toString('hex') + ext;
+  destinationPath = path.join(UPLOADS_DIR, uniqueName);
 
-  // Save the optimized WebP to disk
+  let pipeline = sharp(file.buffer);
+  pipeline = pipeline.resize(1920, 1920, {
+    fit: 'inside',
+    withoutEnlargement: true,
+  });
+
+  const quality = options.quality || 90;
+  const processedBuffer = await pipeline.webp({ quality }).toBuffer();
   await fs.promises.writeFile(destinationPath, processedBuffer);
 
   return {

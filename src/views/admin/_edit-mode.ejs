@@ -43,16 +43,18 @@
     if (readLabel) readLabel.textContent = isEdit ? 'Write' : 'Read';
 
     // Disable/enable all editing controls on the page
-    // 1. All POST form submit buttons and selects
-    document.querySelectorAll('form[method="POST"] button[type="submit"], form[method="POST"] select').forEach(function(el) {
-      el.disabled = !isEdit;
-      if (!isEdit) {
-        el.classList.add('opacity-40', 'cursor-default', 'pointer-events-none');
-        el.classList.remove('cursor-pointer');
-      } else {
-        el.classList.remove('opacity-40', 'cursor-default', 'pointer-events-none');
-        el.classList.add('cursor-pointer');
-      }
+    // 1. All POST form submit buttons and selects (including HTMX)
+    document.querySelectorAll('form[method="POST"], form[hx-post], form[hx-put], form[hx-delete], form[hx-patch]').forEach(function(form) {
+      form.querySelectorAll('button[type="submit"], select').forEach(function(el) {
+        el.disabled = !isEdit;
+        if (!isEdit) {
+          el.classList.add('opacity-40', 'cursor-default', 'pointer-events-none');
+          el.classList.remove('cursor-pointer');
+        } else {
+          el.classList.remove('opacity-40', 'cursor-default', 'pointer-events-none');
+          el.classList.add('cursor-pointer');
+        }
+      });
     });
 
     // 2. Standalone action buttons (delete, approve, etc.) that have data-requires-edit

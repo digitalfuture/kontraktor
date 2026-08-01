@@ -126,26 +126,27 @@ router.get('/profile', requireAuth, (req: Request, res: Response): void => {
 router.post('/profile', requireAuth, (req: Request, res: Response): void => {
   const user = (req as any).user;
   const { name, email, phone, telegram_id } = req.body as { name?: string; email?: string; phone?: string; telegram_id?: string };
+  const isHtmx = req.headers['hx-request'] === 'true';
 
   const trimmedName = (name || '').trim();
   const trimmedEmail = (email || '').trim();
 
+  // Helper: render error or redirect
+  const fail = (error: string) => {
+    if (isHtmx) {
+      res.render('partials/_profile-form', { ...res.locals, user, profileError: error });
+    } else {
+      res.redirect(`/account/profile?error=${error}`);
+    }
+  };
+
   // Validate
-  if (!trimmedName) {
-    res.redirect('/account/profile?error=name_required');
-    return;
-  }
-  if (!trimmedEmail || !trimmedEmail.includes('@')) {
-    res.redirect('/account/profile?error=email_invalid');
-    return;
-  }
+  if (!trimmedName) { fail('name_required'); return; }
+  if (!trimmedEmail || !trimmedEmail.includes('@')) { fail('email_invalid'); return; }
 
   // Check email uniqueness (exclude current user)
   const existing = db.prepare('SELECT id FROM users WHERE email = ? AND id != ?').get(trimmedEmail, user.id) as { id: number } | undefined;
-  if (existing) {
-    res.redirect('/account/profile?error=email_taken');
-    return;
-  }
+  if (existing) { fail('email_taken'); return; }
 
   // Normalize & validate Indonesian phone number
   let normalizedPhone: string | null = null;
@@ -155,10 +156,7 @@ router.post('/profile', requireAuth, (req: Request, res: Response): void => {
     if (p.startsWith('+62')) p = p.slice(3);
     else if (p.startsWith('62')) p = p.slice(2);
     else if (p.startsWith('0')) p = p.slice(1);
-    if (!/^8\d{7,14}$/.test(p)) {
-      res.redirect('/account/profile?error=phone_invalid');
-      return;
-    }
+    if (!/^8\d{7,14}$/.test(p)) { fail('phone_invalid'); return; }
     normalizedPhone = '+62' + p;
   }
 
@@ -177,7 +175,11 @@ router.post('/profile', requireAuth, (req: Request, res: Response): void => {
   (req as any).user.phone = normalizedPhone;
   (req as any).user.telegram_id = (telegram_id || '').trim() || null;
 
-  res.redirect(cameFromForce ? '/account' : '/account/profile?success=1');
+  if (isHtmx) {
+    res.render('partials/_profile-form', { ...res.locals, user, profileSuccess: true });
+  } else {
+    res.redirect(cameFromForce ? '/account' : '/account/profile?success=1');
+  }
 });
 
 // GET /account/notifications — настройки уведомлений
@@ -204,6 +206,7 @@ router.get('/notifications', requireAuth, (req: Request, res: Response): void =>
 router.post('/notifications', requireAuth, (req: Request, res: Response): void => {
   const user = (req as any).user;
   const { enabled, categories } = req.body as { enabled?: string; categories?: string | string[] };
+  const isHtmx = req.headers['hx-request'] === 'true';
 
   const catArray = categories
     ? (Array.isArray(categories) ? categories : [categories])
@@ -219,7 +222,13 @@ router.post('/notifications', requireAuth, (req: Request, res: Response): void =
   (req as any).user.notifications_enabled = enabled === '1' ? 1 : 0;
   (req as any).user.notification_categories = catArray.length > 0 ? JSON.stringify(catArray) : null;
 
-  res.redirect('/account/notifications?success=1');
+  if (isHtmx) {
+    const categories = db.prepare('SELECT id, slug, name FROM categories WHERE is_active = 1 ORDER BY name').all() as Array<{ id: number; slug: string; name: string }>;
+    const userCats: string[] = catArray;
+    res.render('partials/_notifications-form', { ...res.locals, user, categories, userCats, notificationSuccess: true });
+  } else {
+    res.redirect('/account/notifications?success=1');
+  }
 });
 
 // GET /unsubscribe — отписка от уведомлений (без авторизации, по токену)

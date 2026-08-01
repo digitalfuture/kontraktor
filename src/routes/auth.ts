@@ -94,6 +94,12 @@ apiRouter.post('/login', loginLimiter, async (req: Request, res: Response): Prom
   const email: string = req.body.email?.trim();
 
   if (!email || !email.includes('@')) {
+    const isHtmx = req.headers['hx-request'] === 'true';
+    const t = res.locals.t as (key: string, fallback: string) => string;
+    if (isHtmx) {
+      res.render('partials/_login-form', { error: 'Введите корректный email' });
+      return;
+    }
     res.render('auth/login', { title: 'Вход — Kontraktor', error: 'Введите корректный email' });
     return;
   }
@@ -149,7 +155,14 @@ apiRouter.post('/login', loginLimiter, async (req: Request, res: Response): Prom
     }
   }
 
-  res.redirect(`/auth/link-sent?email=${encodeURIComponent(email)}&emailSent=${emailSent}&telegramSent=${telegramSent}`);
+  const isHtmx = req.headers['hx-request'] === 'true';
+  const targetUrl = `/auth/link-sent?email=${encodeURIComponent(email)}&emailSent=${emailSent}&telegramSent=${telegramSent}`;
+  if (isHtmx) {
+    res.set('HX-Redirect', targetUrl);
+    res.send('');
+  } else {
+    res.redirect(targetUrl);
+  }
 });
 
 // Logout

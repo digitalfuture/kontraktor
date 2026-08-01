@@ -748,6 +748,7 @@
     "upload": "Unggah",
     "deletePhoto": "Hapus",
     "deletePhotoConfirm": "Hapus foto ini?",
+    "deleteError": "Gagal menghapus foto",
     "noPortfolio": "Belum ada foto portofolio",
     "noPortfolioSub": "Unggah foto untuk menampilkan pekerjaan Anda",
     "creditsLabel": "Saldo Kredit",
@@ -1118,5 +1119,11 @@
     "validationErrors": "Masalah Validasi HTML"
   },
   "themeToggle": "Mode Gelap",
-  "errors": "Kesalahan"
+  "errors": "Kesalahan",
+  "gallery": {
+    "viewer": "Penampil foto",
+    "close": "Tutup",
+    "previous": "Sebelumnya",
+    "next": "Selanjutnya"
+  }
 }

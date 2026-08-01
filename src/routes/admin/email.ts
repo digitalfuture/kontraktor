@@ -169,6 +169,12 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
       db.prepare(
         "INSERT INTO email_log (from_email, recipient_email, subject, direction, status, message_id, sent_at, created_at) VALUES (?, ?, ?, 'outbound', 'sent', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
       ).run(from, to, subject, messageId);
+      if (req.headers['hx-request']) {
+        res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Email sent', type: 'success' } }));
+        res.set('HX-Refresh', 'true');
+        res.status(200).send('');
+        return;
+      }
       res.json({ sent: true, messageId });
     } catch (err: unknown) {
       const errMsg = typeof err === 'object' && err !== null
@@ -178,6 +184,11 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
         "INSERT INTO email_log (from_email, recipient_email, subject, direction, status, error, created_at) VALUES (?, ?, ?, 'outbound', 'failed', ?, CURRENT_TIMESTAMP)"
       ).run(from, to, subject, errMsg);
       console.error('[email] send failed:', errMsg);
+      if (req.headers['hx-request']) {
+        res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Send failed: ' + errMsg, type: 'error' } }));
+        res.status(502).send('');
+        return;
+      }
       res.status(502).json({ sent: false, reason: errMsg });
     }
   });
@@ -225,6 +236,12 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
       db.prepare(
         "INSERT INTO email_log (from_email, recipient_email, subject, direction, status, message_id, in_reply_to, references, parent_log_id, body_html, sent_at, created_at) VALUES (?, ?, ?, 'outbound', 'sent', ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
       ).run(from, to, devSubject, messageId, parentMessageId || null, refs || null, parentId, wrapped);
+      if (req.headers['hx-request']) {
+        res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Reply sent', type: 'success' } }));
+        res.set('HX-Refresh', 'true');
+        res.status(200).send('');
+        return;
+      }
       res.json({ ok: true, messageId, inReplyTo: parentMessageId, references: refs });
     } catch (err: unknown) {
       const errMsg = typeof err === 'object' && err !== null
@@ -233,6 +250,11 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
       db.prepare(
         "INSERT INTO email_log (from_email, recipient_email, subject, direction, status, parent_log_id, error, created_at) VALUES (?, ?, ?, 'outbound', 'failed', ?, ?, CURRENT_TIMESTAMP)"
       ).run(from, to, devSubject, parentId, errMsg);
+      if (req.headers['hx-request']) {
+        res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Reply failed: ' + errMsg, type: 'error' } }));
+        res.status(502).send('');
+        return;
+      }
       res.status(502).json({ error: 'Send failed', detail: errMsg });
     }
   });
@@ -246,6 +268,12 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
       return;
     }
     db.prepare('INSERT INTO email_templates (name, subject, body_html) VALUES (?, ?, ?)').run(name, subject, body_html);
+    if (req.headers['hx-request']) {
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Template created', type: 'success' } }));
+      res.set('HX-Refresh', 'true');
+      res.status(200).send('');
+      return;
+    }
     res.redirect('/admin/email');
   });
 
@@ -256,6 +284,12 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
     const body_html = req.body.body_html as string;
     db.prepare('UPDATE email_templates SET name = ?, subject = ?, body_html = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
       .run(name, subject, body_html, id);
+    if (req.headers['hx-request']) {
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Template updated', type: 'success' } }));
+      res.set('HX-Refresh', 'true');
+      res.status(200).send('');
+      return;
+    }
     res.redirect('/admin/email');
   });
 
@@ -307,6 +341,12 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
       INSERT INTO email_campaigns (name, subject, body_html, recipient_filter, mailing_list_id, status)
       VALUES (?, ?, ?, ?, ?, 'draft')
     `).run(name, subject, body_html, filter, mailing_list_id);
+    if (req.headers['hx-request']) {
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Campaign created', type: 'success' } }));
+      res.set('HX-Refresh', 'true');
+      res.status(200).send('');
+      return;
+    }
     res.redirect('/admin/email');
   });
 
@@ -323,6 +363,11 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
       `).get(campaign.mailing_list_id, id) as ActiveCampaignInfo | undefined;
 
       if (activeCampaign) {
+        if (req.headers['hx-request']) {
+          res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Cannot start — list has active campaign', type: 'error' } }));
+          res.status(400).send('');
+          return;
+        }
         res.status(400).json({ 
           error: 'Cannot start new campaign — list has active sending',
           activeCampaign: { id: activeCampaign.id, name: activeCampaign.name, status: activeCampaign.status }
@@ -370,12 +415,24 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
       db.prepare('UPDATE email_campaigns SET status = ? WHERE id = ?').run('stopped', id);
     });
 
+    if (req.headers['hx-request']) {
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Campaign started', type: 'success' } }));
+      res.set('HX-Refresh', 'true');
+      res.status(200).send('');
+      return;
+    }
     res.redirect('/admin/email');
   });
 
   apiRouter.post('/email/campaigns/:id/stop', (req: Request, res: Response): void => {
     const id = parseInt(req.params.id as string, 10);
     db.prepare("UPDATE email_campaigns SET status = 'stopped' WHERE id = ?").run(id);
+    if (req.headers['hx-request']) {
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Campaign stopped', type: 'success' } }));
+      res.set('HX-Refresh', 'true');
+      res.status(200).send('');
+      return;
+    }
     res.redirect('/admin/email');
   });
 
@@ -433,6 +490,12 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
     const description = req.body.description as string;
     if (!name) { res.status(400).json({ error: 'Name is required' }); return; }
     db.prepare('INSERT INTO mailing_lists (name, description) VALUES (?, ?)').run(name, description || null);
+    if (req.headers['hx-request']) {
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'List created', type: 'success' } }));
+      res.set('HX-Refresh', 'true');
+      res.status(200).send('');
+      return;
+    }
     res.redirect('/admin/email/lists');
   });
 
@@ -461,6 +524,12 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
   apiRouter.post('/email/lists/:id/force-delete', (req: Request, res: Response): void => {
     const id = parseInt(req.params.id as string, 10);
     db.prepare('DELETE FROM mailing_lists WHERE id = ?').run(id);
+    if (req.headers['hx-request']) {
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'List permanently deleted', type: 'success' } }));
+      res.set('HX-Refresh', 'true');
+      res.status(200).send('');
+      return;
+    }
     res.redirect('/admin/trash');
   });
 
@@ -506,6 +575,12 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
     if (!email) { res.status(400).json({ error: 'Email is required' }); return; }
     db.prepare('INSERT INTO mailing_list_contacts (list_id, email, name, company) VALUES (?, ?, ?, ?)')
       .run(listId, email, name || null, company || null);
+    if (req.headers['hx-request']) {
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Contact added', type: 'success' } }));
+      res.set('HX-Refresh', 'true');
+      res.status(200).send('');
+      return;
+    }
     res.redirect(`/admin/email/lists/${listId}`);
   });
 
@@ -570,6 +645,12 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
     });
     tx();
 
+    if (req.headers['hx-request']) {
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: `${imported} contacts imported`, type: 'success' } }));
+      res.set('HX-Refresh', 'true');
+      res.status(200).send('');
+      return;
+    }
     res.redirect(`/admin/email/lists/${listId}`);
   });
 

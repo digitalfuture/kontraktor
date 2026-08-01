@@ -746,6 +746,7 @@
     "upload": "Upload",
     "deletePhoto": "Delete",
     "deletePhotoConfirm": "Delete this photo?",
+    "deleteError": "Failed to delete photo",
     "noPortfolio": "No portfolio photos yet",
     "noPortfolioSub": "Upload photos to showcase your work",
     "creditsLabel": "Credits Balance",
@@ -1116,5 +1117,11 @@
     "errors": "Errors"
   },
   "themeToggle": "Dark Mode",
-  "errors": "Errors"
+  "errors": "Errors",
+  "gallery": {
+    "viewer": "Photo viewer",
+    "close": "Close",
+    "previous": "Previous",
+    "next": "Next"
+  }
 }

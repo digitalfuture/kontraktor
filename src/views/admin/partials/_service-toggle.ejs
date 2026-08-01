@@ -1,0 +1,7 @@
+<form action="/api/admin/contractors/<%= s.id %>/services/<%= svc.id %>/toggle" method="POST" class="inline" hx-post="/api/admin/contractors/<%= s.id %>/services/<%= svc.id %>/toggle" hx-target="closest form" hx-swap="outerHTML">
+  <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+  <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition cursor-pointer <%= svc.is_active ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800 hover:bg-green-100 dark:hover:bg-green-900/30' : 'bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700' %>">
+    <span class="w-1.5 h-1.5 rounded-full <%= svc.is_active ? 'bg-green-500' : 'bg-gray-400' %>"></span>
+    <%= svc.display_name %>
+  </button>
+</form>

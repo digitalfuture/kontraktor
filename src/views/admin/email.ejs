@@ -42,7 +42,7 @@
           <!-- LEFT: Send Email -->
           <div class="bg-surface dark:bg-surface-dark rounded-card p-4 sm:p-6 shadow-card border border-gray-200 dark:border-gray-700">
             <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-4"><%= typeof t !== 'undefined' ? t('email.sendTestEmail') : 'Send Email' %></h2>
-            <form method="POST" action="/api/admin/email/send" class="space-y-3">
+            <form method="POST" action="/api/admin/email/send" class="space-y-3" hx-post="/api/admin/email/send" hx-swap="none">
               <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= typeof t !== 'undefined' ? t('email.recipientEmail') : 'Recipient Email' %></label>
@@ -82,7 +82,7 @@
             </div>
             <% } %>
 
-            <form id="campaign-form" method="POST" action="/api/admin/email/campaigns/create" class="space-y-3">
+            <form id="campaign-form" method="POST" action="/api/admin/email/campaigns/create" class="space-y-3" hx-post="/api/admin/email/campaigns/create" hx-swap="none">
               <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= typeof t !== 'undefined' ? t('email.name') : 'Campaign Name' %></label>
@@ -177,13 +177,13 @@
                   <td class="px-4 sm:px-6 py-3 text-center">
                     <div class="flex items-center justify-center gap-2">
                       <% if (c.status === 'draft') { %>
-                      <form method="POST" action="/api/admin/email/campaigns/<%= c.id %>/start" style="display:inline">
+                      <form method="POST" action="/api/admin/email/campaigns/<%= c.id %>/start" style="display:inline" hx-post="/api/admin/email/campaigns/<%= c.id %>/start" hx-swap="none">
                         <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                         <button class="text-xs px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700"><%= typeof t !== 'undefined' ? t('email.start') : 'Start' %></button>
                       </form>
                       <% } %>
                       <% if (c.status === 'sending') { %>
-                      <form method="POST" action="/api/admin/email/campaigns/<%= c.id %>/stop" style="display:inline">
+                      <form method="POST" action="/api/admin/email/campaigns/<%= c.id %>/stop" style="display:inline" hx-post="/api/admin/email/campaigns/<%= c.id %>/stop" hx-swap="none">
                         <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                         <button class="text-xs px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"><%= typeof t !== 'undefined' ? t('email.stop') : 'Stop' %></button>
                       </form>
@@ -212,7 +212,7 @@
 
           <!-- Quick create -->
           <div class="px-4 sm:px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/30">
-            <form method="POST" action="/api/admin/email/lists/create" class="flex flex-col sm:flex-row gap-2">
+            <form method="POST" action="/api/admin/email/lists/create" class="flex flex-col sm:flex-row gap-2" hx-post="/api/admin/email/lists/create" hx-swap="none">
               <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
               <input type="text" name="name" placeholder="<%= typeof t !== 'undefined' ? t('email.newListName') : 'New list name...' %>" required
                 class="flex-1 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
@@ -353,7 +353,7 @@
       <h3 class="text-base font-semibold text-gray-900 dark:text-white">Reply</h3>
       <button onclick="closeReply()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-xl leading-none cursor-pointer">&times;</button>
     </div>
-    <form id="reply-form" method="POST" action="/api/admin/email/reply" class="space-y-4 p-6">
+    <form id="reply-form" method="POST" action="/api/admin/email/reply" class="space-y-4 p-6" hx-post="/api/admin/email/reply" hx-swap="none">
       <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
       <input type="hidden" name="parent_log_id" id="reply-parent-id" value="">
       <div>
@@ -501,32 +501,5 @@
     function closeReply() {
       document.getElementById('reply-modal').style.display = 'none';
     }
-    document.addEventListener('DOMContentLoaded', function() {
-      var form = document.getElementById('reply-form');
-      if (!form) return;
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        var btn = form.querySelector('button[type="submit"]');
-        btn.disabled = true;
-        btn.textContent = 'Sending...';
-        var data = new FormData(form);
-        fetch(form.action, { method: 'POST', body: data, headers: { 'Accept': 'application/json' } })
-          .then(function(r) { return r.json(); })
-          .then(function(r) {
-            if (r.ok) {
-              document.getElementById('reply-result').textContent = '✓ Sent (messageId: ' + r.messageId + ')';
-              document.getElementById('reply-result').className = 'px-6 pb-4 block text-sm text-green-600 dark:text-green-400';
-              setTimeout(closeReply, 2000);
-            } else {
-              document.getElementById('reply-result').textContent = '✗ ' + (r.detail || r.error || 'Failed');
-              document.getElementById('reply-result').className = 'px-6 pb-4 block text-sm text-red-600 dark:text-red-400';
-            }
-          })
-          .catch(function(err) {
-            document.getElementById('reply-result').textContent = '✗ Network error: ' + err.message;
-            document.getElementById('reply-result').className = 'px-6 pb-4 block text-sm text-red-600 dark:text-red-400';
-          })
-          .finally(function() { btn.disabled = false; btn.textContent = 'Send Reply'; });
-      });
-    });
+
   </script>

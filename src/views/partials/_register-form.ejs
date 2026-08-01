@@ -1,0 +1,78 @@
+<% if (typeof errors !== 'undefined' && errors && errors.length > 0) { %>
+<div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg" role="alert" aria-label="<%= t('common.error') %>">
+  <ul class="list-disc list-inside text-sm text-red-700 dark:text-red-400">
+    <% errors.forEach(function(err) { %>
+    <li><%= err %></li>
+    <% }); %>
+  </ul>
+</div>
+<% } %>
+
+<form action="/api/contractors/register" method="POST" class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 sm:p-8" hx-post="/api/contractors/register" hx-target="#register-section" hx-swap="innerHTML">
+    <%- include('../partials/csrf-field') %>
+  <div class="mb-6">
+    <label for="name" class="block text-sm font-semibold mb-2"><%= t('contractorRegister.fullNameLabel') %></label>
+    <input type="text" id="name" name="name" required
+      value="<%= typeof formData !== 'undefined' && formData ? formData.name.replace(/\\"/g, '&quot;') : (typeof user !== 'undefined' && user ? user.name : '') %>"
+      placeholder="<%= t('contractorRegister.fullNamePlaceholder') %>"
+      class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+  </div>
+
+  <div class="mb-6">
+    <label for="email" class="block text-sm font-semibold mb-2"><%= t('contractorRegister.emailLabel') %></label>
+    <input type="email" id="email" name="email" required
+      value="<%= typeof formData !== 'undefined' && formData ? formData.email.replace(/\\"/g, '&quot;') : (typeof user !== 'undefined' && user ? user.email : '') %>"
+      placeholder="<%= t('contractorRegister.emailPlaceholder') %>"
+      class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+  </div>
+
+  <div class="mb-6">
+    <label for="phone" class="block text-sm font-semibold mb-2"><%= t('contractorRegister.phoneLabel') %></label>
+    <div class="flex">
+      <span class="inline-flex items-center px-3 border border-r-0 border-gray-300 dark:border-gray-600 rounded-l-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-medium select-none">+62</span>
+      <input type="tel" id="phone" name="phone"
+        value="<%= typeof formData !== 'undefined' && formData ? formData.phone.replace(/^\+62/, '') : (typeof user !== 'undefined' && user && user.phone ? user.phone.replace(/^\+62/, '') : '') %>"
+        placeholder="81234567890"
+        maxlength="14"
+        class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-orange-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+    </div>
+    <p class="text-xs text-gray-500 dark:text-gray-300 mt-1"><%= t('contractorRegister.phoneHint') || 'Masukkan nomor setelah +62' %></p>
+  </div>
+
+  <div class="mb-6">
+    <label for="telegram" class="block text-sm font-semibold mb-2"><%= t('account.telegramLabel') %></label>
+    <input type="text" id="telegram" name="telegram_id"
+      value="<%= typeof formData !== 'undefined' && formData ? formData.telegram_id.replace(/\\"/g, '&quot;') : (typeof user !== 'undefined' && user && user.telegram_id ? user.telegram_id : '') %>"
+      placeholder="@username"
+      class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+  </div>
+
+  <fieldset class="mb-6">
+    <legend class="block text-sm font-semibold mb-3"><%= t('contractorRegister.specialtyLabel') %></legend>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <% if (typeof categories !== 'undefined') { categories.forEach(function(cat) { %>
+      <label class="flex items-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-950/20 transition has-[:checked]:bg-orange-50 dark:has-[:checked]:bg-orange-950/30 has-[:checked]:border-orange-500 dark:has-[:checked]:border-orange-600">
+        <input type="checkbox" name="specialty" value="<%= cat.slug %>"
+          class="w-4 h-4 text-orange-700 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded focus:ring-orange-700 focus:ring-2 accent-orange-700"
+          <%= cat === categories[0] ? 'required' : '' %>
+          <%= typeof formData !== 'undefined' && formData && Array.isArray(formData.specialty) && formData.specialty.includes(cat.slug) ? 'checked' : '' %>>
+        <span class="text-sm text-gray-900 dark:text-gray-100"><%= t('categories.' + cat.slug) %></span>
+      </label>
+      <% }); } %>
+    </div>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2"><%= t('contractorRegister.specialtyHint') %></p>
+  </fieldset>
+
+  <div class="mb-6">
+    <label for="bio" class="block text-sm font-semibold mb-2"><%= t('contractorRegister.bioLabel') %></label>
+    <textarea id="bio" name="bio" rows="4"
+      placeholder="<%= t('contractorRegister.bioPlaceholder') %>"
+      class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 resize-none"><%= typeof formData !== 'undefined' && formData ? formData.bio.replace(/</g, '&lt;') : '' %></textarea>
+  </div>
+
+  <div class="flex justify-end">
+    <button type="submit" class="bg-orange-700 text-white px-8 py-3 rounded-lg hover:bg-orange-800 transition font-semibold text-lg shadow-lg shadow-orange-600/30 focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
+      <%= t('contractorRegister.submitButton') %>
+    </button>
+  </div>
+</form>
