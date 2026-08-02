@@ -7,17 +7,6 @@
     
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
       <% const serviceSlugs = ['apartment-renovation', 'electrical-work', 'plumbing', 'finishing', 'construction', 'roofing', 'facade', 'landscaping', 'demolition']; %>
-      <% const slugToImage = {
-        'demolition': 'Demolition.PNG',
-        'electrical-work': 'Electrical.PNG',
-        'facade': 'Facade.PNG',
-        'finishing': 'Finishing.PNG',
-        'construction': 'Home Building.PNG',
-        'landscaping': 'Landscaping.PNG',
-        'plumbing': 'Plumbing.PNG',
-        'apartment-renovation': 'Renovation.PNG',
-        'roofing': 'Roofing.PNG',
-      }; %>
       <% serviceSlugs.forEach(function(slug) { %>
         <% const svc = services.find(s => s.slug === slug); %>
         <% if (svc) { %>

@@ -15,6 +15,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import compression from 'compression';
 import { serviceIcons, defaultServiceIcon } from './config/service-icons';
+import { serviceImages, defaultServiceImage } from './config/service-images';
 import { renderJsonLd, renderAlternateLinks } from './lib/seo/render';
 
 // Initialize DB (creates tables + seeds data)
@@ -40,6 +41,9 @@ import pkg from '../package.json';
 
 const app = express();
 app.set('trust proxy', 1);
+// Global view locals: category images map (available in all templates incl. partials)
+app.locals.slugToImage = serviceImages;
+app.locals.defaultServiceImage = defaultServiceImage;
 const PORT: number = parseInt(process.env.PORT || '3002', 10);
 
 const BUILD_VERSION = Date.now().toString();

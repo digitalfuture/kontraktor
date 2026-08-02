@@ -24,18 +24,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col sm:flex-row gap-6 sm:gap-8 items-start">
           <div class="w-40 sm:w-52 aspect-[3/2] rounded-card overflow-hidden bg-transparent flex-shrink-0 border border-orange-100 dark:border-gray-700">
-            <% const slugToImage = {
-              'demolition': 'Demolition.PNG',
-              'electrical-work': 'Electrical.PNG',
-              'facade': 'Facade.PNG',
-              'finishing': 'Finishing.PNG',
-              'construction': 'Home Building.PNG',
-              'landscaping': 'Landscaping.PNG',
-              'plumbing': 'Plumbing.PNG',
-              'apartment-renovation': 'Renovation.PNG',
-              'roofing': 'Roofing.PNG',
-            }; %>
-            <img src="/images/<%= slugToImage[service.slug] %>" alt="<%= t('categories.' + service.slug) %>" class="w-full h-full object-cover" loading="lazy">
+            <img src="/images/<%= slugToImage[service.slug] || defaultServiceImage %>" alt="<%= t('categories.' + service.slug) %>" class="w-full h-full object-cover" loading="lazy">
           </div>
           <div class="flex-1 min-w-0">
             <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3"><%= t('categories.' + service.slug) %></h1>
