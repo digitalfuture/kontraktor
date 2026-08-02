@@ -82,6 +82,18 @@
           "leaf": true
         },
         {
+          "name": "/admin/payments",
+          "value": 1,
+          "category": "admin",
+          "leaf": true
+        },
+        {
+          "name": "/admin/payments/settings",
+          "value": 1,
+          "category": "admin",
+          "leaf": true
+        },
+        {
           "name": "/admin/analytics",
           "value": 1,
           "category": "admin",
@@ -154,7 +166,7 @@
           "leaf": true
         }
       ],
-      "value": 19
+      "value": 21
     },
     {
       "name": "Auth",

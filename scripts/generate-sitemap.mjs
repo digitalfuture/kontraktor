@@ -107,7 +107,9 @@ function parseRouter(filePath, routerType) {
     const moduleName = regMatch[1].toLowerCase();
     const args = regMatch[2].split(',').map(s => s.trim());
     const dir = path.dirname(filePath);
-    const modulePath = path.join(dir, moduleName + '.ts');
+    // Try singular first, then plural (registerPaymentRoutes -> payment.ts / payments.ts)
+    let modulePath = path.join(dir, moduleName + '.ts');
+    if (!fs.existsSync(modulePath)) modulePath = path.join(dir, moduleName + 's.ts');
     if (fs.existsSync(modulePath)) {
       const subEndpoints = parseRouter(modulePath, routerType);
       endpoints.push(...subEndpoints);
