@@ -127,6 +127,9 @@ do_litestream_restore() {
             local db_size
             db_size=$(du -h "$DB_PATH" | cut -f1)
             log "✅✅ Restore SUCCESSFUL. DB: $db_size"
+            log "ℹ️  Note: Litestream restores the DB only. User uploads"
+            log "    (public/uploads) come from classic archives:"
+            log "    ./restore.sh --from-archive TS (see list for timestamps)"
             disable_maintenance
             return 0
         else
@@ -184,6 +187,18 @@ do_archive_restore() {
 
     if validate_db "$DB_PATH"; then
         log "✅✅ Archive restore successful"
+
+        # Restore user uploads (avatars, portfolio photos, docs) if archived
+        local uploads_archive="$ARCHIVE_DIR/kontraktor_prod_${ts}.uploads.tar.gz"
+        if [ -f "$uploads_archive" ]; then
+            log "📦 Restoring uploads from ${uploads_archive##*/}"
+            mkdir -p "$APP_DIR/public/uploads"
+            tar xzf "$uploads_archive" -C "$APP_DIR/public/uploads"
+            log "✅ Uploads restored"
+        else
+            log "⚠️  No uploads archive for $ts — DB restored only"
+        fi
+
         disable_maintenance
         return 0
     else
@@ -221,14 +236,15 @@ do_list() {
     fi
     echo ""
 
-    # Classic archive (6-hourly)
-    echo "── Classic Archive Backups (6h) ──"
+    # Classic archive (daily full backup: DB + uploads)
+    echo "── Classic Archive Backups (daily: DB + uploads) ──"
     if ls "$ARCHIVE_DIR"/kontraktor_prod_*.db.gz 1>/dev/null 2>&1; then
         ls -lt "$ARCHIVE_DIR"/kontraktor_prod_*.db.gz | \
             awk '{print "  " $6, $7, $8, " — " $NF}' | \
             sed 's|.*/kontraktor_prod_||;s|\.db\.gz$||'
         echo ""
         echo "   Restore: ./restore.sh --from-archive YYYYMMDD_HHMMSS"
+        echo "             (restores DB + public/uploads from same timestamp)"
     else
         echo "   (none)"
     fi
