@@ -916,7 +916,7 @@
     "formSuccess": "Message sent! We will reply soon.",
     "formError": "Please fill in all fields.",
     "sendError": "Failed to send. Please try again.",
-    "loginRequired": "Log in to contact us"
+    "loginRequired": "Sign in to contact us"
   },
   "terms": {
     "title": "Terms of Service",
