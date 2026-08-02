@@ -97,14 +97,18 @@
       <% }); %>
     </div>
 
-    <!-- Theme Toggle (mobile) -->
+    <!-- Theme Toggle (mobile) — segmented, both icons visible, active highlighted -->
     <div class="pt-2 pb-1 px-4">
       <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('nav.colorTheme') || 'Color theme' : 'Color theme' %></p>
     </div>
-    <button id="mobile-theme-toggle" class="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Toggle dark mode">
-      <span class="mobile-theme-sun mat-icon text-xl p-1.5 -m-1.5 rounded-lg hidden text-gray-500 dark:text-gray-300">light_mode</span>
-      <span class="mobile-theme-moon mat-icon text-xl p-1.5 -m-1.5 rounded-lg hidden text-gray-500 dark:text-gray-300">dark_mode</span>
-    </button>
+    <div class="flex items-center gap-1 px-4 py-3" role="group" aria-label="Theme switcher">
+      <button type="button" id="mobile-theme-light" class="flex items-center justify-center px-2.5 py-1.5 rounded-lg transition cursor-pointer text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200" aria-label="Light theme">
+        <span class="mat-icon text-lg">light_mode</span>
+      </button>
+      <button type="button" id="mobile-theme-dark" class="flex items-center justify-center px-2.5 py-1.5 rounded-lg transition cursor-pointer text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200" aria-label="Dark theme">
+        <span class="mat-icon text-lg">dark_mode</span>
+      </button>
+    </div>
 
     <!-- Auth section -->
     <% if (typeof user !== 'undefined' && user) { %>

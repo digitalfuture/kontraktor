@@ -115,21 +115,22 @@ if (typeof htmx !== 'undefined') {
         if (sun) sun.classList.toggle('hidden', !isDark);
         if (moon) moon.classList.toggle('hidden', isDark);
 
-        // Mobile theme icons — active one highlighted (like desktop)
-        const mSun = document.querySelector('.mobile-theme-sun');
-        const mMoon = document.querySelector('.mobile-theme-moon');
-        const setThemeIcon = (el, active) => {
+        // Mobile theme segmented control — both icons visible, active highlighted
+        const mLight = document.getElementById('mobile-theme-light');
+        const mDark = document.getElementById('mobile-theme-dark');
+        const setThemeBtn = (el, active) => {
           if (!el) return;
-          el.classList.toggle('hidden', !active);
-          el.classList.toggle('text-orange-700', active);
-          el.classList.toggle('dark:text-orange-200', active);
           el.classList.toggle('bg-orange-100', active);
           el.classList.toggle('dark:bg-orange-900/40', active);
+          el.classList.toggle('text-orange-700', active);
+          el.classList.toggle('dark:text-orange-200', active);
           el.classList.toggle('text-gray-500', !active);
           el.classList.toggle('dark:text-gray-300', !active);
+          el.classList.toggle('hover:text-gray-700', !active);
+          el.classList.toggle('dark:hover:text-gray-200', !active);
         };
-        setThemeIcon(mSun, !isDark);  // light theme → sun highlighted
-        setThemeIcon(mMoon, isDark);  // dark theme → moon highlighted
+        setThemeBtn(mLight, !isDark);  // light theme → sun highlighted
+        setThemeBtn(mDark, isDark);    // dark theme → moon highlighted
 
         // Mobile header theme icons
         const mhSun = document.getElementById('mobile-header-theme-toggle-sun');
@@ -178,7 +179,20 @@ if (typeof htmx !== 'undefined') {
       // Toggle handlers via Event Delegation (survives HTMX body swaps)
       document.addEventListener('click', (e) => {
         const target = e.target;
-        const toggleBtn = target.closest('#theme-toggle, #mobile-theme-toggle, #mobile-header-theme-toggle');
+        // Mobile segmented theme control: pick a specific theme
+        const lightBtn = target.closest('#mobile-theme-light');
+        const darkBtn = target.closest('#mobile-theme-dark');
+        if (lightBtn || darkBtn) {
+          const newTheme = lightBtn ? 'light' : 'dark';
+          try {
+            localStorage.setItem('theme', newTheme);
+          } catch (err) {
+            console.warn('Could not store theme in localStorage:', err);
+          }
+          applyTheme(newTheme);
+          return;
+        }
+        const toggleBtn = target.closest('#theme-toggle, #mobile-header-theme-toggle');
         if (toggleBtn) {
           const isDark = html.classList.contains('dark');
           const newTheme = isDark ? 'light' : 'dark';
