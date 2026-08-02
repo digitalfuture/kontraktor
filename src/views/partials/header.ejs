@@ -85,14 +85,26 @@
       <%= t('nav.contractors') %>
     </a>
 
-    <!-- Theme Toggle (mobile) -->
+    <!-- Language switcher (mobile) -->
     <div class="pt-4 pb-1 px-4">
+      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('nav.language') || 'Language' : 'Language' %></p>
+    </div>
+    <div class="flex items-center gap-1 px-4 py-3" role="group" aria-label="Language switcher">
+      <% typeof locales !== 'undefined' && locales.forEach(function(loc) { %>
+        <a href="?lang=<%= loc %>" class="px-3 py-1.5 rounded-lg text-sm font-medium transition cursor-pointer <%= locale === loc ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-200' : 'text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200' %>">
+          <%= loc.toUpperCase() %>
+        </a>
+      <% }); %>
+    </div>
+
+    <!-- Theme Toggle (mobile) -->
+    <div class="pt-2 pb-1 px-4">
       <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('nav.settings') || 'Settings' : 'Settings' %></p>
     </div>
     <button id="mobile-theme-toggle" class="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
       <span class="mobile-theme-sun mat-icon text-xl hidden text-gray-500 dark:text-gray-300">light_mode</span>
       <span class="mobile-theme-moon mat-icon text-xl hidden text-gray-500 dark:text-gray-300">dark_mode</span>
-      <span><%= typeof t !== 'undefined' ? t('themeToggle') : 'Dark Mode' %></span>
+      <span id="mobile-theme-toggle-label" data-dark-label="<%= typeof t !== 'undefined' ? t('themeToggle') : 'Dark Mode' %>" data-light-label="<%= typeof t !== 'undefined' ? t('themeToggleLight') : 'Light Mode' %>"><%= typeof t !== 'undefined' ? t('themeToggle') : 'Dark Mode' %></span>
     </button>
 
     <!-- Auth section -->

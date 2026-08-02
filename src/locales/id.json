@@ -18,7 +18,8 @@
     "backToContractors": "← Kembali ke Kontraktor",
     "logout": "Keluar",
     "contractors": "Kontraktor",
-    "browseProjects": "Lihat Proyek"
+    "browseProjects": "Lihat Proyek",
+    "language": "Bahasa"
   },
   "hero": {
     "title": "Jasa konstruksi dari kontraktor terverifikasi",
@@ -1119,6 +1120,7 @@
     "validationErrors": "Masalah Validasi HTML"
   },
   "themeToggle": "Mode Gelap",
+  "themeToggleLight": "Mode Terang",
   "errors": "Kesalahan",
   "gallery": {
     "viewer": "Penampil foto",

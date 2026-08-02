@@ -16,7 +16,8 @@
     "backToProjects": "← Back to Projects",
     "backToContractors": "← Back to Contractors",
     "contractors": "Contractors",
-    "browseProjects": "Browse Projects"
+    "browseProjects": "Browse Projects",
+    "language": "Language"
   },
   "hero": {
     "title": "Construction services from verified contractors",
@@ -1117,6 +1118,7 @@
     "errors": "Errors"
   },
   "themeToggle": "Dark Mode",
+  "themeToggleLight": "Light Mode",
   "errors": "Errors",
   "gallery": {
     "viewer": "Photo viewer",

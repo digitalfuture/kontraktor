@@ -126,6 +126,14 @@ if (typeof htmx !== 'undefined') {
         const mhMoon = document.getElementById('mobile-header-theme-toggle-moon');
         if (mhSun) mhSun.classList.toggle('hidden', !isDark);
         if (mhMoon) mhMoon.classList.toggle('hidden', isDark);
+
+        // Mobile theme toggle label (Dark Mode / Light Mode)
+        const mLabel = document.getElementById('mobile-theme-toggle-label');
+        if (mLabel) {
+          mLabel.textContent = isDark
+            ? (mLabel.dataset.darkLabel || 'Dark Mode')
+            : (mLabel.dataset.lightLabel || 'Light Mode');
+        }
       }
 
       // Initialize: stored > system preference > light
