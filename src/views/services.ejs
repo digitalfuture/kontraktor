@@ -47,7 +47,7 @@
   'waterproofing': 'Waterproofing.PNG',
 }; %>
           <% services.forEach(function(service) { %>
-          <a href="/services/<%= service.slug %>" class="service-card block bg-gradient-to-b from-white to-orange-50/30 dark:from-gray-900 dark:to-orange-950/20 border border-gray-200 dark:border-gray-700 rounded-xl hover:shadow-lg hover:border-orange-300 dark:hover:border-orange-600 transition group overflow-hidden">
+          <a href="/services/<%= service.slug %>" class="service-card block bg-gradient-to-b from-white to-orange-50/30 dark:from-gray-900 dark:to-orange-950/30 border border-gray-200 dark:border-gray-700 rounded-xl hover:shadow-lg hover:border-orange-300 dark:hover:border-orange-600 transition group overflow-hidden">
             <% var imgFile = slugToImage[service.slug]; if (imgFile) { %>
             <div class="w-full h-44 bg-transparent overflow-hidden">
               <img src="/images/<%= imgFile %>" alt="<%= t('categories.' + service.slug) %>" class="w-full h-full object-cover" loading="lazy">

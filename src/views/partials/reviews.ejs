@@ -7,7 +7,7 @@
     
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <% reviews.slice(0, 3).forEach(function(r) { %>
-        <figure class="bg-gradient-to-b from-surface to-orange-50/30 dark:from-surface-dark dark:to-orange-950/20 rounded-card p-6 border border-gray-200 dark:border-gray-800 shadow-card flex flex-col">
+        <figure class="bg-gradient-to-b from-surface to-orange-50/30 dark:from-surface-dark dark:to-orange-950/30 rounded-card p-6 border border-gray-200 dark:border-gray-800 shadow-card flex flex-col">
           <blockquote class="flex-1">
             <div class="flex items-center gap-1 mb-3" role="img" aria-label="<%= r.rating %> out of 5 stars">
               <% for (var s = 0; s < Math.min(5, Math.max(0, r.rating || 0)); s++) { %>
