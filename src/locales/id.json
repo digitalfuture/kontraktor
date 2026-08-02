@@ -19,7 +19,8 @@
     "logout": "Keluar",
     "contractors": "Kontraktor",
     "browseProjects": "Lihat Proyek",
-    "language": "Bahasa"
+    "language": "Bahasa",
+    "colorTheme": "Tema warna"
   },
   "hero": {
     "title": "Jasa konstruksi dari kontraktor terverifikasi",

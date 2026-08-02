@@ -115,25 +115,27 @@ if (typeof htmx !== 'undefined') {
         if (sun) sun.classList.toggle('hidden', !isDark);
         if (moon) moon.classList.toggle('hidden', isDark);
 
-        // Mobile theme icons
+        // Mobile theme icons — active one highlighted (like desktop)
         const mSun = document.querySelector('.mobile-theme-sun');
         const mMoon = document.querySelector('.mobile-theme-moon');
-        if (mSun) mSun.classList.toggle('hidden', !isDark);
-        if (mMoon) mMoon.classList.toggle('hidden', isDark);
+        const setThemeIcon = (el, active) => {
+          if (!el) return;
+          el.classList.toggle('hidden', !active);
+          el.classList.toggle('text-orange-700', active);
+          el.classList.toggle('dark:text-orange-200', active);
+          el.classList.toggle('bg-orange-100', active);
+          el.classList.toggle('dark:bg-orange-900/40', active);
+          el.classList.toggle('text-gray-500', !active);
+          el.classList.toggle('dark:text-gray-300', !active);
+        };
+        setThemeIcon(mSun, !isDark);  // light theme → sun highlighted
+        setThemeIcon(mMoon, isDark);  // dark theme → moon highlighted
 
         // Mobile header theme icons
         const mhSun = document.getElementById('mobile-header-theme-toggle-sun');
         const mhMoon = document.getElementById('mobile-header-theme-toggle-moon');
         if (mhSun) mhSun.classList.toggle('hidden', !isDark);
         if (mhMoon) mhMoon.classList.toggle('hidden', isDark);
-
-        // Mobile theme toggle label (Dark Mode / Light Mode)
-        const mLabel = document.getElementById('mobile-theme-toggle-label');
-        if (mLabel) {
-          mLabel.textContent = isDark
-            ? (mLabel.dataset.darkLabel || 'Dark Mode')
-            : (mLabel.dataset.lightLabel || 'Light Mode');
-        }
       }
 
       // Initialize: stored > system preference > light

@@ -17,7 +17,8 @@
     "backToContractors": "← Back to Contractors",
     "contractors": "Contractors",
     "browseProjects": "Browse Projects",
-    "language": "Language"
+    "language": "Language",
+    "colorTheme": "Color theme"
   },
   "hero": {
     "title": "Construction services from verified contractors",
