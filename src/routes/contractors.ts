@@ -4,6 +4,8 @@ import db from '../db';
 import * as seoLib from '../lib/seo';
 import { optionalAuth, requireAuth } from '../middleware/auth';
 import { upload, deleteFile, processAndSaveImage } from '../lib/upload';
+import { normalizeIndonesianPhone } from '../lib/phone';
+import { getActiveCategories } from '../lib/categories';
 
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 50;
@@ -84,7 +86,7 @@ pageRouter.get('/', (req: Request, res: Response): void => {
 // Registration page
 pageRouter.get('/register', optionalAuth, (req: Request, res: Response): void => {
   const locale = (res.locals.locale as string) || 'en';
-  const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
+  const categories = getActiveCategories(db);
 
   res.render('contractor-register', {
     seo: seoLib.contractorRegisterSeo(locale as 'en' | 'id'),
@@ -232,22 +234,19 @@ apiRouter.post('/register', optionalAuth, (req: Request, res: Response): void =>
   if (!formData.email) errors.push('Email is required');
   // Normalize & validate Indonesian phone number
   if (formData.phone) {
-    let phone = formData.phone.replace(/\s+/g, '');
-    if (phone.startsWith('+62')) phone = phone.slice(3);
-    else if (phone.startsWith('62')) phone = phone.slice(2);
-    else if (phone.startsWith('0')) phone = phone.slice(1);
-    if (!/^8\d{7,14}$/.test(phone)) {
+    const normalized = normalizeIndonesianPhone(formData.phone);
+    if (!normalized) {
       const t = res.locals.t as (key: string) => string;
       errors.push(t('contractorRegister.phoneInvalid'));
     } else {
-      formData.phone = '+62' + phone;
+      formData.phone = normalized;
     }
   }
   const selectedCategories = Array.isArray(formData.specialty) ? formData.specialty : (formData.specialty ? [formData.specialty] : []);
   if (selectedCategories.length === 0) errors.push('At least one specialty/category is required');
 
   const renderError = () => {
-    const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
+    const categories = getActiveCategories(db);
     const data = {
       title: locale === 'id' ? 'Daftar sebagai Kontraktor' : 'Register as Contractor',
       categories: categories.map((c: any) => ({

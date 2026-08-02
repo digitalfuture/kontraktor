@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import crypto from 'crypto';
 import db from '../db';
 import { requireAuth } from '../middleware/auth';
+import { normalizeIndonesianPhone } from '../lib/phone';
 
 const UNSUBSCRIBE_SECRET = process.env.UNSUBSCRIBE_SECRET || 'kontraktor-unsub-secret-change-in-production';
 
@@ -152,12 +153,8 @@ router.post('/profile', requireAuth, (req: Request, res: Response): void => {
   let normalizedPhone: string | null = null;
   const rawPhone = (phone || '').trim();
   if (rawPhone) {
-    let p = rawPhone.replace(/\s+/g, '');
-    if (p.startsWith('+62')) p = p.slice(3);
-    else if (p.startsWith('62')) p = p.slice(2);
-    else if (p.startsWith('0')) p = p.slice(1);
-    if (!/^8\d{7,14}$/.test(p)) { fail('phone_invalid'); return; }
-    normalizedPhone = '+62' + p;
+    normalizedPhone = normalizeIndonesianPhone(rawPhone);
+    if (!normalizedPhone) { fail('phone_invalid'); return; }
   }
 
   db.prepare('UPDATE users SET name = ?, email = ?, phone = ?, telegram_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(

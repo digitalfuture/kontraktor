@@ -9,11 +9,11 @@ const path = require('path');
 const betterSqlite3 = require('better-sqlite3');
 
 // Load the mailing list data
-const jsonPath = path.join(__dirname, '../../data/mailing-list-yellowpages.json');
+const jsonPath = path.join(__dirname, '../data/mailing-list-yellowpages.json');
 const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
 
 // Connect to dev database
-const dbDir = path.join(__dirname, '../../data');
+const dbDir = path.join(__dirname, '../data');
 const dbFile = 'kontraktor.dev.db';
 const db = new betterSqlite3(path.join(dbDir, dbFile));
 db.pragma('journal_mode = WAL');

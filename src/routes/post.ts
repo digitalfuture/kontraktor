@@ -7,14 +7,17 @@ import { getDistrictDisplay } from '../lib/districts';
 import { requireAuth } from '../middleware/auth';
 import { sendNewBidNotification, sendBidAcceptedNotification } from '../lib/telegram';
 import { sendNewBidEmail, sendBidAcceptedEmail, sendProjectCompletedEmail, isEmailConfigured } from '../lib/email';
+import { getLocale, getT } from '../lib/i18n-helpers';
+import { normalizeIndonesianPhone } from '../lib/phone';
+import { getActiveCategories } from '../lib/categories';
 
 // ── Pages ──
 
 export const pageRouter: express.Router = express.Router();
 
 pageRouter.get('/', requireAuth, (req: any, res: Response): void => {
-  const locale = (res.locals.locale as string) || 'en';
-  const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
+  const locale = getLocale(res);
+  const categories = getActiveCategories(db);
   const user = req.user || {};
 
   // Pre-fill contact info from user profile
@@ -39,8 +42,8 @@ pageRouter.get('/', requireAuth, (req: any, res: Response): void => {
 
 // Edit form (GET)
 pageRouter.get('/:id/edit', requireAuth, (req: any, res: Response): void => {
-  const locale = (res.locals.locale as string) || 'en';
-  const t = (res.locals.t as (key: string) => string) || ((key: string) => key);
+  const locale = getLocale(res);
+  const t = getT(res);
   const id = parseInt(req.params.id, 10);
   const user = req.user;
 
@@ -59,7 +62,7 @@ pageRouter.get('/:id/edit', requireAuth, (req: any, res: Response): void => {
     return;
   }
 
-  const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
+  const categories = getActiveCategories(db);
   project.district_display = getDistrictDisplay(project.district, locale);
 
   // Map DB fields to formData format for the template
@@ -91,7 +94,7 @@ pageRouter.get('/:id/edit', requireAuth, (req: any, res: Response): void => {
 
 // Project detail page
 pageRouter.get('/:id', optionalAuth, (req: Request, res: Response): void => {
-  const locale = (res.locals.locale as string) || 'en';
+  const locale = getLocale(res);
   const id = parseInt(req.params.id as string, 10);
   if (isNaN(id)) { res.status(404).render('error', { title: 'Not Found' }); return; }
 
@@ -193,8 +196,8 @@ function hxRedirect(req: Request, res: Response, url: string): void {
 
 // Edit form (POST)
 apiRouter.post('/:id/edit', requireAuth, (req: any, res: Response): void => {
-  const locale = (res.locals.locale as string) || 'en';
-  const t = (res.locals.t as (key: string) => string) || ((key: string) => key);
+  const locale = getLocale(res);
+  const t = getT(res);
   const id = parseInt(req.params.id, 10);
   const user = req.user;
 
@@ -232,19 +235,16 @@ apiRouter.post('/:id/edit', requireAuth, (req: any, res: Response): void => {
 
   // Normalize & validate Indonesian phone number
   if (formData.contactPhone) {
-    let phone = formData.contactPhone.replace(/\s+/g, '');
-    if (phone.startsWith('+62')) phone = phone.slice(3);
-    else if (phone.startsWith('62')) phone = phone.slice(2);
-    else if (phone.startsWith('0')) phone = phone.slice(1);
-    if (!/^8\d{7,14}$/.test(phone)) {
+    const normalized = normalizeIndonesianPhone(formData.contactPhone);
+    if (!normalized) {
       errors.push(t('post.phoneInvalid'));
     } else {
-      formData.contactPhone = '+62' + phone;
+      formData.contactPhone = normalized;
     }
   }
 
   if (errors.length > 0) {
-    const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
+    const categories = getActiveCategories(db);
     project.district_display = getDistrictDisplay(project.district, locale);
     res.render('partials/_post-form', {
       categories: (categories as any[]).map((c: any) => ({
@@ -273,7 +273,7 @@ apiRouter.post('/:id/edit', requireAuth, (req: any, res: Response): void => {
 
 // HTMX endpoint: get subcategories for a category
 apiRouter.get('/subcategories', (req: Request, res: Response): void => {
-  const locale = (res.locals.locale as string) || 'en';
+  const locale = getLocale(res);
   const categorySlug = req.query.category as string;
 
   if (!categorySlug) {
@@ -289,7 +289,7 @@ apiRouter.get('/subcategories', (req: Request, res: Response): void => {
 
   const subcategories = db.prepare('SELECT id, name, slug FROM subcategories WHERE category_id = ? ORDER BY name').all(category.id) as any[];
 
-  const t = (res.locals.t as (key: string) => string) || ((key: string) => key);
+  const t = getT(res);
 
   const subcategoryLabel = t('post.subcategoryLabel');
   const selectPlaceholder = 'Select subcategory';
@@ -326,7 +326,7 @@ apiRouter.get('/district-search', (req: Request, res: Response): void => {
 
 // HTMX endpoint: get bids list partial for real-time auto-polling (owner only)
 apiRouter.get('/:id/bids-partial', optionalAuth, (req: Request, res: Response): void => {
-  const locale = (res.locals.locale as string) || 'en';
+  const locale = getLocale(res);
   const id = parseInt(req.params.id as string, 10);
   if (isNaN(id)) { res.status(400).send('Invalid Project ID'); return; }
 
@@ -377,8 +377,8 @@ apiRouter.post('/', requireAuth, (req: Request, res: Response): void => {
   if (!formData.contactName) formData.contactName = user.name || '';
 
   // Validation
-  const locale = (res.locals.locale as string) || 'en';
-  const t = (res.locals.t as (key: string) => string) || ((key: string) => key);
+  const locale = getLocale(res);
+  const t = getT(res);
   if (!formData.title) errors.push(t('post.titleRequired'));
   if (!formData.description) errors.push(t('post.descriptionRequired'));
   if (!formData.category) errors.push(t('post.categoryRequired'));
@@ -387,21 +387,16 @@ apiRouter.post('/', requireAuth, (req: Request, res: Response): void => {
   // Phone is optional — taken from user profile if present
   // Normalize & validate Indonesian phone number if provided
   if (formData.contactPhone) {
-    let phone = formData.contactPhone.replace(/\s+/g, '');
-    // Strip leading +62, 62, or 0
-    if (phone.startsWith('+62')) phone = phone.slice(3);
-    else if (phone.startsWith('62')) phone = phone.slice(2);
-    else if (phone.startsWith('0')) phone = phone.slice(1);
-    // Validate: must start with 8, 8-15 digits
-    if (!/^8\d{7,14}$/.test(phone)) {
+    const normalized = normalizeIndonesianPhone(formData.contactPhone);
+    if (!normalized) {
       errors.push(t('post.phoneInvalid'));
     } else {
-      formData.contactPhone = '+62' + phone;
+      formData.contactPhone = normalized;
     }
   }
 
   if (errors.length > 0) {
-    const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
+    const categories = getActiveCategories(db);
     res.render('partials/_post-form', {
       categories: (categories as any[]).map((c: any) => ({
         ...c,
@@ -428,7 +423,7 @@ apiRouter.post('/', requireAuth, (req: Request, res: Response): void => {
         errors.push(locale === 'id'
           ? 'Anda sudah memiliki proyek aktif. Selesaikan proyek yang ada sebelum membuat yang baru, atau hubungi kami untuk paket yang lebih besar.'
           : 'You already have an active project. Complete your existing project before creating a new one, or contact us for larger plans.');
-        const categories = db.prepare('SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name').all();
+        const categories = getActiveCategories(db);
         res.render('partials/_post-form', {
           categories: (categories as any[]).map((c: any) => ({
             ...c,
@@ -456,7 +451,7 @@ apiRouter.post('/', requireAuth, (req: Request, res: Response): void => {
 apiRouter.post('/:projectId/bid', optionalAuth, (req: Request, res: Response): void => {
   const projectId = parseInt(req.params.projectId as string, 10);
   const user = (req as any).user;
-  const locale = (res.locals.locale as string) || 'en';
+  const locale = getLocale(res);
 
   if (!user) {
     hxRedirect(req, res, `/auth/login?redirect=/post/${projectId}`);

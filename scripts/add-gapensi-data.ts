@@ -7,8 +7,8 @@
 import path from 'path';
 import Database from 'better-sqlite3';
 
-const DB_PATH = path.join(__dirname, '../../data/kontraktor.dev.db');
-// For prod: path.join(__dirname, '../../data/kontraktor.prod.db');
+const DB_PATH = path.join(__dirname, '../data/kontraktor.dev.db');
+// For prod: path.join(__dirname, '../data/kontraktor.prod.db');
 
 const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
