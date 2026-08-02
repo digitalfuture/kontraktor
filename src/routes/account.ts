@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import db from '../db';
 import { requireAuth } from '../middleware/auth';
 import { normalizeIndonesianPhone } from '../lib/phone';
+import { getActiveProjectLimit, countActiveProjects } from '../lib/project-limit';
 
 const UNSUBSCRIBE_SECRET = process.env.UNSUBSCRIBE_SECRET || 'kontraktor-unsub-secret-change-in-production';
 
@@ -80,11 +81,9 @@ router.get('/', requireAuth, (req: Request, res: Response): void => {
     rejected: bids.filter((b: any) => b.status === 'rejected').length,
   };
 
-  // Paid mode
-  const paidModeRow = db.prepare("SELECT value FROM settings WHERE key = 'paid_mode'").get() as any;
-  const paidMode = paidModeRow?.value === 'true';
-
-  const userCredits = contractor?.credits || 0;
+  // Active project limit (subscription scheme)
+  const projectLimit = getActiveProjectLimit(db);
+  const activeProjects = countActiveProjects(db, user.email);
 
   const sectionTitles: Record<string, string> = {
     overview: locale === 'id' ? 'Akun' : 'Account',
@@ -101,8 +100,8 @@ router.get('/', requireAuth, (req: Request, res: Response): void => {
     bids,
     bidsStats,
     isContractor,
-    userCredits,
-    paidMode,
+    activeProjects,
+    projectLimit,
     activeSection: section,
   });
 });

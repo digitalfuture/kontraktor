@@ -296,13 +296,6 @@
           <p class="text-sm text-gray-600 dark:text-gray-300 mb-4"><%= t('projectDetail.contractorCTADesc') %></p>
           <a href="/contractors/register" class="block w-full text-center bg-orange-700 text-white px-5 py-2 rounded-lg hover:bg-orange-800 transition font-medium"><%= t('projectDetail.joinContractor') %></a>
         </div>
-        <% } else { %>
-        <!-- Credits display for contractors -->
-<div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
-          <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300 uppercase mb-3"><%= t('projectDetail.yourCredits') %></h3>
-          <p class="text-3xl font-bold text-orange-700"><%= userCredits || 0 %></p>
-          <p class="text-xs text-gray-500 dark:text-gray-300 mt-1"><%= t('projectDetail.freeBidsHint') %></p>
-        </div>
         <% } %>
       </div>
     </div>

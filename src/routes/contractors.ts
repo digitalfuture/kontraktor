@@ -140,9 +140,6 @@ pageRouter.get('/dashboard', optionalAuth, (req: Request, res: Response): void =
     rejected: bids.filter((b: any) => b.status === 'rejected').length,
   };
 
-  const paidModeRow = db.prepare("SELECT value FROM settings WHERE key = 'paid_mode'").get() as any;
-  const paidMode = paidModeRow?.value === 'true';
-
   // Load contractor services with category names
   const services = db.prepare(`
     SELECT cs.id, cs.is_active, cs.created_at, c.id as category_id, c.name, c.slug
@@ -162,8 +159,6 @@ pageRouter.get('/dashboard', optionalAuth, (req: Request, res: Response): void =
     bids,
     stats,
     locale,
-    paidMode,
-    userCredits: contractor.credits || 0,
     success: req.query.success as string,
     error: req.query.error as string,
     photos: db.prepare('SELECT id, filename, original_name, caption, file_size, created_at FROM photos WHERE contractor_id = ? AND is_portfolio = 1 ORDER BY created_at DESC').all(contractor.id) as any[],
@@ -454,30 +449,7 @@ apiRouter.post('/dashboard/photo/:photoId/delete', requireAuth, (req: Request, r
   }
 });
 
-// Request credits (contractor requests free credits)
-apiRouter.post('/request-credits', requireAuth, (req: Request, res: Response): void => {
-  const user = (req as any).user;
-  const isHtmx = req.headers['hx-request'] === 'true';
-  const finish = (url: string) => {
-    if (isHtmx) {
-      res.set('HX-Redirect', url);
-      res.send('');
-    } else {
-      res.redirect(url);
-    }
-  };
 
-  const contractor = db.prepare('SELECT id, credits FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
-  if (!contractor) {
-    finish('/contractors/dashboard?error=not_contractor');
-    return;
-  }
-  
-  // Grant 5 free credits per request
-  db.prepare('UPDATE users SET credits = credits + 5 WHERE id = ? AND is_contractor = 1').run(contractor.id);
-  
-  finish('/contractors/dashboard?success=credits_granted');
-});
 
 // Toggle contractor active/inactive status (self-service)
 apiRouter.post('/dashboard/toggle-active', requireAuth, (req: Request, res: Response): void => {

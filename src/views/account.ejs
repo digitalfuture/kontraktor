@@ -19,9 +19,9 @@
     </div>
     <div class="flex items-center gap-2">
       <% if (isContractor) { %>
-        <div class="bg-green-100 dark:bg-green-900/30 px-4 py-2 rounded-lg">
-          <span class="text-sm text-gray-600 dark:text-gray-300"><%= t('contractorDashboard.credits') %>:</span>
-          <span class="text-xl font-bold ml-1 <%= paidMode ? 'text-orange-700' : 'text-green-700' %>"><%= paidMode ? (userCredits || 0) : t('projectDetail.freeCredits') %></span>
+        <div class="bg-orange-100 dark:bg-orange-900/30 px-4 py-2 rounded-lg">
+          <span class="text-sm text-gray-600 dark:text-gray-300"><%= t('account.activeProjects') %>:</span>
+          <span class="text-xl font-bold ml-1 text-orange-700"><%= activeProjects %> <%= projectLimit === 0 ? '∞' : '/' + projectLimit %></span>
         </div>
       <% } %>
     </div>

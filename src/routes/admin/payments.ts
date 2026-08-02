@@ -3,16 +3,7 @@
 import express, { Request, Response } from 'express';
 import db from '../../db';
 import { makeT } from './helpers';
-
-function isPaidMode(): boolean {
-  const setting = db.prepare("SELECT value FROM settings WHERE key = 'paid_mode'").get() as { value: string } | undefined;
-  return setting?.value === 'true';
-}
-
-function isFreeMode(): boolean {
-  const setting = db.prepare("SELECT value FROM settings WHERE key = 'free_mode'").get() as { value: string } | undefined;
-  return setting?.value === 'true';
-}
+import { getActiveProjectLimit } from '../../lib/project-limit';
 
 export function registerPaymentRoutes(pageRouter: express.Router, apiRouter: express.Router): void {
 
@@ -50,66 +41,36 @@ export function registerPaymentRoutes(pageRouter: express.Router, apiRouter: exp
     const locale = (res.locals.locale as string) || 'en';
     const _t = makeT(res);
 
-    const packagesSetting = db.prepare("SELECT value FROM settings WHERE key = 'credit_packages'").get() as { value: string } | undefined;
-    const packages = packagesSetting ? JSON.parse(packagesSetting.value) : [];
     const xenditConfigured = !!process.env.XENDIT_SECRET_API_KEY;
+    const projectLimit = getActiveProjectLimit(db);
 
     res.render('admin/payment-settings', {
       title: (locale === 'id' ? 'Pengaturan Pembayaran — Admin' : 'Payment Settings — Admin') + ' — Kontraktor',
       activePage: 'payments',
-      packages,
-      paidMode: isPaidMode(),
-      freeMode: isFreeMode(),
+      projectLimit,
       xenditConfigured,
     });
   });
 
   // ── PAYMENTS API ──
 
-  apiRouter.post('/payments/settings', (req: Request, res: Response): void => {
-    const { packages } = req.body;
-    if (packages && Array.isArray(packages)) {
-      const overrides = packages.map(p => ({ price: parseInt(String(p.price), 10) || 0 }));
-      db.prepare(`
-        INSERT INTO settings (key, value, updated_at)
-        VALUES ('credit_packages', ?, CURRENT_TIMESTAMP)
-        ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
-      `).run(JSON.stringify(overrides));
-    }
-    if (req.headers['hx-request']) {
-      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Payment settings saved', type: 'success' } }));
-      res.set('HX-Refresh', 'true');
-      res.status(200).send('');
-      return;
-    }
-    res.redirect('/admin/payments/settings');
-  });
-
-  apiRouter.post('/payments/toggle-paid-mode', (req: Request, res: Response): void => {
-    const newValue = isPaidMode() ? 'false' : 'true';
+  // Set max active projects per client (3-tier subscription scheme)
+  apiRouter.post('/payments/set-project-limit', (req: Request, res: Response): void => {
+    const raw = parseInt(String(req.body.limit), 10);
+    const limit = isNaN(raw) || raw < 0 ? 0 : raw;
     db.prepare(`
       INSERT INTO settings (key, value, updated_at)
-      VALUES ('paid_mode', ?, CURRENT_TIMESTAMP)
+      VALUES ('active_project_limit', ?, CURRENT_TIMESTAMP)
       ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
-    `).run(newValue);
-    if (req.headers['hx-request']) {
-      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Paid mode toggled', type: 'success' } }));
-      res.set('HX-Refresh', 'true');
-      res.status(200).send('');
-      return;
-    }
-    res.redirect('/admin/payments/settings');
-  });
-
-  apiRouter.post('/payments/toggle-free-mode', (req: Request, res: Response): void => {
-    const newValue = isFreeMode() ? 'false' : 'true';
+    `).run(String(limit));
+    // Keep legacy free_mode flag in sync for backward compatibility
     db.prepare(`
       INSERT INTO settings (key, value, updated_at)
       VALUES ('free_mode', ?, CURRENT_TIMESTAMP)
       ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
-    `).run(newValue);
+    `).run(limit === 0 ? 'true' : 'false');
     if (req.headers['hx-request']) {
-      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Free mode toggled', type: 'success' } }));
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Project limit saved', type: 'success' } }));
       res.set('HX-Refresh', 'true');
       res.status(200).send('');
       return;

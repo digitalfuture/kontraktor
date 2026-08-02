@@ -10,6 +10,7 @@ import { sendNewBidEmail, sendBidAcceptedEmail, sendProjectCompletedEmail, isEma
 import { getLocale, getT } from '../lib/i18n-helpers';
 import { normalizeIndonesianPhone } from '../lib/phone';
 import { getActiveCategories } from '../lib/categories';
+import { getActiveProjectLimit, countActiveProjects } from '../lib/project-limit';
 
 // ── Pages ──
 
@@ -149,18 +150,13 @@ pageRouter.get('/:id', optionalAuth, (req: Request, res: Response): void => {
   // Check if current user (as contractor) already bid
   let hasBid = false;
   let isContractor = false;
-  let userCredits = 0;
-  let paidMode = false;
   if ((req as any).user) {
-    const contractor = db.prepare('SELECT id, credits FROM users WHERE id = ? AND is_contractor = 1').get((req as any).user.id) as any;
+    const contractor = db.prepare('SELECT id FROM users WHERE id = ? AND is_contractor = 1').get((req as any).user.id) as any;
     if (contractor) {
       isContractor = true;
-      userCredits = contractor.credits || 0;
       hasBid = !!db.prepare('SELECT id FROM bids WHERE project_id = ? AND contractor_id = ?').get(id, contractor.id) as any;
     }
   }
-  const paidModeRow = db.prepare("SELECT value FROM settings WHERE key = 'paid_mode'").get() as any;
-  paidMode = paidModeRow?.value === 'true';
 
   const seo = seoLib.projectDetailSeo(project.title, project.description || '', project.category_display || project.category || '', project.created_at || new Date().toISOString(), locale as 'en' | 'id', id);
   res.render('project-detail', {
@@ -175,8 +171,6 @@ pageRouter.get('/:id', optionalAuth, (req: Request, res: Response): void => {
     isOwner,
     isContractor,
     hasBid,
-    userCredits,
-    paidMode,
     editable: isOwner && !project.assigned_contractor_id,
   });
 });
@@ -411,18 +405,16 @@ apiRouter.post('/', requireAuth, (req: Request, res: Response): void => {
 
   const clientEmail = req.user?.email || null;
 
-  // Project limit check: when free_mode is OFF, limit to 1 active project per user
+  // Project limit check (3-tier subscription scheme):
+  // limit 0 = unlimited (free tier / tier 3), N = max active projects (tier 2)
   if (clientEmail) {
-    const freeModeRow = db.prepare("SELECT value FROM settings WHERE key = 'free_mode'").get() as any;
-    const isFree = freeModeRow?.value !== 'false';
-    if (!isFree) {
-      const activeCount = db.prepare(
-        "SELECT COUNT(*) as c FROM projects WHERE client_email = ? AND (status = 'pending' OR status = 'active')"
-      ).get(clientEmail) as { c: number };
-      if (activeCount.c >= 1) {
+    const limit = getActiveProjectLimit(db);
+    if (limit > 0) {
+      const activeCount = countActiveProjects(db, clientEmail);
+      if (activeCount >= limit) {
         errors.push(locale === 'id'
-          ? 'Anda sudah memiliki proyek aktif. Selesaikan proyek yang ada sebelum membuat yang baru, atau hubungi kami untuk paket yang lebih besar.'
-          : 'You already have an active project. Complete your existing project before creating a new one, or contact us for larger plans.');
+          ? `Anda telah mencapai batas ${limit} proyek aktif. Selesaikan proyek yang ada sebelum membuat yang baru, atau hubungi kami untuk paket yang lebih besar.`
+          : `You've reached the limit of ${limit} active projects. Complete your existing projects before creating a new one, or contact us for a larger plan.`);
         const categories = getActiveCategories(db);
         res.render('partials/_post-form', {
           categories: (categories as any[]).map((c: any) => ({
@@ -508,18 +500,7 @@ apiRouter.post('/:projectId/bid', optionalAuth, (req: Request, res: Response): v
     return;
   }
 
-  // Credit check: if paid mode is enabled, deduct 1 credit per bid
-  const paidModeRow = db.prepare("SELECT value FROM settings WHERE key = 'paid_mode'").get() as any;
-  const isPaid = paidModeRow?.value === 'true';
-
-  if (isPaid) {
-    const creditRow = db.prepare('SELECT credits FROM users WHERE id = ? AND is_contractor = 1').get(contractor.id) as any;
-    if (!creditRow || (creditRow.credits || 0) < 1) {
-      hxRedirect(req, res, `/post/${projectId}?error=${encodeURIComponent(locale === 'id' ? 'Kredit tidak mencukupi. Beli kredit untuk menawar.' : 'Insufficient credits. Buy credits to bid.')}`);
-      return;
-    }
-    db.prepare('UPDATE users SET credits = credits - 1 WHERE id = ?').run(contractor.id);
-  }
+  // Bids are free — no credit deduction (old credit-based scheme removed)
 
   db.prepare(`
     INSERT INTO bids (project_id, contractor_id, price, description, estimated_days, status)

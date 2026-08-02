@@ -194,7 +194,8 @@
     "invalidLink": "Invalid link.",
     "invalidOrExpiredLink": "Invalid or expired link.",
     "unsubscribedAll": "You have been unsubscribed from all notifications.",
-    "unsubscribedCategory": "You have been unsubscribed from \"{category}\" notifications."
+    "unsubscribedCategory": "You have been unsubscribed from \"{category}\" notifications.",
+    "activeProjects": "Active Projects"
   },
   "services": {
     "title": "Construction Services",
@@ -536,7 +537,13 @@
     "adminPaginationPrevious": "Previous",
     "adminPaginationNext": "Next",
     "noSitemap": "No sitemap data found. Run",
-    "admin": "Admin"
+    "admin": "Admin",
+    "projectLimitTitle": "Active Project Limit",
+    "projectLimitDesc": "Max active projects per client. 0 = unlimited (free tier / tier 3). 3 = tier 2. Existing projects continue unaffected.",
+    "limitUnlimited": "Unlimited (Free / Tier 3)",
+    "limitThree": "3 active projects (Tier 2)",
+    "saveLimit": "Save Limit",
+    "activeProjectsPerUser": "active projects per user"
   },
   "analytics": {
     "title": "Analytics",

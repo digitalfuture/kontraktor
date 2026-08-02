@@ -196,7 +196,8 @@
     "invalidLink": "Tautan tidak valid.",
     "invalidOrExpiredLink": "Tautan tidak valid atau telah kedaluwarsa.",
     "unsubscribedAll": "Anda telah berhenti berlangganan dari semua notifikasi.",
-    "unsubscribedCategory": "Anda telah berhenti berlangganan notifikasi kategori \"{category}\"."
+    "unsubscribedCategory": "Anda telah berhenti berlangganan notifikasi kategori \"{category}\".",
+    "activeProjects": "Proyek Aktif"
   },
   "services": {
     "title": "Jasa Konstruksi",
@@ -538,7 +539,13 @@
     "adminPaginationNext": "Selanjutnya",
     "adminPaginationShowing": "Menampilkan {from}-{to} dari {total} item",
     "noSitemap": "Data sitemap tidak ditemukan. Jalankan",
-    "admin": "Admin"
+    "admin": "Admin",
+    "projectLimitTitle": "Batas Proyek Aktif",
+    "projectLimitDesc": "Maksimal proyek aktif per klien. 0 = tanpa batas (gratis / tier 3). 3 = tier 2. Proyek yang sudah ada tidak terpengaruh.",
+    "limitUnlimited": "Tanpa batas (Gratis / Tier 3)",
+    "limitThree": "3 proyek aktif (Tier 2)",
+    "saveLimit": "Simpan Batas",
+    "activeProjectsPerUser": "proyek aktif per pengguna"
   },
   "analytics": {
     "title": "Analitik",

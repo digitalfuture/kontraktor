@@ -480,26 +480,6 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
     res.redirect('/admin/contractors');
   });
 
-  apiRouter.post('/contractors/:id/add-credits', (req: Request, res: Response): void => {
-    const contractorId = parseInt(req.params.id as string, 10);
-    const amount = parseInt(req.body.amount as string, 10) || 5;
-    if (amount <= 0 || amount > 100) {
-      if (req.headers['hx-request']) {
-        const c = db.prepare('SELECT id, is_verified, is_active FROM users WHERE id = ?').get(contractorId) as any;
-        res.render('partials/_admin-contractor-actions', { c, prefix: req.body.prefix || '' });
-        return;
-      }
-      res.redirect('/admin/contractors?error=invalid_credits');
-      return;
-    }
-    db.prepare('UPDATE users SET credits = credits + ? WHERE id = ?').run(amount, contractorId);
-    if (req.headers['hx-request']) {
-      const c = db.prepare('SELECT id, is_verified, is_active FROM users WHERE id = ?').get(contractorId) as any;
-      res.render('partials/_admin-contractor-actions', { c, prefix: req.body.prefix || '' });
-      return;
-    }
-    res.redirect('/admin/contractors?success=credits_added');
-  });
 
   // ── Users API ──
 
