@@ -12,7 +12,11 @@
         <div>
           <a href="/contractors/<%= bid.contractor_id %>" class="font-semibold text-gray-900 dark:text-white hover:text-orange-600"><%= bid.contractor_name %></a>
           <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-300">
-            <span>★ <%= bid.contractor_rating ? bid.contractor_rating.toFixed(1) : 'New' %></span>
+            <% if (bid.contractor_rating) { %>
+            <%- include('partials/_rating-value', { rating: bid.contractor_rating }) %>
+            <% } else { %>
+            <span class="text-sm text-gray-500">New</span>
+            <% } %>
             <span>•</span>
             <span><%= bid.specialty_name || bid.specialty || '' %></span>
             <% if (bid.is_verified) { %>

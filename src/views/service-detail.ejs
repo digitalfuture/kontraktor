@@ -81,7 +81,7 @@
                 <% if (ctr.specialty) { %><p class="text-sm text-gray-500 dark:text-gray-300 truncate"><% const _cat2 = t('categories.' + ctr.specialty); %><%= _cat2 && !_cat2.startsWith('categories.') ? _cat2 : ctr.specialty %></p><% } %>
                 <div class="flex items-center gap-2 mt-1">
                   <% if (ctr.rating > 0) { %>
-                  <span class="text-sm text-amber-500">★ <%= ctr.rating.toFixed(1) %></span>
+                  <%- include('partials/_rating-value', { rating: ctr.rating, color: 'text-amber-500' }) %>
                   <span class="text-xs text-gray-400">(<%= ctr.reviewsCount %>)</span>
                   <% } %>
                   <% if (ctr.completedProjects > 0) { %>

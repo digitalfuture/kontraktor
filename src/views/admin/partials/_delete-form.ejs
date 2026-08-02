@@ -1,0 +1,14 @@
+<%# Общая HTMX delete-форма для админ-таблиц.
+   Параметры:
+     url     — hx-post URL (обязательно)
+     confirm — текст подтверждения (data-confirm)
+     target  — hx-target (по умолч. 'closest tr')
+     swap    — hx-swap (по умолч. 'outerHTML')
+     variant — 'red' (по умолч., иконка-текст) | 'gray' (серая кнопка)
+     title   — title/aria для кнопки %>
+<form hx-post="<%= url %>" hx-target="<%= typeof target !== 'undefined' ? target : 'closest tr' %>" hx-swap="<%= typeof swap !== 'undefined' ? swap : 'outerHTML' %>" style="display:inline"<% if (typeof confirm !== 'undefined' && confirm) { %> data-confirm="<%= confirm %>"<% } %>>
+  <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+  <button class="<%= typeof variant !== 'undefined' && variant === 'gray' ? 'text-xs px-2 py-1 bg-gray-600 text-white rounded hover:bg-gray-700' : 'text-sm px-2 py-1 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300' %>"<% if (typeof title !== 'undefined' && title) { %> title="<%= title %>"<% } %>>
+    <span class="mat-icon text-base">delete</span>
+  </button>
+</form>

@@ -1,0 +1,2 @@
+<%# Рейтинг-значение: иконка звезды + число. Параметры: rating, suffix (опц. текст после числа), size (опц. класс иконки), color (опц. класс цвета) %>
+<span class="inline-flex items-center gap-1"><span class="mat-icon text-sm <%= typeof color !== 'undefined' ? color : 'text-yellow-500' %>">star</span> <%= typeof rating !== 'undefined' && rating ? rating.toFixed(1) : '—' %><% if (typeof suffix !== 'undefined') { %><%= suffix %><% } %></span>

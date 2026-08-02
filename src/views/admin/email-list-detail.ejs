@@ -180,7 +180,7 @@
       </thead>
       <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
         <% if (contacts.length === 0) { %>
-        <tr><td colspan="<%= campaign ? 5 : 4 %>" class="text-center py-8 text-gray-400 dark:text-gray-500"><%= typeof t !== 'undefined' ? t('email.noContacts') : 'No contacts in this list' %></td></tr>
+        <%- include('../partials/_empty-state', { colspan: campaign ? 5 : 4, message: typeof t !== 'undefined' ? t('email.noContacts') : 'No contacts in this list' }) %>
         <% } else { contacts.forEach(function(c) { %>
             <% // Find recipient status from recipientStatuses
             const rStatus = recipientStatuses ? recipientStatuses.find(r => r.email === c.email) : null; %>
@@ -211,12 +211,7 @@
           <% } %>
           <td class="px-4 sm:px-6 py-3 text-center">
             <% if (!isReadonly) { %>
-            <form hx-post="/api/admin/email/lists/<%= list.id %>/contacts/<%= c.id %>/delete" hx-target="closest tr" hx-swap="outerHTML swap:300ms" style="display:inline" data-confirm="<%= typeof t !== 'undefined' ? t('email.deleteContact') : 'Remove this contact?' %>">
-              <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-              <button class="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
-                <span class="mat-icon text-base">delete</span>
-              </button>
-            </form>
+            <%- include('partials/_delete-form', { url: '/api/admin/email/lists/' + list.id + '/contacts/' + c.id + '/delete', confirm: typeof t !== 'undefined' ? t('email.deleteContact') : 'Remove this contact?' }) %>
             <% } %>
           </td>
         </tr>

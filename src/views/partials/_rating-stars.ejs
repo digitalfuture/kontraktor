@@ -1,0 +1,8 @@
+<%# Блок рейтинга из 5 звёзд (Material). Параметры: rating (0-5), empty (показывать пустые звёзды, по умолч. true), size (опц. класс иконки) %>
+<%
+var _rs_rating = typeof rating !== 'undefined' ? rating : 0;
+var _rs_showEmpty = typeof empty === 'undefined' ? true : !!empty;
+var _rs_filled = Math.round(_rs_rating);
+var _rs_size = typeof size !== 'undefined' ? size : 'text-sm';
+%>
+<span class="inline-flex items-center gap-0.5" aria-label="<%= _rs_rating.toFixed(1) %> out of 5"><% for (var _rs_i = 0; _rs_i < 5; _rs_i++) { %><% if (_rs_i < _rs_filled) { %><span class="mat-icon <%= _rs_size %> text-yellow-500">star</span><% } else if (_rs_showEmpty) { %><span class="mat-icon <%= _rs_size %> text-gray-300 dark:text-gray-600">star</span><% } %><% } %></span>

@@ -189,7 +189,7 @@
             <div class="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-0 last:pb-0">
               <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2">
-                  <span class="text-yellow-500"><%= '★'.repeat(review.rating) %><%= '☆'.repeat(5 - review.rating) %></span>
+                  <%- include('partials/_rating-stars', { rating: review.rating }) %>
                   <span class="text-sm text-gray-500 dark:text-gray-300"><%= review.author_email ? review.author_email.split('@')[0] : 'Anonymous' %></span>
                 </div>
                 <span class="text-xs text-gray-400 dark:text-gray-500"><%= new Date(review.created_at).toLocaleDateString('en-US') %></span>
@@ -256,7 +256,13 @@
                 <% } %>
               </p>
               <p class="text-sm text-gray-500 dark:text-gray-300">
-                <span class="text-yellow-500">★</span> <%= project.contractor_rating ? project.contractor_rating.toFixed(1) : t('projectDetail.newContractor') %>
+                <span class="text-yellow-500">
+                  <% if (project.contractor_rating) { %>
+                  <%- include('partials/_rating-value', { rating: project.contractor_rating }) %>
+                  <% } else { %>
+                  <span class="text-sm text-gray-500"><%= t('projectDetail.newContractor') %></span>
+                  <% } %>
+                </span>
                 <% if (project.contractor_reviews_count) { %>
                   <span class="text-gray-400">(<%= project.contractor_reviews_count %>)</span>
                 <% } %>

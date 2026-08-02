@@ -28,7 +28,7 @@
               </thead>
               <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                 <% if (reviews.length === 0) { %>
-                <tr><td colspan="9" class="px-2 sm:px-3 py-8 text-center text-gray-500 dark:text-gray-300"><%= t('admin.noReviews') %></td></tr>
+                <%- include('../partials/_empty-state', { colspan: 9, message: t('admin.noReviews') }) %>
                 <% } else { %>
                 <% reviews.forEach(function(r) { %>
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition expand-trigger cursor-pointer" data-row-id="r<%= r.id %>">
@@ -39,7 +39,7 @@
                   <td class="px-2 sm:px-3 py-4 text-sm text-gray-600 dark:text-gray-300 max-w-[150px] truncate"><%= r.author_email %></td>
                   <td class="px-2 sm:px-3 py-4 text-sm text-gray-600 dark:text-gray-300"><%= r.contractor_name || '—' %></td>
                   <td class="px-2 sm:px-3 py-4 text-sm">
-                    <span class="text-yellow-500"><%= '★'.repeat(r.rating) %><%= '☆'.repeat(5 - r.rating) %></span>
+                    <%- include('../partials/_rating-stars', { rating: r.rating }) %>
                   </td>
                   <td class="px-2 sm:px-3 py-4 text-sm text-gray-900 dark:text-white max-w-[200px] truncate hidden lg:table-cell"><%= r.comment || '—' %></td>
                   <td class="px-2 sm:px-3 py-4">
@@ -65,7 +65,7 @@
                         <% if (r.contractor_name) { %>
                         <p class="text-gray-500 dark:text-gray-300"><%= t("admin.contractor") %> <span class="text-gray-900 dark:text-white"><%= r.contractor_name %></span></p>
                         <% } %>
-                        <p class="text-gray-500 dark:text-gray-300"><%= t("admin.rating") %> <span class="text-yellow-500"><%= '★'.repeat(r.rating) %></span> /5</p>
+                        <p class="text-gray-500 dark:text-gray-300"><%= t("admin.rating") %> <%- include('../partials/_rating-stars', { rating: r.rating, empty: false }) %> /5</p>
                         <p class="text-gray-500 dark:text-gray-300"><%= t("admin.date") %> <span class="text-gray-900 dark:text-white"><%= r.created_at %></span></p>
                       </div>
                       <!-- Mobile Actions Section -->

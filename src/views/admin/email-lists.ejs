@@ -46,7 +46,7 @@
       </thead>
       <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
         <% if (lists.length === 0) { %>
-                <tr><td colspan="5" class="text-center py-8 text-gray-400 dark:text-gray-500"><%= typeof t !== 'undefined' ? t('email.noLists') : 'No mailing lists' %></td></tr>
+                <%- include('../partials/_empty-state', { colspan: 6, message: typeof t !== 'undefined' ? t('email.noLists') : 'No mailing lists' }) %>
         <% } else { lists.forEach(function(l) { %>
         <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
           <td class="px-4 sm:px-6 py-3 font-medium">
@@ -71,12 +71,7 @@
               <button type="button" class="text-gray-400 hover:text-orange-600 dark:text-gray-500 dark:hover:text-orange-400 p-1 rounded transition" hx-get="/api/admin/email/lists/<%= l.id %>/edit-name" hx-target="#list-name-<%= l.id %>" hx-swap="outerHTML" title="<%= typeof t !== 'undefined' ? t('email.edit') : 'Edit' %>">
         <span class="mat-icon text-base">edit</span>
       </button>
-              <form hx-post="/api/admin/email/lists/<%= l.id %>/delete" hx-target="closest tr" hx-swap="outerHTML swap:300ms" style="display:inline" data-confirm="<%= typeof t !== 'undefined' ? t('email.confirmDeleteList') : 'Delete this list and all its contacts?' %>">
-                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                <button class="text-sm px-2 py-1 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
-                  <span class="mat-icon text-base">delete</span>
-                </button>
-              </form>
+              <%- include('partials/_delete-form', { url: '/api/admin/email/lists/' + l.id + '/delete', confirm: typeof t !== 'undefined' ? t('email.confirmDeleteList') : 'Delete this list and all its contacts?' }) %>
             </div>
           </td>
         </tr>
