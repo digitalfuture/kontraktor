@@ -1,6 +1,7 @@
 import { config as dotenvConfig } from 'dotenv';
 import path from 'path';
 import * as seoLib from './lib/seo';
+import { getActiveProjectLimit } from './lib/project-limit';
 
 // Load base .env (secrets shared across environments)
 dotenvConfig({ path: path.join(__dirname, '../.env') });
@@ -198,6 +199,17 @@ app.get('/', (req: express.Request, res: express.Response): void => {
     defaultIcon: defaultServiceIcon,
     services,
     reviews,
+  });
+});
+
+app.get('/pricing', (req: express.Request, res: express.Response): void => {
+  const locale = (res.locals.locale as string) || 'en';
+  const limit = getActiveProjectLimit(db);
+  const currentPlan = limit > 0 ? (limit === 3 ? 'pro' : (limit > 3 ? 'business' : 'basic')) : 'basic';
+  res.render('pricing', {
+    seo: undefined,
+    title: (locale === 'id' ? 'Harga — Kontraktor' : 'Pricing — Kontraktor'),
+    currentPlan,
   });
 });
 

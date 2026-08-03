@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+  <%- include('partials/_head') %>
+<body class="bg-gray-200 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+  <%- include('partials/_anti-flash') %>
+  <%- include('partials/header') %>
+
+  <main id="main-content" class="max-w-6xl mx-auto px-4 py-12 sm:py-16" role="main">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-orange-700 dark:text-orange-500 mb-3 tracking-tight">
+        <%= locale === 'id' ? 'Pilih Paket Keanggotaan Anda' : 'Choose Your Subscription Plan' %>
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400">
+        <%= locale === 'id'
+            ? 'Bebas memilih — mulai gratis dan tingkatkan bila proyek Anda tumbuh.'
+            : 'Pick whichever you like — start free and upgrade as your projects grow.' %>
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <% const plans = [
+        { id: 'basic', name: locale === 'id' ? 'Basic' : 'Basic', price: '0',
+          desc: locale === 'id' ? 'Bebas biaya selamanya.' : 'Free forever.',
+          features: [
+            locale === 'id' ? 'Proyek aktif tanpa batas' : 'Unlimited active projects',
+            locale === 'id' ? 'Pasang proyek bebas' : 'Post projects free',
+            locale === 'id' ? 'Dapatkan penawaran kontraktor' : 'Receive contractor bids'
+          ], cta: locale === 'id' ? 'Mulai Gratis' : 'Start Free' },
+        { id: 'pro', name: locale === 'id' ? 'Pro' : 'Pro', price: '149',
+          desc: locale === 'id' ? 'Untuk yang butuh lebih banyak proyek aktif.' : 'For those running more active projects.',
+          features: [
+            locale === 'id' ? 'Hingga 3 proyek aktif' : 'Up to 3 active projects',
+            locale === 'id' ? 'Prioritas penawaran' : 'Priority bids',
+            locale === 'id' ? 'Dukungan email prioritas' : 'Priority email support'
+          ],
+          cta: locale === 'id' ? 'Pilih Pro' : 'Choose Pro' },
+        { id: 'business', name: locale === 'id' ? 'Bisnis' : 'Business', price: '349',
+          desc: locale === 'id' ? 'Untuk skala besar dan tim.' : 'For growing teams and larger volume.',
+          features: [
+            locale === 'id' ? 'Proyek aktif tanpa batas' : 'Unlimited active projects',
+            locale === 'id' ? 'Tampilan prioritas di listing' : 'Priority placement in listings',
+            locale === 'id' ? 'Manajer akun + analitik' : 'Account manager + analytics'
+          ],
+          cta: locale === 'id' ? 'Pilih Bisnis' : 'Choose Business' }
+      ]; %>
+
+      <% plans.forEach(function(plan) { %>
+        <% const active = plan.id === currentPlan; %>
+        <div class="relative flex flex-col bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-xl border transition duration-300
+          <%= active ? 'border-orange-600 dark:border-orange-500 ring-2 ring-orange-300 dark:ring-orange-700/60' : 'border-gray-100 dark:border-gray-800' %>">
+          <% if (active) { %>
+            <span class="absolute -top-3 left-6 inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-full bg-orange-700 text-white dark:bg-orange-500 dark:text-gray-950">
+              <span class="material-symbols-outlined text-sm">check_circle</span>
+              <%= locale === 'id' ? 'Paket Anda' : 'Your Plan' %>
+            </span>
+          <% } %>
+          <h2 class="text-lg font-bold text-gray-950 dark:text-white mb-1"><%= plan.name %></h2>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4"><%= plan.desc %></p>
+          <div class="mb-5">
+            <span class="text-3xl font-extrabold <%= active ? 'text-orange-700 dark:text-orange-500' : 'text-gray-900 dark:text-white' %>">Rp <%= plan.price %>K</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400">/<%= locale === 'id' ? 'bln' : 'mo' %></span>
+          </div>
+          <ul class="space-y-2.5 mb-6 text-sm flex-1">
+            <% plan.features.forEach(function(f) { %>
+              <li class="flex items-start gap-2.5 text-gray-700 dark:text-gray-300">
+                <span class="material-symbols-outlined mat-icon text-emerald-600 dark:text-emerald-500 text-[20px]">check</span>
+                <%= f %>
+              </li>
+            <% }) %>
+          </ul>
+          <a href="<%= active ? '/account' : (locale === 'id' ? '/auth/login' : '/auth/login?lang=' + locale) %>"
+            class="block text-center px-4 py-2.5 rounded-lg text-sm font-semibold transition
+              <%= active ? 'bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400 cursor-default'
+                         : 'bg-orange-700 hover:bg-orange-800 text-white' %>">
+            <%= active ? (locale === 'id' ? 'Dikelola' : 'Active') : plan.cta %>
+          </a>
+        </div>
+      <% }) %>
+    </div>
+
+    <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-10">
+      <%= locale === 'id'
+          ? 'Harga dalam Rupiah. Pembayaran diproses melalui mitra pembayaran kami.'
+          : 'Prices in Indonesian Rupiah. Payments are processed through our payment partner.' %>
+    </p>
+  </main>
+
+  <%- include('partials/footer') %>
+  <script src="/js/main.js" defer></script>
+</body>
+</html>
