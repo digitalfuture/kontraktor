@@ -612,7 +612,9 @@
     "period": "Periode",
     "days7": "7 hari",
     "days30": "30 hari",
-    "days90": "90 hari"
+    "days90": "90 hari",
+    "compare": "Bandingkan dengan periode sebelumnya",
+    "previous": "sebelumnya"
   },
   "common": {
     "and": "dan",

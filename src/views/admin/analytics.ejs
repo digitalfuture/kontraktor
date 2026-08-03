@@ -119,11 +119,17 @@
       <h2 class="text-base font-semibold">
         <%= typeof t !== 'undefined' ? t('analytics.monthlyTrend') : 'Monthly Trend' %>
       </h2>
-      <select id="trend-days" class="text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1.5 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500">
-        <option value="7"><%= typeof t !== 'undefined' ? t('analytics.days7') : '7 days' %></option>
-        <option value="30" selected><%= typeof t !== 'undefined' ? t('analytics.days30') : '30 days' %></option>
-        <option value="90"><%= typeof t !== 'undefined' ? t('analytics.days90') : '90 days' %></option>
-      </select>
+      <div class="flex items-center gap-4 flex-wrap">
+        <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 cursor-pointer select-none">
+          <input type="checkbox" id="trend-compare" class="accent-orange-600 h-4 w-4 rounded">
+          <%= typeof t !== 'undefined' ? t('analytics.compare') : 'Compare with previous period' %>
+        </label>
+        <select id="trend-days" class="text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1.5 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500">
+          <option value="7"><%= typeof t !== 'undefined' ? t('analytics.days7') : '7 days' %></option>
+          <option value="30" selected><%= typeof t !== 'undefined' ? t('analytics.days30') : '30 days' %></option>
+          <option value="90"><%= typeof t !== 'undefined' ? t('analytics.days90') : '90 days' %></option>
+        </select>
+      </div>
     </div>
     <div class="relative" style="height:280px">
       <canvas id="monthlyTrendChart"></canvas>
@@ -187,26 +193,53 @@
     var ctx = document.getElementById('monthlyTrendChart');
     if (!ctx || typeof Chart === 'undefined') return;
 
+    var L = {
+      users: '<%= typeof t !== "undefined" ? t("analytics.users") : "Users" %>',
+      sessions: '<%= typeof t !== "undefined" ? t("analytics.sessions") : "Sessions" %>',
+      pageViews: '<%= typeof t !== "undefined" ? t("analytics.pageViews") : "Page Views" %>',
+      previous: '<%= typeof t !== "undefined" ? t("analytics.previous") : "previous" %>',
+    };
+
     var chart = null;
 
-    function draw(rows) {
-      if (!rows || !rows.length) rows = [];
+    function mk(label, data, color, fill, dash) {
+      return {
+        label: label,
+        data: data,
+        borderColor: color,
+        backgroundColor: fill ? color.replace(')', ',0.1)').replace('rgb', 'rgba') : 'transparent',
+        fill: fill,
+        tension: 0.3,
+        pointRadius: dash ? 0 : 2,
+        borderDash: dash ? [5, 5] : undefined,
+      };
+    }
+
+    function render(data) {
+      var isCompare = data && !Array.isArray(data);
+      var rows = isCompare ? (data.current || []) : (data || []);
+      var prev = isCompare ? (data.previous || []) : [];
+      var pick = function(r, f) { return r.map(function(x) { return x[f] || 0; }); };
+
+      var datasets = [
+        mk(L.users, pick(rows, 'users'), 'rgb(249,115,22)', true, null),
+        mk(L.sessions, pick(rows, 'sessions'), 'rgb(59,130,246)', true, null),
+        mk(L.pageViews, pick(rows, 'pageViews'), 'rgb(34,197,94)', true, null),
+      ];
+      if (prev.length) {
+        datasets.push(
+          mk(L.users + ' · ' + L.previous, pick(prev, 'users'), 'rgb(249,115,22)', false, [5, 5]),
+          mk(L.sessions + ' · ' + L.previous, pick(prev, 'sessions'), 'rgb(59,130,246)', false, [5, 5]),
+          mk(L.pageViews + ' · ' + L.previous, pick(prev, 'pageViews'), 'rgb(34,197,94)', false, [5, 5]),
+        );
+      }
+
       var labels = rows.map(function(r) { return r.date; });
-      var users = rows.map(function(r) { return r.users || 0; });
-      var sessions = rows.map(function(r) { return r.sessions || 0; });
-      var pageViews = rows.map(function(r) { return r.pageViews || 0; });
 
       if (!chart) {
         chart = new Chart(ctx, {
           type: 'line',
-          data: {
-            labels: labels,
-            datasets: [
-              { label: '<%= typeof t !== "undefined" ? t("analytics.users") : "Users" %>', data: users, borderColor: '#f97316', backgroundColor: 'rgba(249,115,22,0.1)', fill: true, tension: 0.3, pointRadius: 2 },
-              { label: '<%= typeof t !== "undefined" ? t("analytics.sessions") : "Sessions" %>', data: sessions, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.08)', fill: true, tension: 0.3, pointRadius: 2 },
-              { label: '<%= typeof t !== "undefined" ? t("analytics.pageViews") : "Page Views" %>', data: pageViews, borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.08)', fill: true, tension: 0.3, pointRadius: 2 },
-            ],
-          },
+          data: { labels: labels, datasets: datasets },
           options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -220,25 +253,25 @@
         });
       } else {
         chart.data.labels = labels;
-        chart.data.datasets[0].data = users;
-        chart.data.datasets[1].data = sessions;
-        chart.data.datasets[2].data = pageViews;
+        chart.data.datasets = datasets;
         chart.update();
       }
     }
 
-    draw(initial);
+    render(initial);
 
     var sel = document.getElementById('trend-days');
-    if (sel) {
-      sel.addEventListener('change', function() {
-        var days = sel.value;
-        fetch('/api/admin/analytics/trend?days=' + days)
-          .then(function(r) { return r.json(); })
-          .then(draw)
-          .catch(function() {});
-      });
+    var chk = document.getElementById('trend-compare');
+    function loadTrend() {
+      var days = sel.value;
+      var cmp = chk && chk.checked ? '&compare=1' : '';
+      fetch('/api/admin/analytics/trend?days=' + days + cmp)
+        .then(function(r) { return r.json(); })
+        .then(render)
+        .catch(function() {});
     }
+    if (sel) sel.addEventListener('change', loadTrend);
+    if (chk) chk.addEventListener('change', loadTrend);
   })();
 </script>
 <%- include('_admin-layout-close') %>

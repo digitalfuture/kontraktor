@@ -344,6 +344,82 @@ export async function getTrafficTrend(days: number = 7): Promise<TrafficTrend[]>
   return trend;
 }
 
+/** YYYYMMDD strings for every day from `startBack` days ago down to `endBack` days ago (inclusive). */
+function dayStrings(startBack: number, endBack: number): string[] {
+  const out: string[] = [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  for (let i = startBack; i >= endBack; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    out.push(
+      d.getFullYear() +
+        String(d.getMonth() + 1).padStart(2, '0') +
+        String(d.getDate()).padStart(2, '0'),
+    );
+  }
+  return out;
+}
+
+function rowsToMap(data: any): Map<string, TrafficTrend> {
+  const m = new Map<string, TrafficTrend>();
+  if (!data?.rows) return m;
+  for (const row of data.rows) {
+    const dims = row.dimensionValues || [];
+    const vals = row.metricValues || [];
+    m.set(dims[0]?.value || '', {
+      date: dims[0]?.value || '',
+      users: parseInt(vals[0]?.value || '0', 10),
+      sessions: parseInt(vals[1]?.value || '0', 10),
+      pageViews: parseInt(vals[2]?.value || '0', 10),
+    });
+  }
+  return m;
+}
+
+/**
+ * Traffic trend for `days` days plus the same-length period right before it,
+ * with every calendar day present (zero-filled) so the two lines align
+ * day-by-day like Google Analytics period comparison.
+ */
+export async function getTrafficTrendCompare(
+  days: number = 30,
+): Promise<{ current: TrafficTrend[]; previous: TrafficTrend[] }> {
+  const metrics = [
+    { name: 'activeUsers' },
+    { name: 'sessions' },
+    { name: 'screenPageViews' },
+  ];
+  const [curData, prevData] = await Promise.all([
+    runReport({
+      dateRanges: [{ startDate: `${days - 1}daysAgo`, endDate: 'today' }],
+      dimensions: [{ name: 'date' }],
+      metrics,
+      orderBys: [{ dimension: { dimensionName: 'date' }, desc: false }],
+      limit: days,
+    }),
+    runReport({
+      dateRanges: [{ startDate: `${2 * days - 1}daysAgo`, endDate: `${days}daysAgo` }],
+      dimensions: [{ name: 'date' }],
+      metrics,
+      orderBys: [{ dimension: { dimensionName: 'date' }, desc: false }],
+      limit: days,
+    }),
+  ]);
+
+  const curMap = rowsToMap(curData);
+  const prevMap = rowsToMap(prevData);
+  const curDates = dayStrings(days - 1, 0);
+  const prevDates = dayStrings(2 * days - 1, days);
+  const zero = (date: string, map: Map<string, TrafficTrend>): TrafficTrend =>
+    map.get(date) || { date, users: 0, sessions: 0, pageViews: 0 };
+
+  return {
+    current: curDates.map(d => zero(d, curMap)),
+    previous: prevDates.map(d => zero(d, prevMap)),
+  };
+}
+
 export function invalidateCache(): void {
   lastFetch = { time: 0, daily: null, realtime: null, topPages: null, sources: null };
 }

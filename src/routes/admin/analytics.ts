@@ -83,8 +83,13 @@ export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: e
 
   apiRouter.get('/analytics/trend', async (req: Request, res: Response): Promise<void> => {
     try {
-      const { getTrafficTrend } = await import('../../lib/google-analytics');
+      const { getTrafficTrend, getTrafficTrendCompare } = await import('../../lib/google-analytics');
       const days = Math.min(90, Math.max(7, parseInt(req.query.days as string, 10) || 30));
+      if (req.query.compare === '1') {
+        const data = await getTrafficTrendCompare(days);
+        res.json(data);
+        return;
+      }
       const data = await getTrafficTrend(days);
       res.json(data || []);
     } catch (err) {
