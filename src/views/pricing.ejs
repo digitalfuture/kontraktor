@@ -57,8 +57,12 @@
           <h2 class="text-lg font-bold text-gray-950 dark:text-white mb-1"><%= plan.name %></h2>
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4"><%= plan.desc %></p>
           <div class="mb-5">
-            <span class="text-3xl font-extrabold <%= active ? 'text-orange-700 dark:text-orange-500' : 'text-gray-900 dark:text-white' %>">Rp <%= plan.price %>K</span>
-            <span class="text-sm text-gray-500 dark:text-gray-400">/<%= locale === 'id' ? 'bln' : 'mo' %></span>
+            <% if (plan.price === '0') { %>
+              <span class="text-3xl font-extrabold <%= active ? 'text-orange-700 dark:text-orange-500' : 'text-gray-900 dark:text-white' %>"><%= locale === 'id' ? 'Gratis' : 'Free' %></span>
+            <% } else { %>
+              <span class="text-3xl font-extrabold <%= active ? 'text-orange-700 dark:text-orange-500' : 'text-gray-900 dark:text-white' %>">Rp <%= plan.price %><span class="text-2xl font-light text-gray-400 dark:text-gray-500 tracking-tight ml-px">K</span></span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">/<%= locale === 'id' ? 'bln' : 'mo' %></span>
+            <% } %>
           </div>
           <ul class="space-y-2.5 mb-6 text-sm flex-1">
             <% plan.features.forEach(function(f) { %>
