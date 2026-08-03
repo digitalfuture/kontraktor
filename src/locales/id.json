@@ -607,7 +607,12 @@
     "lastUpdate": "Terakhir diperbarui",
     "error": "Gagal mengambil data analitik",
     "noData": "Data analitik tidak tersedia. Pastikan Google Analytics Data API diaktifkan dan properti memiliki lalu lintas.",
-    "notConfigured": "Analitik belum dikonfigurasi"
+    "notConfigured": "Analitik belum dikonfigurasi",
+    "monthlyTrend": "Tren Bulanan",
+    "period": "Periode",
+    "days7": "7 hari",
+    "days30": "30 hari",
+    "days90": "90 hari"
   },
   "common": {
     "and": "dan",

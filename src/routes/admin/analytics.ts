@@ -22,12 +22,13 @@ export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: e
 
       const days = parseInt(startDate, 10) || 7;
 
-      const [daily, realtime, topPages, sources, trend] = await Promise.all([
+      const [daily, realtime, topPages, sources, trend, monthly] = await Promise.all([
         getDailyMetrics(),
         getRealtimeMetrics().catch(() => ({ activeUsers: 0, screenPageViews: 0 })),
         getTopPages(10).catch(() => []),
         getTrafficSources(10).catch(() => []),
-        getTrafficTrend(days).catch(() => ({ dates: [], values: [] })),
+        getTrafficTrend(days).catch(() => []),
+        getTrafficTrend(30).catch(() => []),
       ]);
 
       const categoryStats = db.prepare(`
@@ -56,6 +57,7 @@ export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: e
         topPages,
         sources,
         trend,
+        monthly,
         startDate,
         endDate,
       });
@@ -69,10 +71,25 @@ export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: e
         topPages: [],
         sources: [],
         trend: [],
+        monthly: [],
         startDate,
         endDate,
         error: 'Analytics data unavailable. Check Google OAuth configuration.',
       });
+    }
+  });
+
+  // ── API: Traffic trend for the monthly chart ──
+
+  apiRouter.get('/analytics/trend', async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { getTrafficTrend } = await import('../../lib/google-analytics');
+      const days = Math.min(90, Math.max(7, parseInt(req.query.days as string, 10) || 30));
+      const data = await getTrafficTrend(days);
+      res.json(data || []);
+    } catch (err) {
+      console.error('Trend API error:', err);
+      res.status(500).json({ error: 'Failed to load trend' });
     }
   });
 
