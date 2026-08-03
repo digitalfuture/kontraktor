@@ -665,7 +665,7 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
     const systemTmpl = db.prepare("SELECT * FROM email_templates WHERE system_key IS NOT NULL ORDER BY system_key").all();
 
     res.render('admin/email-settings', {
-      title: (locale === 'id' ? 'Настройки Email — Admin' : 'Email Settings — Admin') + ' — Kontraktor',
+      title: (locale === 'id' ? 'Pengaturan Email — Admin' : 'Email Settings — Admin') + ' — Kontraktor',
       activePage: 'email-settings',
       settings,
       systemTmpl,
