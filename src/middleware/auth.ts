@@ -44,6 +44,14 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction): v
     res.status(403).render('error', { message: 'Access denied' });
     return;
   }
+  // Admin visits must never be counted in analytics — persist the device
+  // opt-out cookie so the admin stays excluded even after logging out.
+  res.cookie('ga_opt_out', '1', {
+    maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
+    httpOnly: false, // client-side JS also reads it for extra safety
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+  });
   next();
 }
 
