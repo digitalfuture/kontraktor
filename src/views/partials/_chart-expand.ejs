@@ -54,8 +54,12 @@
           var containerId = id.replace('-card', '-container');
           var container = document.getElementById(containerId);
           if (container) {
-            var viz = container.firstElementChild;
-            while (viz && !viz.querySelector('svg')) viz = viz.nextElementSibling;
+            // Resize the element that actually contains the <svg> — for the sitemap
+            // that is #sitemap-viz (wrapped in a .w-full.relative root). Resizing the
+            // wrapper (firstElementChild) left the inner svg box untouched.
+            var viz = container.querySelector('.w-full.overflow-hidden')
+                    || container.querySelector('#sitemap-viz')
+                    || container.querySelector('svg');
             if (viz && isExpanded) {
               var cardBody = card.lastElementChild;
               if (cardBody) {

@@ -336,6 +336,25 @@
         svg.attr('viewBox', [(x0 + x1) / 2 - vw / 2, cy - vh / 2, vw, vh]);
         svg.attr('preserveAspectRatio', 'xMidYMid meet');
 
+        // Adaptive font size: derive from the container's RENDERED height so
+        // text grows where there is room and never shrinks below readability.
+        // Without this, the fixed px font only scales via preserveAspectRatio,
+        // which is blocked by the svg max-width on wide/expanded screens.
+        var host = svgEl.closest('.w-full.overflow-hidden') || svgEl.parentElement;
+        var hostRect = host ? host.getBoundingClientRect() : { width: 760, height: 600 };
+        var hostW = hostRect.width || 760;
+        var hostH = hostRect.height || 600;
+        // Actual on-screen scale is the MIN of width & height fit (preserveAspectRatio
+        // 'meet' + svg max-width). Using only height made the font stay small whenever
+        // width was the limiting side.
+        var scl = Math.min(hostW / vw, hostH / vh);
+        if (!scl || scl <= 0 || !isFinite(scl)) scl = 1;
+        function sz(px) { return (px / scl).toFixed(1) + 'px'; }
+        // Desired on-screen font size in CSS px: "не мельчить" >=13, grows to 24 as
+        // the container grows.
+        var nodePx = Math.max(13, Math.min(24, hostH / 42));
+        var rootPx = nodePx * 1.18;
+
         // Links
         var linkGen = d3.linkHorizontal().x(function(d) { return d[0]; }).y(function(d) { return d[1]; });
         g.selectAll('path')
@@ -366,7 +385,7 @@
           .attr('text-anchor', function(d) { return d.depth === 0 ? 'end' : 'start'; })
           .attr('x', function(d) { return d.depth === 0 ? d.y - 14 : d.y + 14; })
           .attr('y', function(d) { return d.x + 5; })
-          .attr('font-size', function(d) { return d.depth === 0 ? '17px' : '14px'; })
+          .attr('font-size', function(d) { return d.depth === 0 ? sz(rootPx) : sz(nodePx); })
           .attr('font-weight', function(d) { return d.depth === 0 ? '700' : '500'; })
           .attr('fill', function(d) {
             if (d.depth === 0) return '#ea580c';
@@ -383,7 +402,7 @@
 
         labelText.filter(function(d) { return !isEmpty(d.data) && d.depth > 0; }).append('tspan')
           .attr('fill', '#9ca3af')
-          .attr('font-size', '10px')
+          .attr('font-size', sz(nodePx * 0.7))
           .attr('dx', '6')
           .text(function(d) {
             var count = d.data.children ? d.data.children.length : 0;
@@ -418,6 +437,20 @@
       // Redraw on theme change
       var obs = new MutationObserver(function() { draw(zoomStack[zoomStack.length - 1]); });
       obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+      // Redraw on container resize (fullscreen expand/collapse, window resize)
+      // so the font-size regeneration tracks the new rendered height.
+      var roHost = svgEl.closest('.w-full.overflow-hidden') || svgEl.parentElement;
+      if (roHost && typeof ResizeObserver !== 'undefined') {
+        var roTimer = null;
+        var ro = new ResizeObserver(function() {
+          clearTimeout(roTimer);
+          roTimer = setTimeout(function() {
+            if (!isLoading) draw(zoomStack[zoomStack.length - 1]);
+          }, 80);
+        });
+        ro.observe(roHost);
+      }
     }
 
     // ── Codebase Tree ─────────────────────────────────────────────────────
