@@ -7,6 +7,16 @@ const router: express.Router = express.Router();
 router.get('/', (_req: Request, res: Response): void => {
   const baseUrl = process.env.BASE_URL || 'https://kontraktor.app';
   const host = (_req as any).headers?.host;
+
+  // Do NOT expose a sitemap on non-production hosts (dev/staging would
+  // advertise dev URLs to search engines and get them indexed).
+  const hostname = (host || '').split(':')[0];
+  const isNonProd = hostname.startsWith('dev.') || hostname === 'localhost' || hostname.startsWith('127.') || hostname.startsWith('192.168.');
+  if (isNonProd) {
+    res.type('application/xml');
+    res.send('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>');
+    return;
+  }
   const url = host ? `https://${host}` : baseUrl;
 
   const projects = db.prepare(`
@@ -37,11 +47,6 @@ router.get('/', (_req: Request, res: Response): void => {
     <loc>${url}/contractors</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>${url}/post</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
   </url>
 `;
 

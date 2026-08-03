@@ -62,6 +62,19 @@ app.set('views', path.join(__dirname, 'views'));
 if (process.env.NODE_ENV !== 'production') {
   app.set('view options', { cache: false });
 }
+// Dynamic robots.txt: block indexing of staging/dev environments,
+// serve the static file for production.
+app.get('/robots.txt', (req: express.Request, res: express.Response): void => {
+  const host = (req.headers.host || '').split(':')[0];
+  const isNonProd = host.startsWith('dev.') || host === 'localhost' || host.startsWith('127.') || host.startsWith('192.168.');
+  if (isNonProd) {
+    res.type('text/plain');
+    res.send('User-agent: *\nDisallow: /\n');
+    return;
+  }
+  res.sendFile(path.join(__dirname, '../public/robots.txt'));
+});
+
 // Static files: images and fonts get long cache, CSS/JS get short cache with revalidation
 app.use(express.static(path.join(__dirname, '../public'), {
   maxAge: 0, // Let setHeaders control per file type
