@@ -24,7 +24,7 @@
   <div class="lg:w-64 shrink-0">
     <div class="bg-gray-900/40 rounded-lg border border-gray-800/60 overflow-hidden">
       <div class="px-4 py-3 border-b border-gray-800/60 flex items-center justify-between">
-        <h3 class="text-sm font-semibold text-gray-300">Tables</h3>
+        <h3 class="text-sm font-semibold text-gray-300"><%= t('admin.tables') %></h3>
         <button onclick="loadTables()" class="text-gray-500 hover:text-gray-300 transition" title="Refresh">
           <span class="mat-icon text-base ">sync</span>
         </button>
@@ -46,7 +46,7 @@
       <!-- Header -->
       <div class="px-5 py-4 border-b border-gray-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h3 id="data-table-name" class="text-sm font-semibold text-gray-300">Select a table</h3>
+          <h3 id="data-table-name" class="text-sm font-semibold text-gray-300"><%= t('admin.selectTable') %></h3>
           <p id="data-row-count" class="text-xs text-gray-500 mt-0.5"></p>
         </div>
         <div class="flex items-center gap-2">
@@ -64,11 +64,11 @@
         <div id="data-loading" class="hidden">
           <div class="flex items-center justify-center py-20 text-gray-500">
             <svg class="w-8 h-8 animate-spin mr-3" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-            Loading...
+            <%= t('admin.loadData') %>
           </div>
         </div>
         <div id="data-content" class="">
-          <div id="data-empty" class="flex items-center justify-center py-20 text-gray-500">Select a table to browse</div>
+          <div id="data-empty" class="flex items-center justify-center py-20 text-gray-500"><%= t('admin.selectTableBrowse') %></div>
           <table id="data-table" class="w-full text-sm hidden">
             <thead id="data-thead" class="bg-gray-800/80 text-gray-400 text-xs uppercase tracking-wider"></thead>
             <tbody id="data-tbody" class="divide-y divide-gray-800/40"></tbody>
@@ -79,7 +79,7 @@
       <!-- Pagination -->
       <div id="data-pagination" class="hidden px-5 py-3 border-t border-gray-800/60 flex items-center justify-between">
         <div class="text-xs text-gray-500">
-          Page <span id="page-info">1</span> of <span id="page-total">1</span>
+          <%= t('admin.dbPage') %> <span id="page-info">1</span> of <span id="page-total">1</span>
         </div>
         <div class="flex items-center gap-1">
           <button onclick="goPage(1)" class="db-btn-page">&laquo;</button>
@@ -163,7 +163,7 @@ function loadData() {
       if (!thead || !tbody) return;
 
       if (res.columns.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="1" class="text-center py-16 text-gray-500">Empty table</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="1" class="text-center py-16 text-gray-500"><%= t('admin.emptyTable') %></td></tr>';
         thead.innerHTML = '';
         if (dataTable) dataTable.classList.remove('hidden');
         return;
@@ -176,7 +176,7 @@ function loadData() {
 
       // Rows
       if (res.rows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="' + res.columns.length + '" class="text-center py-16 text-gray-500">No results</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="' + res.columns.length + '" class="text-center py-16 text-gray-500"><%= t('admin.noResults') %></td></tr>';
       } else {
         tbody.innerHTML = res.rows.map(function(row) {
           return '<tr class="hover:bg-gray-800/20 transition">' +

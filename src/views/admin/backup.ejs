@@ -12,7 +12,7 @@
 </style>
 
 <div class="max-w-5xl">
-  <h1 class="text-2xl font-bold mb-6">🔄 Backup & Restore</h1>
+  <h1 class="text-2xl font-bold mb-6">🔄 <%= t('admin.backupRestore') %></h1>
 
   <!-- ── Status cards ── -->
   <% if (pendingRequest) { %>
@@ -22,14 +22,14 @@
         <span class="mat-icon text-base text-yellow-400">warning</span>
       </div>
       <div class="flex-1">
-        <p class="font-semibold text-yellow-300">&#9888;&#65039; Restore in progress</p>
+        <p class="font-semibold text-yellow-300">&#9888;&#65039; <%= t('admin.restoreInProgress') %></p>
         <p class="text-sm text-yellow-200/70 mt-1"><%= statusMessage %></p>
         <p class="text-xs text-yellow-200/50 mt-1">
-          Target: <%= pendingRequest?.target || '&mdash;' %> &middot;
-          Requested: <%= pendingRequest?.requestedAt || '&mdash;' %>
+          <%= t('admin.targetLabel') %> <%= pendingRequest?.target || '&mdash;' %> &middot;
+          <%= t('admin.requestedLabel') %> <%= pendingRequest?.requestedAt || '&mdash;' %>
         </p>
         <button class="btn-cancel-restore text-xs mt-2 px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 text-gray-300" data-target="<%= pendingRequest?.target || '' %>">
-          Cancel restore
+          <%= t('admin.cancelRestore') %>
         </button>
       </div>
     </div>
@@ -39,18 +39,18 @@
   <!-- ── Last Restore + Undo ── -->
   <% if (lastRestore) { %>
   <div class="bg-gray-800/30 border border-gray-700/50 rounded-lg p-4 mb-6">
-    <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Last Restore</h3>
+    <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2"><%= t('admin.lastRestore') %></h3>
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
-      <div><span class="text-gray-500">Time:</span> <%= lastRestore.time || '—' %></div>
-      <div><span class="text-gray-500">Target:</span> <%= lastRestore.target_label || lastRestore.target || '—' %></div>
-      <div><span class="text-gray-500">Status:</span> <%= lastRestore.status || '—' %></div>
-      <div><span class="text-gray-500">By:</span> <%= lastRestore.requestedBy || '—' %></div>
+      <div><span class="text-gray-500"><%= t('admin.time') %>:</span> <%= lastRestore.time || '—' %></div>
+      <div><span class="text-gray-500"><%= t('admin.targetLabel') %></span> <%= lastRestore.target_label || lastRestore.target || '—' %></div>
+      <div><span class="text-gray-500"><%= t('admin.statusLabel') %></span> <%= lastRestore.status || '—' %></div>
+      <div><span class="text-gray-500"><%= t('admin.byLabel') %></span> <%= lastRestore.requestedBy || '—' %></div>
     </div>
     <% if (lastRestore.pre_restore_file) { %>
     <button class="btn-undo-restore mt-3 px-4 py-1.5 text-sm rounded-lg bg-red-800/50 hover:bg-red-700/50 text-red-300 border border-red-700/50 transition"
             data-pre-file="<%= lastRestore.pre_restore_file %>"
             data-target-label="<%= lastRestore.target_label || lastRestore.target || '' %>">
-      ↩ Undo Last Restore
+      ↩ <%= t('admin.undoLastRestore') %>
     </button>
     <% } %>
   </div>
@@ -68,11 +68,11 @@
       <table class="w-full text-sm">
         <thead>
           <tr class="text-left text-gray-400 border-b border-gray-800/60">
-            <th class="px-5 py-3 font-medium">Type</th>
-            <th class="px-5 py-3 font-medium">Description</th>
-            <th class="px-5 py-3 font-medium">Time</th>
-            <th class="px-5 py-3 font-medium">Size</th>
-            <th class="px-5 py-3 font-medium text-right">Action</th>
+            <th class="px-5 py-3 font-medium"><%= t('admin.type') %></th>
+            <th class="px-5 py-3 font-medium"><%= t('admin.description') %></th>
+            <th class="px-5 py-3 font-medium"><%= t('admin.time') %></th>
+            <th class="px-5 py-3 font-medium"><%= t('admin.size') %></th>
+            <th class="px-5 py-3 font-medium text-right"><%= t('admin.action') %></th>
           </tr>
         </thead>
         <tbody>
@@ -82,7 +82,7 @@
               <% if (p.type === 'litestream') { %>
                 <span class="px-2 py-0.5 text-xs rounded bg-blue-900/40 text-blue-300">WAL</span>
               <% } else { %>
-                <span class="px-2 py-0.5 text-xs rounded bg-gray-700/50 text-gray-300">Archive</span>
+                <span class="px-2 py-0.5 text-xs rounded bg-gray-700/50 text-gray-300"><%= t('admin.archive') %></span>
               <% } %>
             </td>
             <td class="px-5 py-3 text-gray-200 font-medium"><%= p.label %></td>
@@ -93,20 +93,20 @@
                 <button class="btn-restore text-xs px-3 py-1.5 rounded bg-orange-700 hover:bg-orange-600 text-white transition"
                         data-target="latest" data-label="<%= p.label %>"
                         <%= pendingRequest ? 'disabled style="opacity:.5;cursor:not-allowed"' : '' %>>
-                  Restore
+                  <%= t('admin.restore') %>
                 </button>
               <% } else { %>
                 <button class="btn-restore text-xs px-3 py-1.5 rounded bg-gray-700 hover:bg-orange-700 text-gray-300 hover:text-white transition"
                         data-target="archive:<%= p.id %>" data-label="<%= p.label %>"
                         <%= pendingRequest ? 'disabled style="opacity:.5;cursor:not-allowed"' : '' %>>
-                  Restore
+                  <%= t('admin.restore') %>
                 </button>
               <% } %>
             </td>
           </tr>
           <% }); %>
           <% if (points.length === 0) { %>
-          <tr><td colspan="5" class="px-5 py-8 text-center text-gray-500">No restore points available yet.</td></tr>
+          <tr><td colspan="5" class="px-5 py-8 text-center text-gray-500"><%= t('admin.noRestorePoints') %></td></tr>
           <% } %>
         </tbody>
       </table>
