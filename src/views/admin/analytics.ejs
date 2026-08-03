@@ -33,7 +33,7 @@
       <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium mb-1">
         <%= typeof t !== 'undefined' ? t('analytics.realtimePageViews') : 'Page Views (now)' %>
       </div>
-      <div class="text-3xl font-bold"><%= typeof realtime !== 'undefined' && realtime ? realtime.pageViews : '—' %></div>
+      <div class="text-3xl font-bold"><%= typeof realtime !== 'undefined' && realtime ? realtime.screenPageViews : '—' %></div>
     </div>
     <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-4">
       <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium mb-1">

@@ -46,9 +46,9 @@ export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: e
         GROUP BY role
       `).all() as any[];
 
-      res.render('admin/diagrams', {
-        title: _t('titles.analytics') + ' — Kontraktor',
-        activePage: 'diagrams',
+      res.render('admin/analytics', {
+        title: _t('admin.analytics') + ' — Kontraktor',
+        activePage: 'analytics',
         categoryStats,
         roleStats,
         daily,
@@ -61,14 +61,14 @@ export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: e
       });
     } catch (err) {
       console.error('Analytics error:', err);
-      res.render('admin/diagrams', {
-        title: _t('titles.analytics') + ' — Kontraktor',
-        activePage: 'diagrams',
+      res.render('admin/analytics', {
+        title: _t('admin.analytics') + ' — Kontraktor',
+        activePage: 'analytics',
         daily: null,
         realtime: { activeUsers: 0, screenPageViews: 0 },
         topPages: [],
         sources: [],
-        trend: { dates: [], values: [] },
+        trend: [],
         startDate,
         endDate,
         error: 'Analytics data unavailable. Check Google OAuth configuration.',
@@ -97,7 +97,7 @@ export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: e
       GROUP BY role
     `).all() as any[];
     res.render('admin/diagrams', {
-      title: _t('titles.diagrams') + ' — Kontraktor',
+      title: _t('admin.diagrams') + ' — Kontraktor',
       activePage: 'diagrams',
       activeSubPage: 'diagrams',
       categoryStats,

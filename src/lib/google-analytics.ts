@@ -56,6 +56,25 @@ let auth: any = null;
 function getAuth(): any {
   if (auth) return auth;
 
+  // Prefer service account — no expiring refresh tokens (matches seo-report.py)
+  const saPath = process.env.GA_SERVICE_ACCOUNT_PATH || '';
+  if (saPath && fs.existsSync(saPath)) {
+    try {
+      const key = JSON.parse(fs.readFileSync(saPath, 'utf-8'));
+      if (key.client_email && key.private_key) {
+        auth = new google.auth.JWT({
+          email: key.client_email,
+          key: key.private_key,
+          scopes: ['https://www.googleapis.com/auth/analytics.readonly'],
+        });
+        return auth;
+      }
+      console.warn('[GA4] Service account file missing client_email/private_key');
+    } catch (err) {
+      console.error('[GA4] Service account init failed:', err);
+    }
+  }
+
   try {
     if (!fs.existsSync(CREDENTIALS_PATH)) {
       console.warn('[GA4] OAuth credentials file not found at', CREDENTIALS_PATH);
@@ -123,7 +142,7 @@ async function runReport(requestBody: any): Promise<any> {
     if (err?.response?.status === 401) {
       console.warn('[GA4] Token expired, refreshing...');
       try {
-        await a.refreshAccessToken();
+        await a.getAccessToken();
         const analyticsData = google.analyticsdata({ version: 'v1beta', auth: a });
         const response = await analyticsData.properties.runReport({
           property: `properties/${PROPERTY_ID}`,
@@ -154,7 +173,7 @@ async function runRealtimeReport(requestBody: any): Promise<any> {
   } catch (err: any) {
     if (err?.response?.status === 401) {
       try {
-        await a.refreshAccessToken();
+        await a.getAccessToken();
         const analyticsData = google.analyticsdata({ version: 'v1beta', auth: a });
         const response = await analyticsData.properties.runRealtimeReport({
           property: `properties/${PROPERTY_ID}`,
