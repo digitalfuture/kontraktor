@@ -2,7 +2,7 @@
 <div class="px-4 py-2 min-h-[3.25rem] border-b border-gray-800 flex items-center justify-between">
   <div class="flex items-center gap-3">
     <!-- Close button (visible only below sidebar breakpoint) -->
-    <button onclick="const a=document.querySelector('aside');a.classList.add('-translate-x-full');a.classList.remove('translate-x-0')" class="<%= typeof sidebarBreakpoint !== 'undefined' ? sidebarBreakpoint : 'min-[1200px]' %>:hidden p-2 rounded-lg hover:bg-gray-800 active:bg-gray-700 text-gray-400 cursor-pointer transition-colors focus:outline-none" aria-label="Close sidebar">
+    <button onclick="const a=document.querySelector('aside');a.classList.add('-translate-x-full');a.classList.remove('translate-x-0')" class="<%= typeof sidebarBreakpoint !== 'undefined' ? sidebarBreakpoint : 'min-[1200px]' %>:hidden p-2 rounded-lg hover:bg-gray-800 active:bg-gray-700 text-gray-400 cursor-pointer transition-colors focus:outline-none" aria-label="<%= typeof t !== 'undefined' ? t('ui.closeSidebar') : 'Close sidebar' %>">
       <span class="material-symbols-outlined text-xl">close</span>
     </button>
     <div class="flex items-baseline gap-2">

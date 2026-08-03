@@ -21,7 +21,7 @@
       </div>
       
       <!-- Desktop Nav -->
-      <nav class="hidden md:flex items-center space-x-6" aria-label="Main navigation">
+      <nav class="hidden md:flex items-center space-x-6" aria-label="<%= typeof t !== 'undefined' ? t('ui.mainNav') : 'Main navigation' %>">
         <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition whitespace-nowrap"><%= t('nav.services') %></a>
         <a href="/projects" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition whitespace-nowrap"><%= t('nav.browseProjects') %></a>
         <a href="/contractors" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition whitespace-nowrap"><%= t('nav.contractors') %></a>
@@ -66,7 +66,7 @@
   <!-- Sidebar Header -->
   <div class="px-4 py-2 min-h-[3.25rem] border-b border-gray-200 dark:border-gray-700 flex items-center justify-between shrink-0">
     <div class="flex items-center gap-3">
-      <button onclick="var s=document.getElementById('mobile-sidebar');s.classList.add('-translate-x-full');s.classList.remove('translate-x-0');var b=document.getElementById('mobile-menu-btn');if(b)b.setAttribute('aria-expanded','false');var h=document.getElementById('hamburger-icon'),c=document.getElementById('close-icon');if(h&&c){h.classList.remove('hidden');c.classList.add('hidden');}" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 text-gray-500 dark:text-gray-300 cursor-pointer transition-colors focus:outline-none" aria-label="Close sidebar">
+      <button onclick="var s=document.getElementById('mobile-sidebar');s.classList.add('-translate-x-full');s.classList.remove('translate-x-0');var b=document.getElementById('mobile-menu-btn');if(b)b.setAttribute('aria-expanded','false');var h=document.getElementById('hamburger-icon'),c=document.getElementById('close-icon');if(h&&c){h.classList.remove('hidden');c.classList.add('hidden');}" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 text-gray-500 dark:text-gray-300 cursor-pointer transition-colors focus:outline-none" aria-label="<%= typeof t !== 'undefined' ? t('ui.closeSidebar') : 'Close sidebar' %>">
         <span class="mat-icon text-xl text-gray-500 dark:text-gray-300">close</span>
       </button>
       <a href="/" class="text-lg font-bold text-orange-700 leading-none">Kontraktor</a>
@@ -89,7 +89,7 @@
     <div class="pt-4 pb-1 px-4">
       <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('nav.language') || 'Language' : 'Language' %></p>
     </div>
-    <div class="flex items-center gap-1 px-4 py-3" role="group" aria-label="Language switcher">
+    <div class="flex items-center gap-1 px-4 py-3" role="group" aria-label="<%= typeof t !== 'undefined' ? t('ui.languageSwitcher') : 'Language switcher' %>">
       <% typeof locales !== 'undefined' && locales.forEach(function(loc) { %>
         <a href="?lang=<%= loc %>" class="px-3 py-1.5 rounded-lg text-sm font-medium transition cursor-pointer <%= locale === loc ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-200' : 'text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200' %>">
           <%= loc.toUpperCase() %>
@@ -101,11 +101,11 @@
     <div class="pt-2 pb-1 px-4">
       <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400"><%= typeof t !== 'undefined' ? t('nav.colorTheme') || 'Color theme' : 'Color theme' %></p>
     </div>
-    <div class="flex items-center gap-1 px-4 py-3" role="group" aria-label="Theme switcher">
-      <button type="button" id="mobile-theme-light" class="flex items-center justify-center px-2.5 py-1.5 rounded-lg transition cursor-pointer text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200" aria-label="Light theme">
+    <div class="flex items-center gap-1 px-4 py-3" role="group" aria-label="<%= typeof t !== 'undefined' ? t('ui.themeSwitcher') : 'Theme switcher' %>">
+      <button type="button" id="mobile-theme-light" class="flex items-center justify-center px-2.5 py-1.5 rounded-lg transition cursor-pointer text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200" aria-label="<%= typeof t !== 'undefined' ? t('ui.lightTheme') : 'Light theme' %>">
         <span class="mat-icon text-lg">light_mode</span>
       </button>
-      <button type="button" id="mobile-theme-dark" class="flex items-center justify-center px-2.5 py-1.5 rounded-lg transition cursor-pointer text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200" aria-label="Dark theme">
+      <button type="button" id="mobile-theme-dark" class="flex items-center justify-center px-2.5 py-1.5 rounded-lg transition cursor-pointer text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200" aria-label="<%= typeof t !== 'undefined' ? t('ui.darkTheme') : 'Dark theme' %>">
         <span class="mat-icon text-lg">dark_mode</span>
       </button>
     </div>

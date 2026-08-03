@@ -280,12 +280,12 @@
                   <td class="px-4 sm:px-6 py-3 text-center">
                     <% if (q.status === 'queued') { %><span class="text-gray-500 dark:text-gray-400 text-xs"><%= typeof t !== 'undefined' ? t('admin.queued') : 'Queued' %></span><% } %>
                     <% if (q.status === 'processing') { %><span class="text-blue-600 dark:text-blue-400 text-xs"><%= typeof t !== 'undefined' ? t('email.sending') : 'Sending...' %></span><% } %>
-                    <% if (q.status === 'sent') { %><span class="text-green-600 dark:text-green-400 text-xs">✓ Sent</span><% } %>
-                    <% if (q.status === 'failed') { %><span class="text-red-600 dark:text-red-400 text-xs" title="<%= q.error || '' %>">✗ Failed</span><% } %>
+                    <% if (q.status === 'sent') { %><span class="text-green-600 dark:text-green-400 text-xs">✓ <%= typeof t !== 'undefined' ? t('email.sent') : 'Sent' %></span><% } %>
+                    <% if (q.status === 'failed') { %><span class="text-red-600 dark:text-red-400 text-xs" title="<%= q.error || '' %>">✗ <%= typeof t !== 'undefined' ? t('email.failed') : 'Failed' %></span><% } %>
                   </td>
                   <td class="px-4 sm:px-6 py-3 text-center text-gray-600 dark:text-gray-300 text-xs font-mono"><%= q.attempts %></td>
                   <td class="px-4 sm:px-6 py-3 text-right text-gray-400 dark:text-gray-500 text-xs">
-                    <% if (q.status === 'queued' && q.retry_at) { %><span class="text-amber-500 dark:text-amber-400" title="Retry at">⏰ <%= q.retry_at.slice(5, 16) %></span><% } else { %><%= q.created_at.slice(5, 16) %><% } %>
+                    <% if (q.status === 'queued' && q.retry_at) { %><span class="text-amber-500 dark:text-amber-400" title="<%= typeof t !== 'undefined' ? t('email.retryAt') : 'Retry at' %>">⏰ <%= q.retry_at.slice(5, 16) %></span><% } else { %><%= q.created_at.slice(5, 16) %><% } %>
                   </td>
                 </tr>
                 <% }); } %>

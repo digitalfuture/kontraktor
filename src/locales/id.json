@@ -584,7 +584,12 @@
     "networkError": "Kesalahan jaringan:",
     "htmlLooksGood": "HTML terlihat baik",
     "issueCount": "masalah",
-    "failedToLoad": "Gagal memuat:"
+    "failedToLoad": "Gagal memuat:",
+    "database": "Basis Data",
+    "backup": "Cadangan",
+    "restorePoints": "Titik Pemulihan",
+    "databaseBrowser": "Penjelajah Basis Data",
+    "scenariosHint": "Skenario pengguna — dikurasi manual dari kebutuhan produk."
   },
   "analytics": {
     "title": "Analitik",
@@ -1187,7 +1192,8 @@
     "to": "Kepada",
     "replyBody": "Isi",
     "sendReply": "Kirim Balasan",
-    "subjectLabel": "Subjek:"
+    "subjectLabel": "Subjek:",
+    "retryAt": "Coba lagi pada"
   },
   "themeToggle": "Mode Gelap",
   "themeToggleLight": "Mode Terang",
@@ -1197,5 +1203,20 @@
     "close": "Tutup",
     "previous": "Sebelumnya",
     "next": "Selanjutnya"
+  },
+  "ui": {
+    "languageSwitcher": "Pengalih bahasa",
+    "toggleDarkMode": "Alihkan mode gelap",
+    "closeSidebar": "Tutup sidebar",
+    "siteLinks": "Tautan situs",
+    "contactUs": "Hubungi kami",
+    "mainNav": "Navigasi utama",
+    "themeSwitcher": "Pengalih tema",
+    "lightTheme": "Tema terang",
+    "darkTheme": "Tema gelap",
+    "prevPage": "Halaman sebelumnya",
+    "nextPage": "Halaman berikutnya",
+    "changeAvatar": "Ubah avatar",
+    "aboutKontraktor": "Tentang Kontraktor"
   }
 }

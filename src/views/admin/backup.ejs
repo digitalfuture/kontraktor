@@ -59,9 +59,9 @@
   <!-- ── Restore Points Table ── -->
   <div class="bg-gray-900/40 rounded-lg border border-gray-800/60 overflow-hidden">
     <div class="px-5 py-4 border-b border-gray-800/60 flex items-center justify-between">
-      <h2 class="font-semibold text-lg">📋 Restore Points</h2>
+      <h2 class="font-semibold text-lg">📋 <%= typeof t !== 'undefined' ? t('admin.restorePoints') : 'Restore Points' %></h2>
       <button id="btn-refresh" class="text-sm px-3 py-1.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-400 transition">
-        ⟳ Refresh
+        ⟳ <%= typeof t !== 'undefined' ? t('admin.refresh') : 'Refresh' %>
       </button>
     </div>
     <div class="overflow-x-auto">

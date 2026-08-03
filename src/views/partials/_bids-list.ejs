@@ -15,7 +15,7 @@
             <% if (bid.contractor_rating) { %>
             <%- include('partials/_rating-value', { rating: bid.contractor_rating }) %>
             <% } else { %>
-            <span class="text-sm text-gray-500">New</span>
+            <span class="text-sm text-gray-500"><%= typeof t !== 'undefined' ? t('admin.new') : 'New' %></span>
             <% } %>
             <span>•</span>
             <span><%= bid.specialty_name || bid.specialty || '' %></span>

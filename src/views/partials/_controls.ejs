@@ -5,7 +5,7 @@
   <% } %>
 
   <!-- Language switcher -->
-  <div class="flex items-center space-x-1" role="group" aria-label="Language switcher">
+  <div class="flex items-center space-x-1" role="group" aria-label="<%= typeof t !== 'undefined' ? t('ui.languageSwitcher') : 'Language switcher' %>">
     <% typeof locales !== 'undefined' && locales.forEach(function(loc) { %>
       <a href="?lang=<%= loc %><%= typeof extraLangParams !== 'undefined' ? extraLangParams : '' %>" 
          class="px-2 py-1 rounded text-sm font-medium transition cursor-pointer
@@ -17,7 +17,7 @@
   </div>
   
   <!-- Theme toggle -->
-  <button type="button" id="<%= typeof controlsIdPrefix !== 'undefined' ? controlsIdPrefix : 'page' %>-theme-toggle" class="p-2 rounded-lg text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition cursor-pointer" aria-label="Toggle dark mode">
+  <button type="button" id="<%= typeof controlsIdPrefix !== 'undefined' ? controlsIdPrefix : 'page' %>-theme-toggle" class="p-2 rounded-lg text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition cursor-pointer" aria-label="<%= typeof t !== 'undefined' ? t('ui.toggleDarkMode') : 'Toggle dark mode' %>">
     <span id="<%= typeof controlsIdPrefix !== 'undefined' ? controlsIdPrefix : 'page' %>-theme-toggle-sun" class="mat-icon text-inherit hidden" aria-hidden="true">light_mode</span>
     <span id="<%= typeof controlsIdPrefix !== 'undefined' ? controlsIdPrefix : 'page' %>-theme-toggle-moon" class="mat-icon text-inherit hidden" aria-hidden="true">dark_mode</span>
   </button>

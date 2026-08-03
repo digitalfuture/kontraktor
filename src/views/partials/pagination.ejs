@@ -53,7 +53,7 @@ function _pg_hxAttr(pageNum) {
 <% } else { %>
 <nav class="flex items-center justify-center gap-1 mt-8" aria-label="Pagination">
   <% if (p.page > 1) { %>
-  <a href="<%= _pg_buildUrl(p.page - 1) %>" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition" aria-label="Previous page">
+  <a href="<%= _pg_buildUrl(p.page - 1) %>" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition" aria-label="<%= typeof t !== 'undefined' ? t('ui.prevPage') : 'Previous page' %>">
     ← <%= t('pagination.previous') %>
   </a>
   <% } %>
@@ -71,7 +71,7 @@ function _pg_hxAttr(pageNum) {
   <% } %>
 
   <% if (p.page < p.totalPages) { %>
-  <a href="<%= _pg_buildUrl(p.page + 1) %>" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition" aria-label="Next page">
+  <a href="<%= _pg_buildUrl(p.page + 1) %>" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition" aria-label="<%= typeof t !== 'undefined' ? t('ui.nextPage') : 'Next page' %>">
     <%= t('pagination.next') %> →
   </a>
   <% } %>

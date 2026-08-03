@@ -62,11 +62,11 @@
     </a>
     <a href="/admin/database" class="flex items-center gap-3 px-4 py-3 rounded-lg transition <%= typeof activePage !== 'undefined' && activePage === 'database' ? 'bg-orange-700 text-white' : 'text-gray-300 hover:bg-gray-800 dark:hover:bg-gray-800' %>">
       <span class="mat-icon text-xl">storage</span>
-      <%= typeof t !== 'undefined' ? 'Database' : 'Database' %>
+      <%= typeof t !== 'undefined' ? t('admin.database') : 'Database' %>
     </a>
     <a href="/admin/backup" class="flex items-center gap-3 px-4 py-3 rounded-lg transition <%= typeof activePage !== 'undefined' && activePage === 'backup' ? 'bg-orange-700 text-white' : 'text-gray-300 hover:bg-gray-800 dark:hover:bg-gray-800' %>">
       <span class="mat-icon text-xl">sync</span>
-      Backup
+      <%= typeof t !== 'undefined' ? t('admin.backup') : 'Backup' %>
     </a>
     <a href="/admin/trash" class="flex items-center gap-3 px-4 py-3 rounded-lg transition <%= typeof activePage !== 'undefined' && activePage === 'trash' ? 'bg-orange-700 text-white' : 'text-gray-300 hover:bg-gray-800 dark:hover:bg-gray-800' %>">
       <span class="mat-icon text-xl">delete</span>

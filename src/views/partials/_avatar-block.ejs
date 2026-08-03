@@ -13,7 +13,7 @@
         <%= (contractor.name || '?')[0].toUpperCase() %>
       </div>
       <% } %>
-      <label class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition cursor-pointer" title="Change avatar">
+      <label class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition cursor-pointer" title="<%= typeof t !== 'undefined' ? t('ui.changeAvatar') : 'Change avatar' %>">
         <span class="mat-icon text-2xl text-white">camera_alt</span>
         <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp" class="hidden">
       </label>
