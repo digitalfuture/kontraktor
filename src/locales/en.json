@@ -571,7 +571,18 @@
     "requestedLabel": "Requested:",
     "backupRestore": "Backup & Restore",
     "codebaseAuto": "Auto-generated from the source code.",
-    "roleHint": "Role-based user journeys through the application."
+    "roleHint": "Role-based user journeys through the application.",
+    "confirmRestore": "Are you sure you want to restore to \"${label}\"?\\n\\nThe site will enter maintenance mode during the restore.",
+    "confirmReplace": "\\u26a0\\ufe0f This will replace the current database.\\n\\nMake sure you have a current backup.\\n\\nProceed with restore to \"${label}\"?",
+    "confirmUndoRestore": "Undo the last restore? This will revert to the state saved before the last restore (${label}).",
+    "restoreRequested": "Restore requested. The site will enter maintenance mode shortly.",
+    "undoRequested": "Undo requested. Reverting to pre-restore state...",
+    "restoreCancelled": "Restore cancelled",
+    "errorLabel": "Error:",
+    "networkError": "Network error:",
+    "htmlLooksGood": "HTML looks good",
+    "issueCount": "issue(s)",
+    "failedToLoad": "Failed to load:"
   },
   "analytics": {
     "title": "Analytics",

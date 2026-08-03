@@ -203,7 +203,7 @@ function loadData() {
       var thead = document.getElementById('data-thead');
       if (thead) thead.innerHTML = '';
       if (tbody) {
-        tbody.innerHTML = '<tr><td colspan="1" class="text-center py-16 text-red-400">Error: ' + e.message + '</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="1" class="text-center py-16 text-red-400"><%= t('admin.errorLabel') %> ' + e.message + '</td></tr>';
       }
       var dataTable = document.getElementById('data-table');
       if (dataTable) dataTable.classList.remove('hidden');

@@ -253,12 +253,12 @@ function validateHtml() {
 
   listEl.innerHTML = '';
   if (errors.length === 0) {
-    statusEl.innerHTML = '<span class="text-green-600 dark:text-green-400 font-medium">&#10003; ' + (document.querySelector('.tab-btn.text-gray-900') ? '' : 'HTML looks good') + '</span>';
+    statusEl.innerHTML = '<span class="text-green-600 dark:text-green-400 font-medium">&#10003; ' + (document.querySelector('.tab-btn.text-gray-900') ? '' : '<%= t('admin.htmlLooksGood') %>') + '</span>';
     errorsEl.classList.add('hidden');
     return;
   }
 
-  statusEl.innerHTML = '<span class="text-red-600 dark:text-red-400 font-medium">&#10007; ' + errors.length + ' ' + (document.querySelector('.tab-btn.text-gray-900') ? '' : 'issue(s)') + '</span>';
+  statusEl.innerHTML = '<span class="text-red-600 dark:text-red-400 font-medium">&#10007; ' + errors.length + ' ' + (document.querySelector('.tab-btn.text-gray-900') ? '' : '<%= t('admin.issueCount') %>') + '</span>';
   errors.forEach(function(e) {
     var li = document.createElement('li');
     li.textContent = 'Line ' + e.line + ': ' + e.msg;

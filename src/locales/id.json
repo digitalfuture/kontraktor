@@ -573,7 +573,18 @@
     "requestedLabel": "Diminta:",
     "backupRestore": "Cadangan & Pulihkan",
     "codebaseAuto": "Dihasilkan otomatis dari kode sumber.",
-    "roleHint": "Perjalanan pengguna berbasis peran melalui aplikasi."
+    "roleHint": "Perjalanan pengguna berbasis peran melalui aplikasi.",
+    "confirmRestore": "Anda yakin ingin memulihkan ke \"${label}\"?\\n\\nSitus akan memasuki mode pemeliharaan selama pemulihan.",
+    "confirmReplace": "\\u26a0\\ufe0f Ini akan menggantikan database saat ini.\\n\\nPastikan Anda memiliki cadangan terbaru.\\n\\nLanjutkan pemulihan ke \"${label}\"?",
+    "confirmUndoRestore": "Batalkan pemulihan terakhir? Ini akan kembali ke kondisi sebelum pemulihan terakhir (${label}).",
+    "restoreRequested": "Pemulihan diminta. Situs akan memasuki mode maintenance sebentar lagi.",
+    "undoRequested": "Pembatalan diminta. Kembali ke kondisi sebelum pemulihan...",
+    "restoreCancelled": "Pemulihan dibatalkan",
+    "errorLabel": "Kesalahan:",
+    "networkError": "Kesalahan jaringan:",
+    "htmlLooksGood": "HTML terlihat baik",
+    "issueCount": "masalah",
+    "failedToLoad": "Gagal memuat:"
   },
   "analytics": {
     "title": "Analitik",

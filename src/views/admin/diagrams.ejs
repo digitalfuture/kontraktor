@@ -451,7 +451,7 @@
           }
         })
         .catch(function(e) {
-          ctr.innerHTML = '<div class="flex items-center justify-center py-16 text-gray-500">Failed to load: ' + e.message + '</div>';
+          ctr.innerHTML = '<div class="flex items-center justify-center py-16 text-gray-500"><%= t('admin.failedToLoad') %> ' + e.message + '</div>';
         });
     }
 
@@ -478,7 +478,7 @@
           }
         })
         .catch(function(e) {
-          ctr.innerHTML = '<div class="flex items-center justify-center py-16 text-gray-500">Failed to load: ' + e.message + '</div>';
+          ctr.innerHTML = '<div class="flex items-center justify-center py-16 text-gray-500"><%= t('admin.failedToLoad') %> ' + e.message + '</div>';
         });
     }
 

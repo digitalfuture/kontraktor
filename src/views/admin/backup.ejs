@@ -128,8 +128,8 @@ document.addEventListener('DOMContentLoaded', function() {
     btn.addEventListener('click', async function() {
       const target = this.dataset.target;
       const label = this.dataset.label;
-      if (!confirm(`Are you sure you want to restore to "${label}"?\n\nThe site will enter maintenance mode during the restore.`)) return;
-      if (!confirm(`⚠️ This will replace the current database.\n\nMake sure you have a current backup.\n\nProceed with restore to "${label}"?`)) return;
+      if (!confirm(`<%= t('admin.confirmRestore') %>`)) return;
+      if (!confirm(`<%= t('admin.confirmReplace') %>`)) return;
 
       try {
         const resp = await fetch(BASE + '/restore', {
@@ -139,13 +139,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         const data = await resp.json();
         if (resp.ok) {
-          showToast('Restore requested. The site will enter maintenance mode shortly.', 'info');
+          showToast('<%= t('admin.restoreRequested') %>', 'info');
           setTimeout(() => location.reload(), 1500);
         } else {
-          showToast('Error: ' + (data.error || 'Unknown'), 'error');
+          showToast('<%= t('admin.errorLabel') %> ' + (data.error || 'Unknown'), 'error');
         }
       } catch(e) {
-        showToast('Network error: ' + e.message, 'error');
+        showToast('<%= t('admin.networkError') %> ' + e.message, 'error');
       }
     });
   });
@@ -153,19 +153,19 @@ document.addEventListener('DOMContentLoaded', function() {
   // ── Undo ──
   document.querySelector('.btn-undo-restore')?.addEventListener('click', async function() {
     const label = this.dataset.targetLabel || 'previous state';
-    if (!confirm(`Undo the last restore? This will revert to the state saved before the last restore (${label}).`)) return;
+    if (!confirm(`<%= t('admin.confirmUndoRestore') %>`)) return;
 
     try {
       const resp = await fetch(BASE + '/undo', { method: 'POST' });
       const data = await resp.json();
       if (resp.ok) {
-        showToast('Undo requested. Reverting to pre-restore state...', 'info');
+        showToast('<%= t('admin.undoRequested') %>', 'info');
         setTimeout(() => location.reload(), 1500);
       } else {
-        showToast('Error: ' + (data.error || 'Unknown'), 'error');
+        showToast('<%= t('admin.errorLabel') %> ' + (data.error || 'Unknown'), 'error');
       }
     } catch(e) {
-      showToast('Network error: ' + e.message, 'error');
+      showToast('<%= t('admin.networkError') %> ' + e.message, 'error');
     }
   });
 
@@ -174,11 +174,11 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
       const resp = await fetch(BASE + '/cancel', { method: 'POST' });
       if (resp.ok) {
-        showToast('Restore cancelled', 'info');
+        showToast('<%= t('admin.restoreCancelled') %>', 'info');
         setTimeout(() => location.reload(), 1000);
       }
     } catch(e) {
-      showToast('Error: ' + e.message, 'error');
+      showToast('<%= t('admin.errorLabel') %> ' + e.message, 'error');
     }
   });
 });
