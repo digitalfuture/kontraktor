@@ -19,7 +19,7 @@
             <% } %>
             <span>•</span>
             <span><%= bid.specialty_name || bid.specialty || '' %></span>
-            <% if (bid.is_verified) { %>
+            <% if (bid.is_verified && bid.contractor_rating >= 4) { %>
             <span>•</span>
             <%- include('./_verified-badge', {label: t('projectDetail.verified')}) %>
             <% } %>

@@ -699,9 +699,12 @@ apiRouter.post('/:projectId/review', optionalAuth, (req: Request, res: Response)
     UPDATE users SET rating = ?, reviews_count = ? WHERE id = ?
   `).run(stats.avg_rating, stats.total, contractor_id);
 
-  // Auto-verify on first positive review (rating >= 4)
+  // Auto-verify only when rating >= 4; revoke otherwise
   if (parseInt(rating) >= 4) {
     db.prepare('UPDATE users SET is_verified = 1 WHERE id = ? AND is_verified = 0')
+      .run(contractor_id);
+  } else {
+    db.prepare('UPDATE users SET is_verified = 0 WHERE id = ? AND is_verified = 1')
       .run(contractor_id);
   }
 

@@ -101,7 +101,7 @@
                 %><%= _names.slice(0, -1).join(', ') %>, <%= t('common.and') %> <%= _names[_names.length - 1] %><%
               }
             %></p>
-            <% if (c.is_verified) { %>
+            <% if (c.is_verified && c.rating >= 4) { %>
             <%- include('partials/_verified-badge', {label: t('contractors.verified')}) %>
             <% } %>
           </div>

@@ -27,7 +27,7 @@
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-3 flex-wrap">
             <h1 id="contractor-name" class="text-2xl font-bold"><%= contractor.name %></h1>
-            <% if (contractor.is_verified) { %>
+            <% if (contractor.is_verified && contractor.rating >= 4) { %>
             <%- include('partials/_verified-badge', {label: t('contractorProfile.verified'), ariaLabel: t('contractorProfile.verified')}) %>
             <% } %>
           </div>

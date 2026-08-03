@@ -251,7 +251,7 @@
             <div>
               <p class="font-semibold text-gray-900 dark:text-white group-hover:text-orange-600 transition text-lg">
                 <%= project.contractor_name %>
-                <% if (project.contractor_verified) { %>
+                <% if (project.contractor_verified && project.contractor_rating >= 4) { %>
                   <%- include('partials/_verified-badge', {label: t('projectDetail.verified')}) %>
                 <% } %>
               </p>
