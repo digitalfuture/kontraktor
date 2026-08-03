@@ -699,7 +699,8 @@
     "editLocked": "Proyek ini sudah ditugaskan ke kontraktor dan tidak dapat diedit lagi.",
     "bids": "penawaran",
     "bidsPlural": "penawaran",
-    "browseTitle": "Cari Proyek"
+    "browseTitle": "Cari Proyek",
+    "one": "proyek tersedia"
   },
   "contractors": {
     "title": "Cari Kontraktor",
@@ -717,7 +718,8 @@
     "verified": "Terverifikasi",
     "sortBy": "Urutkan",
     "sortProjects": "Proyek",
-    "sortName": "Nama"
+    "sortName": "Nama",
+    "one": "kontraktor tersedia"
   },
   "contractorProfile": {
     "projectsCompleted": "proyek selesai",

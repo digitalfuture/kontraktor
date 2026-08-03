@@ -697,7 +697,8 @@
     "editLocked": "This project has been assigned to a contractor and can no longer be edited.",
     "bids": "bid",
     "bidsPlural": "bids",
-    "browseTitle": "Browse Projects"
+    "browseTitle": "Browse Projects",
+    "one": "project available"
   },
   "contractors": {
     "title": "Find Contractors",
@@ -715,7 +716,8 @@
     "verified": "Verified",
     "sortBy": "Sort by",
     "sortProjects": "Projects",
-    "sortName": "Name"
+    "sortName": "Name",
+    "one": "contractor available"
   },
   "contractorProfile": {
     "projectsCompleted": "projects completed",
