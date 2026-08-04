@@ -453,6 +453,14 @@ const migrations: Array<{ version: number; name: string; sql: string }> = [
       );
     `,
   },
+  {
+    version: 16,
+    name: 'add_user_plan',
+    sql: `
+      ALTER TABLE users ADD COLUMN plan TEXT NOT NULL DEFAULT 'free';
+      UPDATE users SET plan = 'free' WHERE plan IS NULL OR plan = '';
+    `,
+  },
 ];
 
 const getApplied = db.prepare('SELECT version FROM schema_migrations');

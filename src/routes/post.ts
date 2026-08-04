@@ -10,7 +10,7 @@ import { sendNewBidEmail, sendBidAcceptedEmail, sendProjectCompletedEmail, isEma
 import { getLocale, getT } from '../lib/i18n-helpers';
 import { normalizeIndonesianPhone } from '../lib/phone';
 import { getActiveCategories } from '../lib/categories';
-import { getActiveProjectLimit, countActiveProjects } from '../lib/project-limit';
+import { getProjectLimit, countActiveProjects } from '../lib/project-limit';
 
 // ── Pages ──
 
@@ -405,10 +405,11 @@ apiRouter.post('/', requireAuth, (req: Request, res: Response): void => {
 
   const clientEmail = req.user?.email || null;
 
-  // Project limit check (3-tier subscription scheme):
-  // limit 0 = unlimited (free tier / tier 3), N = max active projects (tier 2)
+  // Project limit check (two-mode scheme):
+  // free mode = unlimited for everyone; paid mode = per-user plan cap
+  // (free plan: 1 active, pro: 3, business: unlimited)
   if (clientEmail) {
-    const limit = getActiveProjectLimit(db);
+    const limit = getProjectLimit(db, req.user);
     if (limit > 0) {
       const activeCount = countActiveProjects(db, clientEmail);
       if (activeCount >= limit) {

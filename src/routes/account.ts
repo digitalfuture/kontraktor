@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import db from '../db';
 import { requireAuth } from '../middleware/auth';
 import { normalizeIndonesianPhone } from '../lib/phone';
-import { getActiveProjectLimit, countActiveProjects } from '../lib/project-limit';
+import { getProjectLimit, countActiveProjects } from '../lib/project-limit';
 
 const UNSUBSCRIBE_SECRET = process.env.UNSUBSCRIBE_SECRET || 'kontraktor-unsub-secret-change-in-production';
 
@@ -81,8 +81,8 @@ router.get('/', requireAuth, (req: Request, res: Response): void => {
     rejected: bids.filter((b: any) => b.status === 'rejected').length,
   };
 
-  // Active project limit (subscription scheme)
-  const projectLimit = getActiveProjectLimit(db);
+  // Active project limit (two-mode scheme: free mode / per-user plan)
+  const projectLimit = getProjectLimit(db, user);
   const activeProjects = countActiveProjects(db, user.email);
 
   const sectionTitles: Record<string, string> = {

@@ -3,7 +3,7 @@
 import express, { Request, Response } from 'express';
 import db from '../../db';
 import { makeT } from './helpers';
-import { getActiveProjectLimit } from '../../lib/project-limit';
+import { isFreeMode } from '../../lib/project-limit';
 
 export function registerPaymentRoutes(pageRouter: express.Router, apiRouter: express.Router): void {
 
@@ -42,35 +42,30 @@ export function registerPaymentRoutes(pageRouter: express.Router, apiRouter: exp
     const _t = makeT(res);
 
     const xenditConfigured = !!process.env.XENDIT_SECRET_API_KEY;
-    const projectLimit = getActiveProjectLimit(db);
+    const freeMode = isFreeMode(db);
 
     res.render('admin/payment-settings', {
       title: (locale === 'id' ? 'Pengaturan Pembayaran — Admin' : 'Payment Settings — Admin') + ' — Kontraktor',
       activePage: 'payments',
-      projectLimit,
+      freeMode,
       xenditConfigured,
     });
   });
 
   // ── PAYMENTS API ──
 
-  // Set max active projects per client (3-tier subscription scheme)
-  apiRouter.post('/payments/set-project-limit', (req: Request, res: Response): void => {
-    const raw = parseInt(String(req.body.limit), 10);
-    const limit = isNaN(raw) || raw < 0 ? 0 : raw;
-    db.prepare(`
-      INSERT INTO settings (key, value, updated_at)
-      VALUES ('active_project_limit', ?, CURRENT_TIMESTAMP)
-      ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
-    `).run(String(limit));
-    // Keep legacy free_mode flag in sync for backward compatibility
+  // Set billing mode: 'free' = everything free for everyone,
+  // 'paid' = per-user plan caps (free plan 1 active project, pro 3, business unlimited)
+  apiRouter.post('/payments/set-mode', (req: Request, res: Response): void => {
+    const mode = String(req.body.mode || 'free');
+    const free = mode === 'paid' ? 'false' : 'true';
     db.prepare(`
       INSERT INTO settings (key, value, updated_at)
       VALUES ('free_mode', ?, CURRENT_TIMESTAMP)
       ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
-    `).run(limit === 0 ? 'true' : 'false');
+    `).run(free);
     if (req.headers['hx-request']) {
-      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Project limit saved', type: 'success' } }));
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Billing mode saved', type: 'success' } }));
       res.set('HX-Refresh', 'true');
       res.status(200).send('');
       return;

@@ -534,6 +534,21 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
     res.redirect('/admin/users');
   });
 
+  // Set a client's subscription plan (free / pro / business). Only meaningful
+  // in paid mode; in free mode everyone is unlimited regardless of plan.
+  apiRouter.post('/users/:id/plan', (req: Request, res: Response): void => {
+    const id = parseInt(req.params.id as string, 10);
+    const plan = ['free', 'pro', 'business'].includes(String(req.body.plan)) ? String(req.body.plan) : 'free';
+    db.prepare('UPDATE users SET plan = ? WHERE id = ? AND deleted_at IS NULL').run(plan, id);
+    if (req.headers['hx-request']) {
+      res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Plan updated', type: 'success' } }));
+      res.set('HX-Refresh', 'true');
+      res.status(200).send('');
+      return;
+    }
+    res.redirect('/admin/users');
+  });
+
   apiRouter.post('/users/:id/restore', (req: Request, res: Response): void => {
     const id = parseInt(req.params.id as string, 10);
     db.prepare('UPDATE users SET deleted_at = NULL WHERE id = ?').run(id);

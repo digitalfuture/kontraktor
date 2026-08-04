@@ -23,6 +23,7 @@ export interface User {
   notifications_enabled: number;
   notification_categories: string | null;
   max_projects: number;
+  plan: string;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
