@@ -128,5 +128,9 @@
   </main>
 
   <%- include('partials/footer') %>
+  <script>
+    // Remember list state so "Back to Contractors" returns to the same page/filters
+    sessionStorage.setItem('kontraktorBack.contractors', location.pathname + location.search);
+  </script>
 </body>
 </html>

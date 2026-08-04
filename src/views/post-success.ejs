@@ -8,7 +8,7 @@
   <main>
     <section class="py-12 sm:py-16">
       <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <a href="/projects" class="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-300 hover:text-orange-600 transition mb-4">
+        <a href="/projects" id="back-to-projects" class="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-300 hover:text-orange-600 transition mb-4">
           ← <%= t('nav.backToProjects') %>
         </a>
         <div class="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -44,5 +44,13 @@
   </main>
 
   <%- include('partials/footer') %>
+  <script>
+    // Restore the list position saved by projects-list
+    (function () {
+      var saved = sessionStorage.getItem('kontraktorBack.projects');
+      var el = document.getElementById('back-to-projects');
+      if (saved && el) el.href = saved;
+    })();
+  </script>
 </body>
 </html>

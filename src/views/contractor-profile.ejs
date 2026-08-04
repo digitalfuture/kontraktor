@@ -11,7 +11,7 @@
   <%- include('partials/header') %>
 
   <main id="main-content" class="max-w-5xl mx-auto px-4 sm:px-6 py-8" role="main">
-    <a href="/contractors" class="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-300 hover:text-orange-600 transition mb-4">
+    <a href="/contractors" id="back-to-contractors" class="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-300 hover:text-orange-600 transition mb-4">
       <%= t('nav.backToContractors') %>
     </a>
     <!-- Contractor Header -->
@@ -126,5 +126,13 @@
 
   <%- include('partials/footer') %>
   <%- include('partials/_gallery-viewer', { galleryId: 'portfolioGallery', photos: photos }) %>
+  <script>
+    // Restore the list position saved by contractors-list
+    (function () {
+      var saved = sessionStorage.getItem('kontraktorBack.contractors');
+      var el = document.getElementById('back-to-contractors');
+      if (saved && el) el.href = saved;
+    })();
+  </script>
 </body>
 </html>

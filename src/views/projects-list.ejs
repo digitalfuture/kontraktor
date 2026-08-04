@@ -109,5 +109,9 @@
   </main>
 
   <%- include('partials/footer') %>
+  <script>
+    // Remember list state so "Back to Projects" returns to the same page/filters
+    sessionStorage.setItem('kontraktorBack.projects', location.pathname + location.search);
+  </script>
 </body>
 </html>
