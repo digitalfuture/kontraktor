@@ -1,79 +1,9 @@
 import express, { Request, Response } from 'express';
-import https from 'https';
 import db from '../db';
 import { requireAuth } from '../middleware/auth';
 import { sendPaymentSuccessNotification } from '../lib/telegram';
 
-const XENDIT_API_KEY = process.env.XENDIT_API_KEY || '';
 const XENDIT_CALLBACK_TOKEN = process.env.XENDIT_CALLBACK_TOKEN || '';
-
-export const CREDIT_PACKAGES = [
-  { id: 'pack_10', credits: 10, price: 100000, name_en: 'Starter Pack', name_id: 'Paket Pemula' },
-  { id: 'pack_30', credits: 30, price: 250000, name_en: 'Pro Pack', name_id: 'Paket Pro' },
-  { id: 'pack_100', credits: 100, price: 700000, name_en: 'Enterprise Pack', name_id: 'Paket Perusahaan' }
-];
-
-// Helper to make native HTTPS requests to Xendit
-function createXenditInvoice(
-  externalId: string,
-  amount: number,
-  email: string,
-  description: string
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    if (!XENDIT_API_KEY) {
-      // If no API key configured, simulate payment flow link in development
-      const devUrl = `${process.env.BASE_URL || 'http://localhost:3002'}/contractors/dashboard?payment=success`;
-      console.log(`[Payments] No XENDIT_API_KEY set. Simulating invoice redirect to: ${devUrl}`);
-      return resolve(devUrl);
-    }
-
-    const auth = Buffer.from(`${XENDIT_API_KEY}:`).toString('base64');
-    const baseUrl = process.env.BASE_URL || 'http://localhost:3002';
-    
-    const postData = JSON.stringify({
-      external_id: externalId,
-      amount: amount,
-      description: description,
-      payer_email: email,
-      invoice_duration: 86400, // 24 hours
-      success_redirect_url: `${baseUrl}/contractors/dashboard?payment=success`,
-      failure_redirect_url: `${baseUrl}/contractors/dashboard?payment=failed`
-    });
-
-    const options = {
-      hostname: 'api.xendit.co',
-      path: '/v2/invoices',
-      method: 'POST',
-      headers: {
-        'Authorization': `Basic ${auth}`,
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(postData)
-      }
-    };
-
-    const req = https.request(options, (res) => {
-      let body = '';
-      res.on('data', (chunk) => body += chunk);
-      res.on('end', () => {
-        try {
-          const data = JSON.parse(body);
-          if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
-            resolve(data.invoice_url);
-          } else {
-            reject(new Error(data.message || `Xendit returned status ${res.statusCode}`));
-          }
-        } catch (e: any) {
-          reject(new Error(`Failed to parse Xendit response: ${e.message}`));
-        }
-      });
-    });
-
-    req.on('error', (err) => reject(err));
-    req.write(postData);
-    req.end();
-  });
-}
 
 // ── Pages ──
 
@@ -89,93 +19,19 @@ pageRouter.get('/buy', requireAuth, (req: Request, res: Response): void => {
 
 export const apiRouter: express.Router = express.Router();
 
-// Trigger checkout invoice creation
-apiRouter.post('/create-invoice', requireAuth, async (req: Request, res: Response): Promise<void> => {
-  const user = (req as any).user;
+// Credit purchases are disabled since the credit-based bidding scheme was
+// removed (bids are free). Kept as a stub until real subscriptions land.
+apiRouter.post('/create-invoice', requireAuth, (req: Request, res: Response): void => {
   const locale = (res.locals.locale as string) || 'en';
-  const { package_id } = req.body;
   const isHtmx = req.headers['hx-request'] === 'true';
-
-  if (!user.is_contractor && user.role !== 'admin') {
-    if (isHtmx) {
-      res.status(403).send(renderError(locale,
-        locale === 'id' ? 'Akses Ditolak' : 'Access Denied',
-        locale === 'id' ? 'Anda bukan kontraktor.' : 'You are not a contractor.'
-      ));
-      return;
-    }
-    res.redirect('/account/profile');
+  if (isHtmx) {
+    res.status(410).send(renderError(locale,
+      locale === 'id' ? 'Dinonaktifkan' : 'Disabled',
+      locale === 'id' ? 'Pembelian kredit dinonaktifkan — penawaran sekarang gratis.' : 'Credit purchases are disabled — bidding is now free.'
+    ));
     return;
   }
-
-  const contractor = db.prepare('SELECT id FROM users WHERE id = ? AND is_contractor = 1').get(user.id) as any;
-  if (!contractor) {
-    if (isHtmx) {
-      res.status(403).send(renderError(locale,
-        locale === 'id' ? 'Akses Ditolak' : 'Access Denied',
-        locale === 'id' ? 'Akun kontraktor tidak ditemukan.' : 'Contractor account not found.'
-      ));
-      return;
-    }
-    res.redirect('/contractors/dashboard?error=not_contractor');
-    return;
-  }
-
-  const pkg = CREDIT_PACKAGES.find(p => p.id === package_id);
-  if (!pkg) {
-    if (isHtmx) {
-      res.status(400).send(renderError(locale,
-        locale === 'id' ? 'Paket Tidak Valid' : 'Invalid Package',
-        locale === 'id' ? 'Paket kredit yang dipilih tidak ditemukan.' : 'Selected credit package not found.'
-      ));
-      return;
-    }
-    res.redirect('/payments/buy?error=invalid_package');
-    return;
-  }
-
-  const externalId = `inv_${Date.now()}_${contractor.id}`;
-  const description = locale === 'id' 
-    ? `Pembelian ${pkg.credits} Kredit Penawaran - Kontraktor.app` 
-    : `Purchase of ${pkg.credits} Bidding Credits - Kontraktor.app`;
-
-  try {
-    // Record payment intent in the DB
-    db.prepare(`
-      INSERT INTO payments (contractor_id, external_id, amount, credits, status)
-      VALUES (?, ?, ?, ?, 'pending')
-    `).run(contractor.id, externalId, pkg.price, pkg.credits);
-
-    // Call Xendit to get payment screen URL
-    const checkoutUrl = await createXenditInvoice(
-      externalId,
-      pkg.price,
-      user.email,
-      description
-    );
-
-    // If sandbox simulated (no api key), auto-credit the account in dev for convenience
-    if (!XENDIT_API_KEY) {
-      db.prepare("UPDATE users SET credits = credits + ? WHERE id = ?").run(pkg.credits, contractor.id);
-      db.prepare("UPDATE payments SET status = 'completed', payment_method = 'SIMULATOR', updated_at = CURRENT_TIMESTAMP WHERE external_id = ?").run(externalId);
-    }
-
-    if (isHtmx) {
-      res.set('HX-Redirect', checkoutUrl).status(200).send('');
-    } else {
-      res.redirect(checkoutUrl);
-    }
-  } catch (err: any) {
-    console.error('[Payments] Invoice creation failed:', err.message);
-    if (isHtmx) {
-      res.status(500).send(renderError(locale,
-        locale === 'id' ? 'Terjadi Kesalahan' : 'Action Failed',
-        locale === 'id' ? 'Gagal menginisialisasi pembayaran. Silakan coba lagi.' : 'Failed to initialize payment. Please try again.'
-      ));
-      return;
-    }
-    res.redirect('/payments/buy?error=init_failed');
-  }
+  res.redirect('/contractors/dashboard?free_bidding=true');
 });
 
 /** Render an error snippet for HTMX swap into #payment-error */

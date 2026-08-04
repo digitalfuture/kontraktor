@@ -55,12 +55,12 @@
                     <%- include('../partials/_status-badge', { status: user.role, type: 'user' }) %>
                   </td>
                   
-                  <!-- Activity columns (projects posted or credits balance) -->
+                  <!-- Activity: projects posted -->
                   <td class="px-2 sm:px-3 py-4 text-sm text-gray-600 dark:text-gray-300 hidden md:table-cell">
-                    <% if (user.role === 'contractor') { %>
-                      <span class="font-bold text-orange-700 dark:text-orange-400"><%= user.contractor_credits || 0 %></span>
-                    <% } else if (user.role === 'client') { %>
+                    <% if (user.role === 'client') { %>
                       <span class="font-bold text-blue-700 dark:text-blue-400"><%= user.projects_count || 0 %></span>
+                    <% } else if (user.role === 'contractor') { %>
+                      <span class="font-bold text-orange-700 dark:text-orange-400"><%= user.completed_projects || 0 %></span>
                     <% } else { %>
                       <span class="text-gray-400">—</span>
                     <% } %>
@@ -135,10 +135,10 @@
                       <div>
                         <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-1"><%= t('admin.activity') %></p>
                         <p class="text-gray-900 dark:text-white font-medium">
-                          <% if (user.role === 'contractor') { %>
-                            <span class="text-orange-700 dark:text-orange-400 font-bold"><%= user.contractor_credits || 0 %> <%= t('admin.credits') %></span> (<%= t('admin.balance') %>)
-                          <% } else if (user.role === 'client') { %>
+                          <% if (user.role === 'client') { %>
                             <span class="text-blue-700 dark:text-blue-400 font-bold"><%= user.projects_count || 0 %> <%= t('admin.projectsShort') %></span> (<%= t('admin.posted') %>)
+                          <% } else if (user.role === 'contractor') { %>
+                            <span class="text-orange-700 dark:text-orange-400 font-bold"><%= user.completed_projects || 0 %> <%= t('admin.projectsCompleted') %></span>
                           <% } else { %>
                             —
                           <% } %>
