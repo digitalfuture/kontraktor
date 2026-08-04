@@ -22,6 +22,27 @@ const viewsDir = path.resolve(__dirname, '../src/views');
 // Known-legitimate literals (brand, technical, layout markers) — keep small.
 const ALLOW = ['Kontraktor', 'Rp', 'IDR', 'PK', '—', '.', ','];
 
+// Indonesian words that should never appear in en.json values. If an en.json
+// value equals its id.json twin AND contains one of these, it was copy-pasted.
+const ID_MARKERS = [
+  'Pengirim', 'Penerima', 'Konfigurasi', 'Kuota', 'Nama', 'Gunakan', 'sebagai',
+  'Sisipkan', 'Tautan', 'Terkirim', 'Gagal', 'Simpan', 'Batal', 'Hapus', 'Buat',
+  'Tambah', 'Kelola', 'Kembali', 'Berhenti', 'Tertunda', 'Dikirim', 'Selamat',
+  'Datang', 'Penawaran', 'Diterima', 'Undangan', 'Tanda', 'Terima', 'Notifikasi',
+  'Perkiraan', 'Anggaran', 'Pekerjaan', 'Pengaturan', 'Tersimpan', 'Mengirim',
+  'Pratinjau', 'Terapkan', 'Perbarui', 'Tampilkan', 'Sembunyikan', 'Pilih',
+  'Muat', 'Arsip', 'Pulihkan', 'Cadangan', 'Penjelajah', 'Titik', 'Pemulihan',
+  'Skenario', 'dikurasi', 'kebutuhan', 'produk', 'Pelanggan', 'diposting',
+  'diganti', 'Kemarin', 'Sebelumnya', 'Berikutnya', 'Halaman', 'situs',
+  'Hubungi', 'kami', 'Navigasi', 'utama', 'Alihkan', 'gelap', 'terang', 'Ubah',
+  'avatar', 'Tentang', 'Jelajah', 'Hasil', 'Tabel', 'Aksi', 'Waktu',
+  'Ukuran', 'Subjek', 'Isi', 'Balas', 'Sampah', 'Ringkasan', 'Proyek', 'Ulasan',
+  'Kategori', 'Pembayaran', 'Berlangganan', 'Langganan', 'otomatis', 'pengguna',
+  'minta', 'Perusahaan', 'kampanye', 'Kampanye', 'Daftar', 'daftar', 'kontak',
+  'Kontak', 'Pendinginan', 'Pengalih', 'bahasa', 'Alihkan', 'Tutup', 'Tautan',
+  'Pengalih', 'Nama daftar', 'Tambah Kontak', 'Buat Kampanye', 'Hapus daftar',
+];
+
 function getEjsFiles(dir) {
   let results = [];
   const list = fs.readdirSync(dir);
@@ -103,6 +124,43 @@ function checkAttributes(content) {
   return issues;
 }
 
+// ── Locale sanity: Indonesian values must never live in en.json ──
+function getPath(obj, path) {
+  let cur = obj;
+  for (const p of path.split('.')) {
+    if (!cur || typeof cur !== 'object' || !(p in cur)) return undefined;
+    cur = cur[p];
+  }
+  return cur;
+}
+
+function checkEnLocale() {
+  const localesDir = path.resolve(__dirname, '../src/locales');
+  let en, id;
+  try {
+    en = JSON.parse(fs.readFileSync(path.join(localesDir, 'en.json'), 'utf8'));
+    id = JSON.parse(fs.readFileSync(path.join(localesDir, 'id.json'), 'utf8'));
+  } catch (e) {
+    console.error(`[LOCALE] Failed to parse locale files: ${e.message}`);
+    return [];
+  }
+  const issues = [];
+  const walk = (o, prefix) => {
+    for (const k of Object.keys(o)) {
+      const v = o[k];
+      const p = prefix ? `${prefix}.${k}` : k;
+      if (v && typeof v === 'object') walk(v, p);
+      else if (typeof v === 'string' && v.length >= 3 && getPath(id, p) === v) {
+        if (ID_MARKERS.some((m) => v.includes(m))) {
+          issues.push(`en.json "${p}" = "${v}" (Indonesian value in English locale)`);
+        }
+      }
+    }
+  };
+  walk(en, '');
+  return issues;
+}
+
 const files = getEjsFiles(viewsDir);
 let hasErrors = false;
 
@@ -125,6 +183,15 @@ for (const file of files) {
 if (hasErrors) {
   console.error('\n❌ Hardcoded strings found — wrap them in t() or add to ALLOW in scripts/lint-hardcode.mjs');
   process.exit(1);
-} else {
-  console.log(`✅ No hardcoded user-facing strings in ${files.length} template files.`);
 }
+
+const localeIssues = checkEnLocale();
+if (localeIssues.length) {
+  for (const i of localeIssues) {
+    console.error(`[LOCALE] ${i}`);
+  }
+  console.error('\n❌ Indonesian values found in en.json — translate them (see ID_MARKERS in scripts/lint-hardcode.mjs)');
+  process.exit(1);
+}
+
+console.log(`✅ No hardcoded user-facing strings in ${files.length} template files, en.json is clean.`);

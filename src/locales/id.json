@@ -1193,7 +1193,9 @@
     "replyBody": "Isi",
     "sendReply": "Kirim Balasan",
     "subjectLabel": "Subjek:",
-    "retryAt": "Coba lagi pada"
+    "retryAt": "Coba lagi pada",
+    "manageTemplates": "Kelola Template Sistem",
+    "errors": "Kesalahan"
   },
   "themeToggle": "Mode Gelap",
   "themeToggleLight": "Mode Terang",
