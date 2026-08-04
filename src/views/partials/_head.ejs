@@ -46,6 +46,9 @@
   <% if (typeof seo !== 'undefined' && seo.noIndex) { %>
   <meta name="robots" content="noindex, nofollow">
   <% } %>
+  <% if (typeof nonProd !== 'undefined' && nonProd) { %>
+  <meta name="robots" content="noindex, nofollow">
+  <% } %>
   <!-- HTMX -->
   <script src="/js/htmx.min.js" defer></script>
   <!-- Main JS -->
