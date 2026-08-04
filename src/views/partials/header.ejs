@@ -46,9 +46,9 @@
           <% } else if (user.role === 'client') { %>
             <a href="/contractors/register" class="text-orange-700 dark:text-orange-400 hover:text-orange-700 transition font-medium text-sm whitespace-nowrap"><%= t('account.registerContractor') %></a>
           <% } %>
-          <a href="/account" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition font-medium inline-flex items-center gap-1.5"><span class="mat-icon text-base">person</span> <%= t('nav.account') %></a>
+          <a href="/account" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition font-medium text-sm inline-flex items-center gap-1.5 whitespace-nowrap"><span class="mat-icon text-base">person</span> <%= t('nav.account') %></a>
           <% if (user.role === 'admin') { %>
-            <a href="/admin" class="text-gray-500 dark:text-gray-300 hover:text-orange-600 transition text-sm inline-flex items-center gap-1.5"><span class="mat-icon text-base">settings</span> <%= t('nav.admin') %></a>
+            <a href="/admin" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition font-medium text-sm inline-flex items-center gap-1.5 whitespace-nowrap"><span class="mat-icon text-base">settings</span> <%= t('nav.admin') %></a>
           <% } %>
           <a href="/auth/logout" class="inline-flex items-center gap-1.5 text-gray-500 dark:text-gray-300 hover:text-red-600 transition text-sm"><span class="mat-icon text-base">logout</span><%= t('nav.logout') %></a>
         <% } else { %>
@@ -131,7 +131,7 @@
       <%= t('nav.account') %>
     </a>
     <% if (user.role === 'admin') { %>
-    <a href="/admin" class="flex items-center gap-3 px-4 py-3 rounded-lg transition text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"><span class="mat-icon text-xl">settings</span> <%= t('nav.admin') %></a>
+    <a href="/admin" class="flex items-center gap-3 px-4 py-3 rounded-lg transition text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"><span class="mat-icon text-xl">settings</span> <%= t('nav.admin') %></a>
     <% } %>
     <% } else { %>
     <div class="pt-4 pb-1 px-4">
