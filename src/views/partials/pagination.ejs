@@ -28,7 +28,7 @@ function _pg_hxAttr(pageNum) {
     <%= typeof t !== 'undefined' ? t('admin.adminPaginationShowing').replace('{from}', (p.page - 1) * 10 + 1).replace('{to}', Math.min(p.page * 10, p.total)).replace('{total}', p.total) : 'Showing ' + ((p.page - 1) * 10 + 1) + '-' + Math.min(p.page * 10, p.total) + ' of ' + p.total + ' items' %>
   </p>
   <nav class="flex items-center gap-1">
-    <a href="<%= _pg_buildUrl(p.page - 1) %>"<%= _pg_hxAttr(p.page - 1) %>
+    <a href="<%= _pg_buildUrl(p.page - 1) %>"<%- _pg_hxAttr(p.page - 1) %>
        class="px-3 py-1.5 text-sm text-gray-500 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-lg cursor-pointer transition <%= p.page <= 1 ? 'invisible pointer-events-none' : '' %>"
        <%= p.page <= 1 ? 'tabindex="-1" aria-hidden="true"' : '' %>>
       <%= typeof t !== 'undefined' ? t('admin.adminPaginationPrevious') : 'Previous' %>
@@ -37,13 +37,13 @@ function _pg_hxAttr(pageNum) {
       <% if (i === p.page) { %>
         <span class="px-3 py-1.5 text-sm bg-orange-700 text-white rounded-lg font-medium"><%= i %></span>
       <% } else { %>
-        <a href="<%= _pg_buildUrl(i) %>"<%= _pg_hxAttr(i) %>
+        <a href="<%= _pg_buildUrl(i) %>"<%- _pg_hxAttr(i) %>
            class="px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer transition">
           <%= i %>
         </a>
       <% } %>
     <% } %>
-    <a href="<%= _pg_buildUrl(p.page + 1) %>"<%= _pg_hxAttr(p.page + 1) %>
+    <a href="<%= _pg_buildUrl(p.page + 1) %>"<%- _pg_hxAttr(p.page + 1) %>
        class="px-3 py-1.5 text-sm text-gray-500 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-lg cursor-pointer transition <%= p.page >= p.totalPages ? 'invisible pointer-events-none' : '' %>"
        <%= p.page >= p.totalPages ? 'tabindex="-1" aria-hidden="true"' : '' %>>
       <%= typeof t !== 'undefined' ? t('admin.adminPaginationNext') : 'Next' %>
