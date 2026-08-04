@@ -174,7 +174,7 @@
                 <tr><td colspan="7" class="px-4 sm:px-6 py-8 text-center text-gray-500 dark:text-gray-300"><%= t('admin.noProjects') %></td></tr>
                 <% } else { %>
                 <% recentProjects.forEach(function(order) { %>
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition expand-trigger" data-row-id="do<%= order.id %>">
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition expand-trigger cursor-pointer" data-row-id="do<%= order.id %>">
                   <td class="px-4 sm:px-6 py-4 text-gray-400 dark:text-gray-500">
                     <span class="mat-icon text-base expand-icon transition-transform text-gray-400">chevron_right</span>
                   </td>
@@ -250,7 +250,7 @@
                 <tr><td colspan="6" class="px-4 sm:px-6 py-8 text-center text-gray-500 dark:text-gray-300"><%= t('admin.noUsers') %></td></tr>
                 <% } else { %>
                 <% recentUsers.forEach(function(u) { %>
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition expand-trigger" data-row-id="du<%= u.id %>">
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition expand-trigger cursor-pointer" data-row-id="du<%= u.id %>">
                   <td class="px-4 sm:px-6 py-4 text-gray-400 dark:text-gray-500">
                     <span class="mat-icon text-base expand-icon transition-transform text-gray-400">chevron_right</span>
                   </td>
