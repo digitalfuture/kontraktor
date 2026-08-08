@@ -27,7 +27,7 @@
     <!-- Services Grid -->
     <section class="py-8 sm:py-12">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="services-grid">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="services-grid">
           <% services.forEach(function(service) { %>
           <a href="/services/<%= service.slug %>" class="service-card block bg-gradient-to-b from-white to-orange-50/30 dark:from-gray-900 dark:to-orange-950/30 border border-gray-200 dark:border-gray-700 rounded-xl hover:shadow-lg hover:border-orange-300 dark:hover:border-orange-600 transition group overflow-hidden">
             <% var imgFile = slugToImage[service.slug]; if (imgFile) { %>
