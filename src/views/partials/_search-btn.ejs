@@ -8,8 +8,9 @@
 %>
 <button
   type="<%= typeof type !== 'undefined' ? type : 'submit' %>"
-  class="bg-orange-700 text-white px-4 <%= typeof size !== 'undefined' && size === 'sm' ? 'py-2.5 text-sm' : 'py-3' %> rounded-lg hover:bg-orange-800 transition font-medium whitespace-nowrap flex items-center gap-1.5"
+  aria-label="<%= t('contractors.search') %>"
+  class="bg-orange-700 text-white px-3 sm:px-4 <%= typeof size !== 'undefined' && size === 'sm' ? 'py-2.5 text-sm' : 'py-3' %> rounded-lg hover:bg-orange-800 transition font-medium whitespace-nowrap flex items-center gap-1.5"
   <%= typeof onclick !== 'undefined' ? 'onclick="' + onclick + '"' : '' %>>
   <span class="mat-icon <%= typeof size !== 'undefined' && size === 'sm' ? 'text-sm' : 'text-base' %> leading-none">search</span>
-  <%= t('contractors.search') %>
+  <span class="hidden sm:inline"><%= t('contractors.search') %></span>
 </button>
