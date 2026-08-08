@@ -10,7 +10,7 @@ const MAX_LIMIT = 50;
 router.get('/', (req: any, res: Response): void => {
   // Projects list requires registration — hide empty content from guests.
   if (!req.user) {
-    res.redirect('/auth/register');
+    res.redirect('/auth/login');
     return;
   }
   const locale = (res.locals.locale as string) || 'en';

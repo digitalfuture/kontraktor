@@ -18,7 +18,7 @@ export const pageRouter: express.Router = express.Router();
 pageRouter.get('/', (req: Request, res: Response): void => {
   // List requires registration — the platform hides content until users sign up.
   if (!res.locals.user) {
-    res.redirect('/auth/register');
+    res.redirect('/auth/login');
     return;
   }
   const search = (req.query.search as string || '').trim();
