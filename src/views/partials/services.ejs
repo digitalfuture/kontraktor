@@ -17,13 +17,6 @@
             <div class="p-6 flex flex-col flex-1">
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white"><%= t('services.cats.' + slug + '.name') %></h3>
               <p class="mt-2 text-gray-600 dark:text-gray-300 text-sm flex-1"><%= t('services.cats.' + slug + '.desc') %></p>
-              <div class="mt-4 flex items-center justify-between">
-                <span class="text-orange-700 dark:text-orange-400 font-medium">
-                  <% if (svc.totalContractors > 0) { %>
-                    <%= svc.totalContractors %> <%= t('services.contractors') %>
-                  <% } %>
-                </span>
-              </div>
             </div>
           </a>
         <% } else { %>

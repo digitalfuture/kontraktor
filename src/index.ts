@@ -174,25 +174,17 @@ app.get('/', (req: express.Request, res: express.Response): void => {
 
   // Single query: categories + contractor count + first subcategory price
   const services = db.prepare(`
-    SELECT 
-      c.id, c.slug, c.name,
-      COALESCE(cc.cnt, 0) as totalContractors,
-      COALESCE(s.price_from, '') as priceFrom
-    FROM categories c
-    LEFT JOIN (
-      SELECT cs.category_id, COUNT(*) as cnt
-      FROM contractor_services cs
-      JOIN users ct ON ct.id = cs.contractor_id
-      WHERE ct.is_approved = 1 AND ct.is_contractor = 1 AND ct.deleted_at IS NULL AND cs.is_active = 1
-      GROUP BY cs.category_id
-    ) cc ON cc.category_id = c.id
-    LEFT JOIN subcategories s ON s.id = (
-      SELECT id FROM subcategories
-      WHERE category_id = c.id
-      ORDER BY name LIMIT 1
-    )
-    WHERE c.is_active = 1
-  `).all() as Array<{ id: number; slug: string; name: string; totalContractors: number; priceFrom: string }>;
+      SELECT
+        c.id, c.slug, c.name,
+        COALESCE(s.price_from, '') as priceFrom
+      FROM categories c
+      LEFT JOIN subcategories s ON s.id = (
+        SELECT id FROM subcategories
+        WHERE category_id = c.id
+        ORDER BY name LIMIT 1
+      )
+      WHERE c.is_active = 1
+    `).all() as Array<{ id: number; slug: string; name: string; priceFrom: string }>;
 
   const reviews = db.prepare('SELECT author_email, rating, comment FROM reviews WHERE is_moderated = 1 ORDER BY created_at DESC LIMIT 3').all();
 

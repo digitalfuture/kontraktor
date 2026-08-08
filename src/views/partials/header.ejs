@@ -23,8 +23,13 @@
       <!-- Desktop Nav -->
       <nav class="hidden md:flex items-center space-x-6" aria-label="<%= typeof t !== 'undefined' ? t('ui.mainNav') : 'Main navigation' %>">
         <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition whitespace-nowrap"><%= t('nav.services') %></a>
+        <% if (typeof user !== 'undefined' && user) { %>
         <a href="/projects" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition whitespace-nowrap"><%= t('nav.browseProjects') %></a>
         <a href="/contractors" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition whitespace-nowrap"><%= t('nav.contractors') %></a>
+        <% } else { %>
+        <a href="/auth/register" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition whitespace-nowrap"><%= t('nav.browseProjects') %></a>
+        <a href="/auth/register" class="text-gray-700 dark:text-gray-300 hover:text-orange-600 transition whitespace-nowrap"><%= t('nav.contractors') %></a>
+        <% } %>
       </nav>
       
       <!-- Desktop Controls (Lang + Theme) -->
@@ -78,12 +83,21 @@
     <a href="/services" class="flex items-center gap-3 px-4 py-3 rounded-lg transition text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
       <%= t('nav.services') %>
     </a>
+    <% if (typeof user !== 'undefined' && user) { %>
     <a href="/projects" class="flex items-center gap-3 px-4 py-3 rounded-lg transition text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
       <%= t('nav.browseProjects') %>
     </a>
     <a href="/contractors" class="flex items-center gap-3 px-4 py-3 rounded-lg transition text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
       <%= t('nav.contractors') %>
     </a>
+    <% } else { %>
+    <a href="/auth/register" class="flex items-center gap-3 px-4 py-3 rounded-lg transition text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
+      <%= t('nav.browseProjects') %>
+    </a>
+    <a href="/auth/register" class="flex items-center gap-3 px-4 py-3 rounded-lg transition text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
+      <%= t('nav.contractors') %>
+    </a>
+    <% } %>
 
     <!-- Language switcher (mobile) -->
     <div class="pt-4 pb-1 px-4">
