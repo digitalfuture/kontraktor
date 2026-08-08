@@ -16,7 +16,7 @@
     </a>
     <!-- Contractor Header -->
     <section class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 sm:p-8 mb-6" aria-labelledby="contractor-name">
-      <div class="flex items-start gap-6 flex-wrap">
+      <div class="flex flex-col sm:flex-row items-start gap-5 sm:gap-6">
         <% if (contractor.avatar_url) { %>
         <img src="<%= contractor.avatar_url %>" alt="<%= contractor.name %>" class="w-20 h-20 rounded-full object-cover border-2 border-orange-200 dark:border-orange-800" loading="lazy" width="80" height="80">
         <% } else { %>
@@ -24,7 +24,7 @@
           <%= contractor.name.charAt(0).toUpperCase() %>
         </div>
         <% } %>
-        <div class="flex-1 min-w-0">
+        <div class="flex-1 min-w-0 w-full">
           <div class="flex items-center gap-3 flex-wrap">
             <h1 id="contractor-name" class="text-2xl font-bold"><%= contractor.name %></h1>
             <% if (contractor.is_verified && contractor.rating >= 4) { %>
