@@ -9,7 +9,7 @@
 <button
   type="<%= typeof type !== 'undefined' ? type : 'submit' %>"
   aria-label="<%= t('contractors.search') %>"
-  class="bg-orange-700 text-white px-3 sm:px-4 <%= typeof size !== 'undefined' && size === 'sm' ? 'py-2.5 text-sm' : 'py-3' %> rounded-lg hover:bg-orange-800 transition font-medium whitespace-nowrap flex items-center gap-1.5"
+  class="bg-orange-700 text-white flex items-center justify-center rounded-lg hover:bg-orange-800 transition font-medium whitespace-nowrap gap-1.5 <%= typeof size !== 'undefined' && size === 'sm' ? 'w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-2.5 sm:text-sm' : 'w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-3' %>"
   <%= typeof onclick !== 'undefined' ? 'onclick="' + onclick + '"' : '' %>>
   <span class="mat-icon <%= typeof size !== 'undefined' && size === 'sm' ? 'text-sm' : 'text-base' %> leading-none">search</span>
   <span class="hidden sm:inline"><%= t('contractors.search') %></span>
