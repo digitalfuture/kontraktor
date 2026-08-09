@@ -44,6 +44,21 @@
       </div>
     </section>
 
+    <% if (services && services.length > 0) { %>
+    <!-- Services -->
+    <section class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 sm:p-8 mb-6" aria-labelledby="contractor-services">
+      <h2 id="contractor-services" class="text-lg font-semibold mb-4 flex items-center gap-2"><span class="mat-icon">category</span> <%= t('contractorProfile.services') %></h2>
+      <div class="flex flex-wrap gap-2">
+        <% services.forEach(function(service) { %>
+        <a href="/services/<%= service.slug %>" class="inline-flex items-center gap-1.5 bg-orange-50 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 px-3 py-1.5 rounded-full text-sm font-medium hover:bg-orange-100 dark:hover:bg-orange-900/60 transition">
+          <span class="mat-icon text-sm leading-none">category</span>
+          <%= t('categories.' + service.slug) %>
+        </a>
+        <% }); %>
+      </div>
+    </section>
+    <% } %>
+
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <!-- Stats -->
       <aside class="md:col-span-1 space-y-4" aria-label="<%= t('contractorProfile.statistics') %>">

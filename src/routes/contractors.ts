@@ -209,6 +209,13 @@ pageRouter.get('/:id', (req: Request, res: Response): void => {
     reviews,
     stats,
     photos: db.prepare('SELECT id, filename, original_name, caption FROM photos WHERE contractor_id = ? AND is_portfolio = 1 ORDER BY created_at DESC').all(id) as any[],
+    services: db.prepare(`
+      SELECT cat.slug
+      FROM contractor_services cs
+      JOIN categories cat ON cs.category_id = cat.id
+      WHERE cs.contractor_id = ? AND cs.is_active = 1
+      ORDER BY cat.id
+    `).all(id) as { slug: string }[],
   });
 });
 

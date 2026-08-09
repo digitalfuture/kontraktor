@@ -768,7 +768,8 @@
     "ratingBreakdown": "Rating Breakdown",
     "anonymous": "Anonymous",
     "contractorHeader": "Contractor Profile",
-    "portfolio": "Portfolio"
+    "portfolio": "Portfolio",
+    "services": "Services"
   },
   "contractorDashboard": {
     "title": "Account",
