@@ -19,7 +19,7 @@
             </div>
             <p class="text-gray-700 dark:text-gray-300">"<%= r.comment %>"</p>
           </blockquote>
-          <figcaption class="flex items-center gap-3 mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+          <figcaption class="flex items-center gap-3 mt-4 pt-4 border-t border-gray-200 dark:border-gray-800">
             <div class="w-10 h-10 bg-gray-300 dark:bg-gray-700 rounded-full flex items-center justify-center text-sm font-bold text-gray-600 dark:text-gray-300" aria-hidden="true"><%= r.author_email ? r.author_email.charAt(0).toUpperCase() : '?' %></div>
             <div>
               <cite class="not-italic font-medium text-gray-900 dark:text-white"><%= r.author_email ? r.author_email.split('@')[0] : 'Client' %></cite>
