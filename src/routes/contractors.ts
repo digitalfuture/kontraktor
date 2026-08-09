@@ -16,11 +16,6 @@ export const pageRouter: express.Router = express.Router();
 
 // Contractors list with search and filters
 pageRouter.get('/', (req: Request, res: Response): void => {
-  // List requires registration — the platform hides content until users sign up.
-  if (!res.locals.user) {
-    res.redirect('/auth/login');
-    return;
-  }
   const search = (req.query.search as string || '').trim();
   const specialty = (req.query.specialty as string || '').trim();
   const sort = (req.query.sort as string || 'projects').trim();

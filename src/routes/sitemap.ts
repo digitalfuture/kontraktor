@@ -43,6 +43,11 @@ router.get('/', (_req: Request, res: Response): void => {
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
+  <url>
+    <loc>${url}/contractors</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
 `;
 
   categories.forEach((cat: any) => {
