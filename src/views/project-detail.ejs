@@ -237,7 +237,7 @@
           <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300 uppercase mb-4"><%= t('projectDetail.assignedContractor') %></h3>
           <a href="/contractors/<%= project.contractor_id %>" class="flex items-center gap-4 group mb-4">
             <% if (project.contractor_avatar) { %>
-              <img src="<%= project.contractor_avatar %>" alt="<%= project.contractor_name %>" class="w-14 h-14 rounded-full object-cover">
+              <img src="<%= project.contractor_avatar %>" alt="<%= project.contractor_name %>" class="w-14 h-14 rounded-full object-cover" loading="lazy" decoding="async">
             <% } else { %>
               <div class="w-14 h-14 rounded-full bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-orange-700 dark:text-orange-200 font-bold text-xl">
                 <%= project.contractor_name.charAt(0) %>
