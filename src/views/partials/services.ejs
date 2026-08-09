@@ -11,8 +11,10 @@
         <% const svc = services.find(s => s.slug === slug); %>
         <% if (svc) { %>
           <a href="/services/<%= slug %>" class="bg-gradient-to-b from-white to-orange-50/60 dark:from-gray-900 dark:to-orange-950/30 border border-orange-100 dark:border-gray-700 rounded-card hover:shadow-card-hover shadow-card transition block flex flex-col focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2 overflow-hidden">
-            <div class="w-full aspect-[3/2] bg-transparent overflow-hidden">
-              <img src="/images/<%= slugToImage[slug] %>" alt="<%= t('services.cats.' + slug + '.name') %>" class="w-full h-full object-cover" loading="lazy">
+            <div class="p-3 pb-0">
+              <div class="w-full aspect-[3/2] bg-transparent overflow-hidden rounded-lg">
+                <img src="/images/<%= slugToImage[slug] %>" alt="<%= t('services.cats.' + slug + '.name') %>" class="w-full h-full object-cover" loading="lazy">
+              </div>
             </div>
             <div class="p-6 flex flex-col flex-1">
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white"><%= t('services.cats.' + slug + '.name') %></h3>
@@ -21,8 +23,10 @@
           </a>
         <% } else { %>
           <div class="bg-gradient-to-b from-white to-orange-50/40 dark:from-gray-900 dark:to-orange-950/30 border border-orange-100 dark:border-gray-700 rounded-card opacity-60 flex flex-col shadow-card overflow-hidden">
-            <div class="w-full aspect-[3/2] bg-transparent overflow-hidden">
-              <img src="/images/<%= slugToImage[slug] %>" alt="<%= t('services.cats.' + slug + '.name') %>" class="w-full h-full object-cover" loading="lazy">
+            <div class="p-3 pb-0">
+              <div class="w-full aspect-[3/2] bg-transparent overflow-hidden rounded-lg">
+                <img src="/images/<%= slugToImage[slug] %>" alt="<%= t('services.cats.' + slug + '.name') %>" class="w-full h-full object-cover" loading="lazy">
+              </div>
             </div>
             <div class="p-6 flex flex-col flex-1">
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white"><%= t('services.cats.' + slug + '.name') %></h3>
