@@ -371,7 +371,7 @@ const migrations: Array<{ version: number; name: string; sql: string }> = [
     sql: `
       -- Magic Link template
       INSERT OR IGNORE INTO email_templates (name, subject, body_html, system_key, description) VALUES (
-        'Magic Link',
+        'Login Link',
         'Sign in to Kontraktor',
         '<div style="font-family: system-ui, -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 24px;">
@@ -386,7 +386,7 @@ const migrations: Array<{ version: number; name: string; sql: string }> = [
           <p style="color: #9ca3af; font-size: 12px; margin-top: 24px;">This link expires in 15 minutes. If you didn''t request this, ignore this email.</p>
         </div>',
         'magic_link',
-        'Sent to users when they request a magic link to sign in. Supports: {{recipient_name}}, {{login_url}}'
+        'Sent to users when they request a login link to sign in. Supports: {{recipient_name}}, {{login_url}}'
       );
       -- New Bid template
       INSERT OR IGNORE INTO email_templates (name, subject, body_html, system_key, description) VALUES (
