@@ -57,12 +57,13 @@
 
     <% if (contractors.length === 0) { %>
     <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
-      <p class="text-gray-500 dark:text-gray-300 text-lg mb-4"><%= t('contractors.noContractors') %></p>
       <% if (search || specialty) { %>
+      <p class="text-gray-500 dark:text-gray-300 text-lg mb-4"><%= t('contractors.noContractors') %></p>
       <a href="/contractors" class="text-orange-700 hover:underline"><%= t('projects.clearFilters') %></a>
       <% } else { %>
+      <p class="text-gray-700 dark:text-gray-300 text-lg mb-4 font-medium max-w-2xl mx-auto"><%= t('contractors.emptyOffer') %></p>
       <a href="/contractors/register" class="inline-block bg-orange-700 text-white px-6 py-2 rounded-lg hover:bg-orange-800 transition font-medium">
-        <%= t('contractors.beFirst') %>
+        <%= t('contractors.join') %>
       </a>
       <% } %>
     </div>

@@ -29,7 +29,8 @@
     "postCta": "Posting Proyek",
     "trust1": "Kontraktor Terverifikasi",
     "trust2": "Jaminan Kualitas",
-    "trust3": "Harga Transparan"
+    "trust3": "Harga Transparan",
+    "contractorOffer": "Anda seorang kontraktor? Jadilah salah satu yang pertama di platform gratis kami — tanpa biaya."
   },
   "howItWorks": {
     "title": "Cara Kerja",
@@ -746,6 +747,7 @@
     "noContractors": "Tidak ada kontraktor ditemukan.",
     "noContractorsYet": "Belum ada kontraktor terdaftar.",
     "beFirst": "Jadilah yang pertama!",
+    "emptyOffer": "Menangkan persaingan — jadilah salah satu kontraktor pertama di portal konstruksi gratis yang baru.",
     "noReviews": "Belum ada ulasan",
     "general": "Umum",
     "verified": "Terverifikasi",

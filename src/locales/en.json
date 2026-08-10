@@ -29,7 +29,8 @@
     "postCta": "Post a Project",
     "trust1": "Verified Contractors",
     "trust2": "Quality Guarantee",
-    "trust3": "Transparent Pricing"
+    "trust3": "Transparent Pricing",
+    "contractorOffer": "Are you a contractor? Be one of the first on our free platform — no fees."
   },
   "howItWorks": {
     "title": "How It Works",
@@ -746,6 +747,7 @@
     "noContractors": "No contractors found.",
     "noContractorsYet": "No contractors registered yet.",
     "beFirst": "Be the first!",
+    "emptyOffer": "Be ahead of the competition — become one of the first contractors on a new free construction portal.",
     "noReviews": "No reviews yet",
     "general": "General",
     "verified": "Verified",
