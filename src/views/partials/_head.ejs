@@ -27,7 +27,10 @@
   <% } %>
   <!-- Hreflang -->
   <% if (typeof seo !== 'undefined' && typeof renderAlternateLinks !== 'undefined') { %>
-  <%- renderAlternateLinks(seo) %>
+  <%- renderAlternateLinks(Object.assign({}, seo, {
+      alternateLocales: (typeof alternateLocales !== 'undefined' && alternateLocales.length ? alternateLocales : (seo && seo.alternateLocales) || []),
+      canonical: (seo && seo.canonical) || (typeof canonicalUrl !== 'undefined' ? canonicalUrl : 'https://kontraktor.app/')
+    })) %>
   <% } %>
   <!-- Open Graph -->
   <meta property="og:type" content="<%= typeof seo !== 'undefined' && seo.ogType ? seo.ogType : 'website' %>">
