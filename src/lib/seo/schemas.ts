@@ -9,6 +9,7 @@ export function getOrganizationSchema(locale: 'en' | 'id'): object {
     name: 'Kontraktor',
     url: SITE_URL,
     logo: `${SITE_URL}/favicon.svg`,
+    inLanguage: ['id', 'en'],
     description:
       locale === 'id'
         ? 'Platform pencarian kontraktor terpercaya di Indonesia'
@@ -27,6 +28,7 @@ export function getWebSiteSchema(locale: 'en' | 'id'): object {
     '@type': 'WebSite',
     url: SITE_URL,
     name: 'Kontraktor',
+    inLanguage: ['id', 'en'],
     alternateName:
       locale === 'id'
         ? 'Kontraktor — Cari Kontraktor Terpercaya'
@@ -52,6 +54,7 @@ export function getLocalBusinessSchema(): object {
     '@type': 'ProfessionalService',
     name: 'Kontraktor',
     url: SITE_URL,
+    inLanguage: ['id', 'en'],
     areaServed: [
       { '@type': 'Country', name: 'ID' },
     ],
@@ -99,6 +102,7 @@ export function getServiceSchema(
     name,
     description,
     category,
+    inLanguage: ['id', 'en'],
     provider: {
       '@type': 'Organization',
       name: 'Kontraktor',
