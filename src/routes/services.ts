@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import db from '../db';
 import { serviceIcons, defaultServiceIcon } from '../config/service-icons';
 import * as seoLib from '../lib/seo';
-import { getServiceContent } from '../data/service-content';
+import { getServiceContent } from '../seo/service-content';
 
 const router: express.Router = express.Router();
 
