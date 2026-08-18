@@ -150,7 +150,6 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
   // ── Categories ──
 
   pageRouter.get('/categories', (req: Request, res: Response): void => {
-    const locale = (res.locals.locale as string) || 'en';
     const _t = makeT(res);
     const categories = db.prepare('SELECT * FROM categories ORDER BY is_active DESC, name').all() as any[];
     res.render('admin/categories', {
@@ -166,7 +165,6 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
   // ── Reviews ──
 
   pageRouter.get('/reviews', (req: Request, res: Response): void => {
-    const locale = (res.locals.locale as string) || 'en';
     const _t = makeT(res);
     const total: { count: number } = db.prepare('SELECT COUNT(*) as count FROM reviews WHERE deleted_at IS NULL').get() as { count: number };
     const { page, totalPages, offset } = getPagination(req, total.count);
@@ -222,7 +220,6 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
   // ── Users ──
 
   pageRouter.get('/users', (req: Request, res: Response): void => {
-    const locale = (res.locals.locale as string) || 'en';
     const _t = makeT(res);
 
     const roleFilter = (req.query.role as string) || '';
@@ -490,7 +487,7 @@ export function registerContentRoutes(pageRouter: express.Router, apiRouter: exp
       const user = db.prepare('SELECT email, role, name, is_contractor FROM users WHERE id = ?').get(id) as any;
       if (user && user.role !== role) {
         db.transaction(() => {
-          const isCurrentlyContractor = user.role === 'contractor' || user.is_contractor;
+          const _isCurrentlyContractor = user.role === 'contractor' || user.is_contractor;
           const willBeContractor = role === 'contractor';
           db.prepare('UPDATE users SET role = ?, is_contractor = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(role, willBeContractor ? 1 : 0, id);
         })();

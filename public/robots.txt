@@ -3,5 +3,6 @@ Allow: /
 Disallow: /admin/
 Disallow: /auth/
 Disallow: /account/
+Disallow: /api/
 
 Sitemap: https://kontraktor.app/sitemap.xml

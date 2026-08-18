@@ -20,11 +20,11 @@ router.get('/', (_req: Request, res: Response): void => {
   const url = host ? `https://${host}` : baseUrl;
 
   const projects = db.prepare(`
-    SELECT id, created_at FROM projects WHERE status IN ('pending', 'in_progress') ORDER BY created_at DESC LIMIT 100
+    SELECT id, created_at FROM projects WHERE status IN ('pending', 'in_progress') ORDER BY created_at DESC LIMIT 1000
   `).all() as any[];
 
   const contractors = db.prepare(`
-    SELECT id, created_at FROM users WHERE is_contractor = 1 AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 100
+    SELECT id, created_at FROM users WHERE is_contractor = 1 AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 1000
   `).all() as any[];
 
   const categories = db.prepare(`
@@ -32,19 +32,28 @@ router.get('/', (_req: Request, res: Response): void => {
   `).all() as any[];
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>${url}/</loc>
+    <xhtml:link rel="alternate" hreflang="id" href="${url}/?lang=id"/>
+    <xhtml:link rel="alternate" hreflang="en" href="${url}/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="${url}/"/>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>${url}/services</loc>
+    <xhtml:link rel="alternate" hreflang="id" href="${url}/services?lang=id"/>
+    <xhtml:link rel="alternate" hreflang="en" href="${url}/services?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="${url}/services"/>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>${url}/contractors</loc>
+    <xhtml:link rel="alternate" hreflang="id" href="${url}/contractors?lang=id"/>
+    <xhtml:link rel="alternate" hreflang="en" href="${url}/contractors?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="${url}/contractors"/>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -53,6 +62,9 @@ router.get('/', (_req: Request, res: Response): void => {
   categories.forEach((cat: any) => {
     xml += `  <url>
     <loc>${url}/services/${cat.slug}</loc>
+    <xhtml:link rel="alternate" hreflang="id" href="${url}/services/${cat.slug}?lang=id"/>
+    <xhtml:link rel="alternate" hreflang="en" href="${url}/services/${cat.slug}?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="${url}/services/${cat.slug}"/>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -62,7 +74,7 @@ router.get('/', (_req: Request, res: Response): void => {
   projects.forEach((p: any) => {
     xml += `  <url>
     <loc>${url}/post/${p.id}</loc>
-    <lastmod>${p.created_at.split(' ')[0]}</lastmod>
+    <lastmod>${p.created_at ? p.created_at.split(' ')[0] : new Date().toISOString().split('T')[0]}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
@@ -72,7 +84,7 @@ router.get('/', (_req: Request, res: Response): void => {
   contractors.forEach((c: any) => {
     xml += `  <url>
     <loc>${url}/contractors/${c.id}</loc>
-    <lastmod>${c.created_at.split(' ')[0]}</lastmod>
+    <lastmod>${c.created_at ? c.created_at.split(' ')[0] : new Date().toISOString().split('T')[0]}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>

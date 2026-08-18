@@ -267,7 +267,6 @@ apiRouter.post('/:id/edit', requireAuth, (req: any, res: Response): void => {
 
 // HTMX endpoint: get subcategories for a category
 apiRouter.get('/subcategories', (req: Request, res: Response): void => {
-  const locale = getLocale(res);
   const categorySlug = req.query.category as string;
 
   if (!categorySlug) {

@@ -4,10 +4,10 @@ import { SeoData } from './types';
 
 function escapeJsonLd(str: string): string {
   return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '\\\\u003c')
-    .replace(/>/g, '\\\\u003e')
-    .replace(/\//g, '\\\\/');
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
 }
 
 export function renderJsonLd(data: SeoData): string {

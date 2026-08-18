@@ -108,7 +108,7 @@ function getLastRestore(): any {
   return h?.last_restore || null;
 }
 
-function addRestoreHistory(entry: any): void {
+function _addRestoreHistory(entry: any): void {
   let h = readJSON(RESTORE_HISTORY) || { history: [] };
   h.last_restore = entry;
   h.history.unshift(entry);

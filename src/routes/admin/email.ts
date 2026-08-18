@@ -3,7 +3,6 @@
 import express, { Request, Response } from 'express';
 import db from '../../db';
 import { getQueueStats, getQueueItems } from '../../lib/email-queue';
-import { clearTemplateCache } from '../../lib/email';
 import {
   EmailTemplate,
   EmailCampaign,
@@ -14,7 +13,7 @@ import {
   ActiveCampaignInfo,
   EmailNameRow,
 } from '../../types/email';
-import { makeT, getPagination, localizedName, PAGE_SIZE, csvUpload } from './helpers';
+import { getPagination, PAGE_SIZE, csvUpload } from './helpers';
 import { createTransporter, getFromEmail } from '../../lib/email-queue';
 
 // Bring in EmailSetting type
@@ -64,7 +63,6 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
 
   pageRouter.get('/email/templates', (req: Request, res: Response): void => {
     const locale = (res.locals.locale as string) || 'en';
-    const t = (res.locals.t as (key: string) => string) || ((key: string) => key);
     const templates = db.prepare("SELECT * FROM email_templates WHERE system_key IS NOT NULL ORDER BY system_key").all() as Array<{id:number;name:string;subject:string;system_key:string;description:string}>;
     res.render('admin/email-templates', {
       title: (locale === 'id' ? 'Template Email — Admin' : 'Email Templates — Admin') + ' — Kontraktor',
@@ -75,7 +73,6 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
 
   pageRouter.get('/email/templates/:key', (req: Request, res: Response): void => {
     const locale = (res.locals.locale as string) || 'en';
-    const t = (res.locals.t as (key: string) => string) || ((key: string) => key);
     const systemKey = req.params.key as string;
     const tmpl = db.prepare("SELECT * FROM email_templates WHERE system_key = ?").get(systemKey);
     if (!tmpl) { res.redirect('/admin/email/templates'); return; }
@@ -220,7 +217,7 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
     if (!parent) { res.status(404).json({ error: 'Parent not found' }); return; }
     const parentMessageId = (parent.message_id as string) || '';
     const parentSubject = (parent.subject as string) || '';
-    const parentBody = (parent.body_html as string) || '';
+    const _parentBody = (parent.body_html as string) || '';
     const from = (req.body.from as string | undefined) || (parent.from_email as string) || getFromEmail();
     const isDev = process.env.NODE_ENV !== 'production';
     const finalSubject = subject.startsWith('Re:') ? subject : `Re: ${parentSubject}`;
@@ -603,7 +600,7 @@ export function registerEmailRoutes(pageRouter: express.Router, apiRouter: expre
 
   apiRouter.post('/email/lists/:listId/contacts/:contactId/restore', (req: Request, res: Response): void => {
     const contactId = parseInt(req.params.contactId as string, 10);
-    const listId = parseInt(req.params.listId as string, 10);
+    const _listId = parseInt(req.params.listId as string, 10);
     db.prepare('UPDATE mailing_list_contacts SET deleted_at = NULL WHERE id = ?').run(contactId);
     if (req.headers['hx-request']) {
       res.set('HX-Trigger', JSON.stringify({ showNotification: { msg: 'Contact restored', type: 'success' } }));

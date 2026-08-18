@@ -95,7 +95,6 @@ apiRouter.post('/login', loginLimiter, async (req: Request, res: Response): Prom
 
   if (!email || !email.includes('@')) {
     const isHtmx = req.headers['hx-request'] === 'true';
-    const t = res.locals.t as (key: string, fallback: string) => string;
     if (isHtmx) {
       res.render('partials/_login-form', { error: 'Введите корректный email' });
       return;

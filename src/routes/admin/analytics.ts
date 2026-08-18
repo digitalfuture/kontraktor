@@ -2,17 +2,15 @@
 
 import express, { Request, Response } from 'express';
 import db from '../../db';
-import { getDistrictDisplay } from '../../lib/districts';
 import districtsData from '../../data/districts.json';
 import provinceCentroids from '../../data/province-centroids.json';
-import { makeT, getPagination } from './helpers';
+import { makeT } from './helpers';
 
 export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: express.Router): void {
 
   // ── ANALYTICS PAGE ──
 
   pageRouter.get('/analytics', async (req: Request, res: Response): Promise<void> => {
-    const locale = (res.locals.locale as string) || 'en';
     const _t = makeT(res);
     const startDate = (req.query.start as string) || '7daysAgo';
     const endDate = (req.query.end as string) || 'today';
@@ -101,7 +99,6 @@ export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: e
   // ── DIAGRAMS PAGE ──
 
   pageRouter.get('/diagrams', (req: Request, res: Response): void => {
-    const locale = (res.locals.locale as string) || 'en';
     const _t = makeT(res);
     const categoryStats = db.prepare(`
       SELECT c.slug, c.name, COUNT(p.id) as count

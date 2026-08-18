@@ -7,7 +7,7 @@ import { getProjectLimit, countActiveProjects } from '../lib/project-limit';
 
 const UNSUBSCRIBE_SECRET = process.env.UNSUBSCRIBE_SECRET || 'kontraktor-unsub-secret-change-in-production';
 
-function generateUnsubscribeToken(userId: number, categorySlug: string | null): string {
+function _generateUnsubscribeToken(userId: number, categorySlug: string | null): string {
   const data = `${userId}:${categorySlug || 'all'}:${UNSUBSCRIBE_SECRET}`;
   return Buffer.from(`${userId}:${categorySlug || 'all'}:${crypto.createHash('sha256').update(data).digest('hex').slice(0, 16)}`).toString('base64url');
 }
@@ -182,7 +182,6 @@ router.post('/profile', requireAuth, (req: Request, res: Response): void => {
 router.get('/notifications', requireAuth, (req: Request, res: Response): void => {
   const user = (req as any).user;
   const locale = (res.locals.locale as string) || 'en';
-  const t = res.locals.t;
 
   const categories = db.prepare('SELECT id, slug, name FROM categories WHERE is_active = 1 ORDER BY name').all() as Array<{ id: number; slug: string; name: string }>;
   const userCats: string[] = user.notification_categories ? JSON.parse(user.notification_categories) : [];

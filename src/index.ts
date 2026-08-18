@@ -1,7 +1,6 @@
 import { config as dotenvConfig } from 'dotenv';
 import path from 'path';
 import * as seoLib from './lib/seo';
-import { getProjectLimit } from './lib/project-limit';
 
 // Load base .env (secrets shared across environments)
 dotenvConfig({ path: path.join(__dirname, '../.env') });

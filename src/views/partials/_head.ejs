@@ -11,8 +11,8 @@
   <% } %>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= typeof seo !== 'undefined' && seo.title ? seo.title : (typeof title !== 'undefined' ? title : 'Kontraktor — Find Trusted Contractors') %></title>
-  <meta name="description" content="<%= typeof seo !== 'undefined' && seo.description ? seo.description : (typeof description !== 'undefined' ? description : 'Find and hire trusted contractors for your construction projects. Post a project, get bids, choose the best fit.') %>">
+  <title><%= typeof seo !== 'undefined' && seo.title ? seo.title : (typeof title !== 'undefined' ? title : (typeof t === 'function' ? (t('site.name') + ' — ' + t('site.tagline')) : 'Kontraktor')) %></title>
+  <meta name="description" content="<%= typeof seo !== 'undefined' && seo.description ? seo.description : (typeof description !== 'undefined' ? description : (typeof t === 'function' ? t('site.description') : '')) %>">
   <% if (typeof seo !== 'undefined' && seo.keywords) { %>
   <meta name="keywords" content="<%= seo.keywords %>">
   <% } %>
@@ -36,14 +36,21 @@
   <% } %>
   <!-- Open Graph -->
   <meta property="og:type" content="<%= typeof seo !== 'undefined' && seo.ogType ? seo.ogType : 'website' %>">
-  <meta property="og:site_name" content="Kontraktor">
-  <meta property="og:title" content="<%= typeof seo !== 'undefined' && seo.title ? seo.title : (typeof title !== 'undefined' ? title : 'Kontraktor — Find Trusted Contractors') %>">
-  <meta property="og:description" content="<%= typeof seo !== 'undefined' && seo.description ? seo.description : (typeof description !== 'undefined' ? description : 'Find and hire trusted contractors for your construction projects.') %>">
+  <meta property="og:site_name" content="<%= typeof t === 'function' ? t('site.name') : 'Kontraktor' %>">
+  <meta property="og:locale" content="<%= typeof locale !== 'undefined' && locale === 'id' ? 'id_ID' : 'en_US' %>">
+  <meta property="og:locale:alternate" content="<%= typeof locale !== 'undefined' && locale === 'id' ? 'en_US' : 'id_ID' %>">
+  <meta property="og:title" content="<%= typeof seo !== 'undefined' && seo.title ? seo.title : (typeof title !== 'undefined' ? title : (typeof t === 'function' ? (t('site.name') + ' — ' + t('site.tagline')) : 'Kontraktor')) %>">
+  <meta property="og:description" content="<%= typeof seo !== 'undefined' && seo.description ? seo.description : (typeof description !== 'undefined' ? description : (typeof t === 'function' ? t('site.description') : '')) %>">
   <meta property="og:url" content="<%= typeof seo !== 'undefined' && seo.canonical ? seo.canonical : (typeof ogUrl !== 'undefined' ? ogUrl : 'https://kontraktor.app') %>">
   <meta property="og:image" content="<%= typeof seo !== 'undefined' && seo.ogImage ? seo.ogImage : (typeof ogImage !== 'undefined' ? ogImage : 'https://kontraktor.app/og-image.png') %>">
   <% if (typeof seo !== 'undefined' && seo.publishedTime) { %>
   <meta property="article:published_time" content="<%= seo.publishedTime %>">
   <% } %>
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="<%= typeof seo !== 'undefined' && seo.title ? seo.title : (typeof title !== 'undefined' ? title : (typeof t === 'function' ? (t('site.name') + ' — ' + t('site.tagline')) : 'Kontraktor')) %>">
+  <meta name="twitter:description" content="<%= typeof seo !== 'undefined' && seo.description ? seo.description : (typeof description !== 'undefined' ? description : (typeof t === 'function' ? t('site.description') : '')) %>">
+  <meta name="twitter:image" content="<%= typeof seo !== 'undefined' && seo.ogImage ? seo.ogImage : (typeof ogImage !== 'undefined' ? ogImage : 'https://kontraktor.app/og-image.png') %>">
   <!-- JSON-LD Structured Data -->
   <% if (typeof seo !== 'undefined' && typeof renderJsonLd !== 'undefined') { %>
   <%- renderJsonLd(seo) %>

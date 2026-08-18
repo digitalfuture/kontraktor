@@ -12,9 +12,16 @@
           "value": 1,
           "leaf": true,
           "ext": "ts"
+        },
+        {
+          "name": "service-images.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
         }
       ],
-      "value": 1
+      "value": 2
     },
     {
       "name": "data",
@@ -119,6 +126,13 @@
           "ext": "ts"
         },
         {
+          "name": "categories.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
           "name": "districts.ts",
           "type": "file",
           "value": 1,
@@ -161,6 +175,20 @@
           "ext": "ts"
         },
         {
+          "name": "phone.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "project-limit.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
           "name": "seo.ts",
           "type": "file",
           "value": 1,
@@ -182,7 +210,7 @@
           "ext": "ts"
         }
       ],
-      "value": 16
+      "value": 19
     },
     {
       "name": "locales",
@@ -381,25 +409,18 @@
       "value": 19
     },
     {
-      "name": "scripts",
+      "name": "seo",
       "type": "dir",
       "children": [
         {
-          "name": "add-gapensi-data.ts",
-          "type": "file",
-          "value": 1,
-          "leaf": true,
-          "ext": "ts"
-        },
-        {
-          "name": "import-mailing-list.ts",
+          "name": "service-content.ts",
           "type": "file",
           "value": 1,
           "leaf": true,
           "ext": "ts"
         }
       ],
-      "value": 2
+      "value": 1
     },
     {
       "name": "types",
@@ -505,6 +526,20 @@
                   "ext": "ejs"
                 },
                 {
+                  "name": "_category-create-form.ejs",
+                  "type": "file",
+                  "value": 1,
+                  "leaf": true,
+                  "ext": "ejs"
+                },
+                {
+                  "name": "_delete-form.ejs",
+                  "type": "file",
+                  "value": 1,
+                  "leaf": true,
+                  "ext": "ejs"
+                },
+                {
                   "name": "_list-name-display-list.ejs",
                   "type": "file",
                   "value": 1,
@@ -524,9 +559,16 @@
                   "value": 1,
                   "leaf": true,
                   "ext": "ejs"
+                },
+                {
+                  "name": "_service-toggle.ejs",
+                  "type": "file",
+                  "value": 1,
+                  "leaf": true,
+                  "ext": "ejs"
                 }
               ],
-              "value": 4
+              "value": 7
             },
             {
               "name": "_admin-footer.ejs",
@@ -551,13 +593,6 @@
             },
             {
               "name": "_admin-layout.ejs",
-              "type": "file",
-              "value": 1,
-              "leaf": true,
-              "ext": "ejs"
-            },
-            {
-              "name": "_controls.ejs",
               "type": "file",
               "value": 1,
               "leaf": true,
@@ -625,13 +660,6 @@
               "value": 1,
               "leaf": true,
               "ext": "ejs"
-            },
-            {
-              "name": "dashboard.ejs.corrupted",
-              "type": "file",
-              "value": 1,
-              "leaf": true,
-              "ext": "corrupted"
             },
             {
               "name": "database.ejs",
@@ -732,7 +760,7 @@
               "ext": "ejs"
             }
           ],
-          "value": 33
+          "value": 34
         },
         {
           "name": "auth",
@@ -844,6 +872,13 @@
               "ext": "ejs"
             },
             {
+              "name": "_avatar-block.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
               "name": "_bids-list.ejs",
               "type": "file",
               "value": 1,
@@ -886,7 +921,35 @@
               "ext": "ejs"
             },
             {
+              "name": "_gallery-viewer.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
               "name": "_head.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_header-link.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_login-form.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_notifications-form.ejs",
               "type": "file",
               "value": 1,
               "leaf": true,
@@ -900,6 +963,27 @@
               "ext": "ejs"
             },
             {
+              "name": "_portfolio-grid.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_portfolio-section.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_post-form.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
               "name": "_post-project-btn.ejs",
               "type": "file",
               "value": 1,
@@ -907,14 +991,42 @@
               "ext": "ejs"
             },
             {
-              "name": "_sidebar-header.ejs",
+              "name": "_profile-form.ejs",
               "type": "file",
               "value": 1,
               "leaf": true,
               "ext": "ejs"
             },
             {
-              "name": "_sitemap.ejs",
+              "name": "_rating-stars.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_rating-value.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_register-form.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_search-btn.ejs",
+              "type": "file",
+              "value": 1,
+              "leaf": true,
+              "ext": "ejs"
+            },
+            {
+              "name": "_sidebar-header.ejs",
               "type": "file",
               "value": 1,
               "leaf": true,
@@ -998,21 +1110,7 @@
               "ext": "ejs"
             }
           ],
-          "value": 34
-        },
-        {
-          "name": "payments",
-          "type": "dir",
-          "children": [
-            {
-              "name": "buy.ejs",
-              "type": "file",
-              "value": 1,
-              "leaf": true,
-              "ext": "ejs"
-            }
-          ],
-          "value": 1
+          "value": 46
         },
         {
           "name": "account.ejs",
@@ -1071,20 +1169,6 @@
           "ext": "ejs"
         },
         {
-          "name": "link-sent.ejs",
-          "type": "file",
-          "value": 1,
-          "leaf": true,
-          "ext": "ejs"
-        },
-        {
-          "name": "login.ejs",
-          "type": "file",
-          "value": 1,
-          "leaf": true,
-          "ext": "ejs"
-        },
-        {
           "name": "post-success.ejs",
           "type": "file",
           "value": 1,
@@ -1093,6 +1177,13 @@
         },
         {
           "name": "post.ejs",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ejs"
+        },
+        {
+          "name": "pricing.ejs",
           "type": "file",
           "value": 1,
           "leaf": true,
@@ -1155,7 +1246,7 @@
           "ext": "ejs"
         }
       ],
-      "value": 90
+      "value": 101
     },
     {
       "name": "index.ts",
@@ -1172,5 +1263,5 @@
       "ext": "css"
     }
   ],
-  "totalFiles": 150
+  "totalFiles": 164
 }

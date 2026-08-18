@@ -1,7 +1,6 @@
 // ── Admin — Shared helpers ──
 
 import { Request, Response } from 'express';
-import db from '../../db';
 import multer from 'multer';
 
 export const PAGE_SIZE = 10;

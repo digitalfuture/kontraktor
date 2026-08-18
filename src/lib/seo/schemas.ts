@@ -41,7 +41,7 @@ export function getWebSiteSchema(locale: 'en' | 'id'): object {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: `${SITE_URL}/contractors?q={search_term_string}`,
+        urlTemplate: `${SITE_URL}/contractors?search={search_term_string}`,
       },
       'query-input': 'required name=search_term_string',
     },
@@ -142,7 +142,7 @@ export function getContractorSchema(
     '@type': 'ProfessionalService',
     name,
     description,
-    ...(rating ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: rating, reviewCount: reviewCount || 0 } } : {}),
+    ...(rating ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: rating, bestRating: 5, worstRating: 1, reviewCount: reviewCount || 0 } } : {}),
     ...(priceRange ? { priceRange } : {}),
     areaServed: { '@type': 'Country', name: 'ID' },
   };
