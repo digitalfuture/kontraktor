@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import db from '../db';
 import { serviceIcons, defaultServiceIcon } from '../config/service-icons';
 import * as seoLib from '../lib/seo';
+import { getServiceContent } from '../data/service-content';
 
 const router: express.Router = express.Router();
 
@@ -137,11 +138,26 @@ router.get('/:slug', (req: Request, res: Response, _next: NextFunction): void =>
     })),
   };
 
+  const content = getServiceContent(category.slug);
+  const faqJsonLd = content
+    ? seoLib.getFAQSchema(
+        content.faqs.map((f) => ({
+          q: locale === 'id' ? f.qId : f.qEn,
+          a: locale === 'id' ? f.aId : f.aEn,
+        })),
+      )
+    : undefined;
+
+  const baseSeo = seoLib.serviceCategorySeo(slug as string, localizedName(category, locale), localizedDescription(category, locale), locale as 'en' | 'id');
+  if (faqJsonLd) baseSeo.jsonLd = [...(baseSeo.jsonLd || []), faqJsonLd];
+
   res.render('service-detail', {
-    seo: seoLib.serviceCategorySeo(slug as string, localizedName(category, locale), localizedDescription(category, locale), locale as 'en' | 'id'),
+    seo: baseSeo,
     title: `${service.name} — Kontraktor`,
     service,
     contractors: service.contractors,
+    content: content || null,
+    locale,
   });
 });
 
