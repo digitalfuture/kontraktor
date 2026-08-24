@@ -56,6 +56,20 @@
             <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap"><%= project.description %></p>
           </div>
 
+          <!-- Attachments / Photo Gallery -->
+          <% if (project.attachments_list && project.attachments_list.length > 0) { %>
+          <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <p class="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase mb-3"><%= t('projectDetail.attachmentsTitle') %></p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <% project.attachments_list.forEach(function(imgUrl) { %>
+              <a href="<%= imgUrl %>" target="_blank" rel="noopener" class="block aspect-video rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 group hover:opacity-95 transition bg-gray-100 dark:bg-gray-800">
+                <img src="<%= imgUrl %>" alt="<%= project.title %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading="lazy">
+              </a>
+              <% }); %>
+            </div>
+          </div>
+          <% } %>
+
           <!-- Project details -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
             <% if (project.district_display) { %>
@@ -90,17 +104,27 @@
           </div>
         </div>
 
+        <!-- === GUEST CTA FOR BIDDING === -->
+        <% if (typeof user === 'undefined' || !user) { %>
+        <div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 p-6 sm:p-8 text-center">
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2"><%= t('projects.guestBidTitle') %></h3>
+          <p class="text-sm text-gray-600 dark:text-gray-300 mb-6"><%= t('projects.guestBidCta') %></p>
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a href="/contractors/register" class="w-full sm:w-auto bg-orange-700 text-white px-6 py-2.5 rounded-lg hover:bg-orange-800 transition font-medium text-sm">
+              <%= t('nav.contractors') %>
+            </a>
+            <a href="/auth/login" class="w-full sm:w-auto border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 px-6 py-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition font-medium text-sm">
+              <%= t('nav.login') %>
+            </a>
+          </div>
+        </div>
+        <% } %>
+
         <!-- === BID FORM (contractors only, project not completed/cancelled) === -->
         <% if (isContractor && !hasBid && project.status !== 'completed' && project.status !== 'cancelled') { %>
 <div class="bg-surface dark:bg-surface-dark rounded-card shadow-card border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-xl font-bold text-gray-900 dark:text-white"><%= t('projectDetail.submitBid') %></h2>
-            <% if (typeof user !== 'undefined' && user) { %>
-            <% 
-              var contractor = typeof db !== 'undefined' ? null : null; // placeholder
-              // We pass credits from route
-            %>
-            <% } %>
           </div>
           <p class="text-sm text-gray-500 dark:text-gray-300 mb-6"><%= t('projectDetail.bidHint') %></p>
           <form hx-post="/api/post/<%= project.id %>/bid" class="space-y-4">

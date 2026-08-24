@@ -91,9 +91,16 @@ db.exec(`CREATE TABLE IF NOT EXISTS projects (
   assigned_contractor_id INTEGER,
   reviewed INTEGER DEFAULT 0,
   status TEXT DEFAULT 'pending',
+  attachments TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (assigned_contractor_id) REFERENCES users(id) ON DELETE SET NULL
 );`);
+
+try {
+  db.exec('ALTER TABLE projects ADD COLUMN attachments TEXT;');
+} catch {
+  /* ignore if column already exists */
+}
 
 // contractors merged into users (2026-07-24). See users table.
 db.exec(`CREATE TABLE IF NOT EXISTS reviews (

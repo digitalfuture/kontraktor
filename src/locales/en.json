@@ -328,6 +328,8 @@
     "phoneInvalid": "Invalid Indonesian phone number. Must be a valid +62 number (e.g., 81234567890)",
     "districtRequired": "Regency/City is required",
     "emailLabel": "Email (optional)",
+    "attachmentsLabel": "Project Photos & Drawings",
+    "attachmentsHint": "Upload up to 5 photos or site drawings (JPEG, PNG, WebP)",
     "emailPlaceholder": "ex. john@example.com"
   },
   "admin": {
@@ -734,7 +736,11 @@
     "bids": "bid",
     "bidsPlural": "bids",
     "browseTitle": "Browse Projects",
-    "one": "project available"
+    "one": "project available",
+    "guestBannerTitle": "Looking for Construction Projects?",
+    "guestBannerSubtitle": "Browse open projects and register as a contractor to submit bids.",
+    "guestBidTitle": "Want to bid on this project?",
+    "guestBidCta": "Sign in or register as a contractor to submit your proposal to the client."
   },
   "contractors": {
     "title": "Find Contractors",
@@ -839,7 +845,8 @@
     "days": "days",
     "reviewsTitle": "Contractor Reviews",
     "newContractor": "New",
-    "projectsCompleted": "projects completed"
+    "projectsCompleted": "projects completed",
+    "attachmentsTitle": "Project Photos & Attachments"
   },
   "error": {
     "notFound": "Not Found",

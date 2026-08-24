@@ -328,6 +328,8 @@
     "phoneInvalid": "Nomor telepon Indonesia tidak valid. Harus nomor +62 yang valid (contoh: 81234567890)",
     "districtRequired": "Kabupaten/Kota wajib diisi",
     "emailLabel": "Email (opsional)",
+    "attachmentsLabel": "Foto & Gambar Proyek",
+    "attachmentsHint": "Unggah hingga 5 foto atau gambar lokasi (JPEG, PNG, WebP)",
     "emailPlaceholder": "cth. john@example.com"
   },
   "admin": {
@@ -734,7 +736,11 @@
     "bids": "penawaran",
     "bidsPlural": "penawaran",
     "browseTitle": "Cari Proyek",
-    "one": "proyek tersedia"
+    "one": "proyek tersedia",
+    "guestBannerTitle": "Mencari Proyek Konstruksi?",
+    "guestBannerSubtitle": "Lihat proyek terbuka dan daftar sebagai kontraktor untuk mengajukan penawaran.",
+    "guestBidTitle": "Ingin memberikan penawaran pada proyek ini?",
+    "guestBidCta": "Masuk atau daftar sebagai kontraktor untuk mengirimkan penawaran Anda kepada klien."
   },
   "contractors": {
     "title": "Cari Kontraktor",
@@ -839,7 +845,8 @@
     "days": "hari",
     "reviewsTitle": "Ulasan Kontraktor",
     "newContractor": "Baru",
-    "projectsCompleted": "proyek selesai"
+    "projectsCompleted": "proyek selesai",
+    "attachmentsTitle": "Foto & Lampiran Proyek"
   },
   "error": {
     "notFound": "Tidak Ditemukan",

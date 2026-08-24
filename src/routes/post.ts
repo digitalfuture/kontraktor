@@ -11,6 +11,7 @@ import { getLocale, getT } from '../lib/i18n-helpers';
 import { normalizeIndonesianPhone } from '../lib/phone';
 import { getActiveCategories } from '../lib/categories';
 import { getProjectLimit, countActiveProjects } from '../lib/project-limit';
+import { upload, processAndSaveImage } from '../lib/upload';
 
 // ── Pages ──
 
@@ -90,6 +91,9 @@ pageRouter.get('/:id/edit', requireAuth, (req: any, res: Response): void => {
     editMode: true,
     project,
     formData,
+    user,
+    locale,
+    t: (res.locals.t as (key: string) => string) || ((key: string) => key)
   });
 });
 
@@ -120,6 +124,11 @@ pageRouter.get('/:id', optionalAuth, (req: Request, res: Response): void => {
   project.category_display = project.category_slug;
   project.subcategory_display = project.subcategory_slug || null;
   project.district_display = getDistrictDisplay(project.district, locale);
+  try {
+    project.attachments_list = project.attachments ? JSON.parse(project.attachments) : [];
+  } catch {
+    project.attachments_list = [];
+  }
 
   // Get bids for this project
   const isOwner = (req as any).user && project.client_email === (req as any).user.email;
@@ -189,7 +198,7 @@ function hxRedirect(req: Request, res: Response, url: string): void {
 }
 
 // Edit form (POST)
-apiRouter.post('/:id/edit', requireAuth, (req: any, res: Response): void => {
+apiRouter.post('/:id/edit', requireAuth, upload.array('attachments', 5), async (req: any, res: Response): Promise<void> => {
   const locale = getLocale(res);
   const t = getT(res);
   const id = parseInt(req.params.id, 10);
@@ -254,13 +263,28 @@ apiRouter.post('/:id/edit', requireAuth, (req: any, res: Response): void => {
     return;
   }
 
+  let existingAttachments: string[] = [];
+  try { existingAttachments = project.attachments ? JSON.parse(project.attachments) : []; } catch {}
+  const files = (req.files as Express.Multer.File[]) || [];
+  if (files.length > 0) {
+    for (const file of files) {
+      try {
+        const { filename } = await processAndSaveImage(file, { quality: 85 });
+        existingAttachments.push(`/uploads/${filename}`);
+      } catch (e) {
+        console.error('[upload] Error processing edit attachment:', e);
+      }
+    }
+  }
+  const updatedAttachmentsJson = existingAttachments.length > 0 ? JSON.stringify(existingAttachments) : null;
+
   db.prepare(`
     UPDATE projects SET title = ?, description = ?, category = ?, subcategory = ?,
-      contact_name = ?, contact_email = ?, contact_phone = ?, district = ?, address = ?
+      contact_name = ?, contact_email = ?, contact_phone = ?, district = ?, address = ?, attachments = ?
     WHERE id = ?
   `).run(formData.title, formData.description, formData.category, formData.subcategory || null,
     formData.contactName, formData.contactEmail || null, formData.contactPhone, formData.district_en || formData.district,
-    formData.address || null, id);
+    formData.address || null, updatedAttachmentsJson, id);
 
   hxRedirect(req, res, `/post/${id}?lang=${locale}`);
 });
@@ -348,7 +372,7 @@ apiRouter.get('/:id/bids-partial', optionalAuth, (req: Request, res: Response): 
 });
 
 // Post a new project
-apiRouter.post('/', requireAuth, (req: Request, res: Response): void => {
+apiRouter.post('/', requireAuth, upload.array('attachments', 5), async (req: Request, res: Response): Promise<void> => {
   const errors: string[] = [];
   const formData = {
     title: (req.body.title || '').trim(),
@@ -405,8 +429,6 @@ apiRouter.post('/', requireAuth, (req: Request, res: Response): void => {
   const clientEmail = req.user?.email || null;
 
   // Project limit check (two-mode scheme):
-  // free mode = unlimited for everyone; paid mode = per-user plan cap
-  // (free plan: 1 active, pro: 3, business: unlimited)
   if (clientEmail) {
     const limit = getProjectLimit(db, req.user);
     if (limit > 0) {
@@ -430,10 +452,25 @@ apiRouter.post('/', requireAuth, (req: Request, res: Response): void => {
     }
   }
 
+  // Handle uploaded attachment files
+  const files = (req.files as Express.Multer.File[]) || [];
+  const attachmentsList: string[] = [];
+  if (files.length > 0) {
+    for (const file of files) {
+      try {
+        const { filename } = await processAndSaveImage(file, { quality: 85 });
+        attachmentsList.push(`/uploads/${filename}`);
+      } catch (e) {
+        console.error('[upload] Error processing project attachment:', e);
+      }
+    }
+  }
+  const attachmentsJson = attachmentsList.length > 0 ? JSON.stringify(attachmentsList) : null;
+
   const result = db.prepare(`
-    INSERT INTO projects (title, description, category, subcategory, contact_name, contact_email, contact_phone, district, address, client_email, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
-  `).run(formData.title, formData.description, formData.category, formData.subcategory || null, formData.contactName, formData.contactEmail || null, formData.contactPhone, formData.district_en || formData.district, formData.address || null, clientEmail);
+    INSERT INTO projects (title, description, category, subcategory, contact_name, contact_email, contact_phone, district, address, client_email, attachments, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+  `).run(formData.title, formData.description, formData.category, formData.subcategory || null, formData.contactName, formData.contactEmail || null, formData.contactPhone, formData.district_en || formData.district, formData.address || null, clientEmail, attachmentsJson);
 
   const newId = result.lastInsertRowid;
   hxRedirect(req, res, `/post/${newId}?lang=${locale}`);

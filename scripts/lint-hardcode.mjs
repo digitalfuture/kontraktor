@@ -62,6 +62,8 @@ const hasLetter = (s) => /[A-Za-zА-Яа-яЁё]/.test(s);
 
 // Technical/structural text that is not a user-facing string:
 const isTechnical = (s) =>
+  // email addresses
+  /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(s) ||
   // material icon names / snake_case identifiers
   /^[a-z_][a-z0-9_]*$/.test(s) ||
   // HTML entities (&middot;, &laquo;, …)
