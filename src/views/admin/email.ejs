@@ -49,6 +49,13 @@
                 <input type="email" name="to" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
               </div>
               <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= typeof t !== 'undefined' ? t('email.fromEmail') : 'From' %></label>
+                <select name="from" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+                  <option value="support@kontraktor.app" selected>support@kontraktor.app</option>
+                  <option value="noreply@kontraktor.app">noreply@kontraktor.app</option>
+                </select>
+              </div>
+              <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><%= typeof t !== 'undefined' ? t('email.subject') : 'Subject' %></label>
                 <input type="text" name="subject" id="test-subject" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
               </div>
