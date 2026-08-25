@@ -1031,7 +1031,7 @@
     "earnedAmount": "+7,500,000 Rp to your account"
   },
   "email": {
-    "title": "Email Logs",
+    "title": "Email",
     "subtitle": "Send & manage email campaigns",
     "sentToday": "Sent Today",
     "failedToday": "Failed Today",
