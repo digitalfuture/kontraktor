@@ -17,22 +17,24 @@
       </div>
       <div class="mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-gray-700 dark:text-gray-300">
         <span class="flex items-center gap-1">
-          <span class="material-symbols-outlined text-xl text-green-500">check_circle</span>
+          <span class="material-symbols-outlined text-xl text-orange-600 dark:text-orange-400">check_circle</span>
           <%= t('hero.trust1') %>
         </span>
         <span class="flex items-center gap-1">
-          <span class="material-symbols-outlined text-xl text-green-500">check_circle</span>
+          <span class="material-symbols-outlined text-xl text-orange-600 dark:text-orange-400">check_circle</span>
           <%= t('hero.trust2') %>
         </span>
         <span class="flex items-center gap-1">
-          <span class="material-symbols-outlined text-xl text-green-500">check_circle</span>
+          <span class="material-symbols-outlined text-xl text-orange-600 dark:text-orange-400">check_circle</span>
           <%= t('hero.trust3') %>
         </span>
       </div>
-      <p class="mt-6 text-sm text-gray-600 dark:text-gray-300">
+      <div class="mt-7 mx-auto max-w-2xl rounded-xl border border-orange-200 bg-white/70 px-4 py-3 text-sm text-gray-700 shadow-sm dark:border-orange-900/70 dark:bg-gray-800/70 dark:text-gray-200">
         <%= t('hero.contractorOffer') %>
-        <a href="/contractors/register" class="text-orange-700 dark:text-orange-400 hover:underline font-medium"><%= t('contractors.join') %></a>
-      </p>
+        <a href="/contractors/register" class="ml-1 inline-flex items-center gap-1 font-semibold text-orange-700 hover:underline dark:text-orange-400">
+          <%= t('contractors.join') %><span class="mat-icon text-base" aria-hidden="true">arrow_forward</span>
+        </a>
+      </div>
     </div>
   </div>
 </section>

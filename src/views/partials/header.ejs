@@ -19,6 +19,11 @@
           Kontraktor
         </a>
       </div>
+
+      <!-- Keep the primary conversion action reachable without opening mobile navigation. -->
+      <a href="/post" class="md:hidden inline-flex items-center gap-1 rounded-lg bg-orange-600 px-3 py-2 text-xs font-semibold text-white shadow-button transition hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2">
+        <span class="mat-icon text-base" aria-hidden="true">add</span><%= t('hero.postCta') %>
+      </a>
       
       <!-- Desktop Nav -->
       <nav class="hidden md:flex items-center space-x-6" aria-label="<%= typeof t !== 'undefined' ? t('ui.mainNav') : 'Main navigation' %>">
