@@ -52,8 +52,14 @@ apiRouter.post('/webhook', (req: Request, res: Response): void => {
 
   console.log(`[Payments] Webhook received: external_id=${external_id}, status=${status}, method=${payment_method}`);
 
-  // Authenticate callback token if configured
-  if (XENDIT_CALLBACK_TOKEN && callbackToken !== XENDIT_CALLBACK_TOKEN) {
+  // A webhook must fail closed. Processing a callback without a configured
+  // shared secret would allow anyone to mark a pending payment as paid.
+  if (!XENDIT_CALLBACK_TOKEN) {
+    console.error('[Payments] Webhook is disabled: XENDIT_CALLBACK_TOKEN is not configured.');
+    res.status(503).send('Webhook is not configured');
+    return;
+  }
+  if (typeof callbackToken !== 'string' || callbackToken !== XENDIT_CALLBACK_TOKEN) {
     console.warn('[Payments] Webhook callback token mismatch. Access denied.');
     res.status(403).send('Invalid token');
     return;

@@ -169,9 +169,15 @@ function loadData() {
         return;
       }
 
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, function(char) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char];
+        });
+      }
+
       // Headers
       thead.innerHTML = '<tr>' + res.columns.map(function(c) {
-        return '<th class="px-4 py-3 text-left font-medium">' + String(c).replace(/"/g, '&quot;') + '</th>';
+        return '<th class="px-4 py-3 text-left font-medium">' + escapeHtml(c) + '</th>';
       }).join('') + '</tr>';
 
       // Rows
@@ -182,8 +188,11 @@ function loadData() {
           return '<tr class="hover:bg-gray-800/20 transition">' +
             res.columns.map(function(c) {
               var val = row[c];
-              var display = val === null ? '<span class="text-gray-600 italic">NULL</span>' : String(val);
-              return '<td class="px-4 py-2 text-gray-300 max-w-[300px] truncate" title="' + String(display).replace(/"/g, '&quot;') + '">' + display + '</td>';
+              var display = val === null ? 'NULL' : String(val);
+              var rendered = val === null
+                ? '<span class="text-gray-600 italic">NULL</span>'
+                : escapeHtml(display);
+              return '<td class="px-4 py-2 text-gray-300 max-w-[300px] truncate" title="' + escapeHtml(display) + '">' + rendered + '</td>';
             }).join('') +
           '</tr>';
         }).join('');

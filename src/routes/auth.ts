@@ -14,6 +14,27 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+/**
+ * Magic links are credentials, so their origin must never come from a
+ * request-controlled Host header.  Production explicitly configures the
+ * public origin; local development has a safe, non-routable default.
+ */
+function getMagicLinkBaseUrl(): string | null {
+  const configuredUrl = process.env.BASE_URL?.trim();
+  if (!configuredUrl) {
+    return process.env.NODE_ENV === 'production' ? null : 'http://localhost:3002';
+  }
+
+  try {
+    const url = new URL(configuredUrl);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+    if (process.env.NODE_ENV === 'production' && url.protocol !== 'https:') return null;
+    return url.origin;
+  } catch {
+    return null;
+  }
+}
+
 // ── Pages ──
 
 export const pageRouter: express.Router = express.Router();
@@ -103,6 +124,13 @@ apiRouter.post('/login', loginLimiter, async (req: Request, res: Response): Prom
     return;
   }
 
+  const linkBaseUrl = getMagicLinkBaseUrl();
+  if (!linkBaseUrl) {
+    console.error('Magic-link login is unavailable: configure BASE_URL as an HTTPS URL.');
+    res.status(503).send('Login is temporarily unavailable.');
+    return;
+  }
+
   // Create or find user
   const existing = db.prepare('SELECT id, telegram_id FROM users WHERE email = ?').get(email) as { id: number; telegram_id: string | null } | undefined;
   let userId: number;
@@ -116,13 +144,8 @@ apiRouter.post('/login', loginLimiter, async (req: Request, res: Response): Prom
     userId = result.lastInsertRowid as number;
   }
 
-  // Create magic link with dynamic request-based base URL to prevent dev/prod mismatches
+  // BASE_URL is configuration, not a client-controlled request header.
   const token = createMagicLink(email);
-  const host = req.get('host') || 'localhost:3002';
-  const protocol = req.protocol || 'http';
-  // Enforce https if request is secure, or if the production BASE_URL is set to https and we are on the production domain
-  const isSecure = req.secure || (host.includes('kontraktor.app') && process.env.BASE_URL && process.env.BASE_URL.startsWith('https'));
-  const linkBaseUrl = `${isSecure ? 'https' : protocol}://${host}`;
   const link = `${linkBaseUrl}/auth/verify?token=${token}`;
 
   // Send via email
