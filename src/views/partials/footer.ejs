@@ -8,6 +8,10 @@
       <section aria-label="<%= typeof t !== 'undefined' ? t('ui.aboutKontraktor') : 'About Kontraktor' %>">
         <h3 class="text-2xl font-bold text-white mb-3">Kontraktor</h3>
         <p class="text-sm"><%= t('footer.aboutText') %></p>
+        <address class="mt-3 text-sm not-italic space-y-1">
+          <a href="mailto:<%= t('footer.email') %>" class="block hover:text-white transition rounded focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2 focus:ring-offset-gray-900 px-1 -mx-1"><%= t('footer.email') %></a>
+          <a href="tel:+62895383643787" class="block hover:text-white transition rounded focus:outline-none focus:ring-2 focus:ring-orange-700 focus:ring-offset-2 focus:ring-offset-gray-900 px-1 -mx-1"><%= t('footer.phone') %></a>
+        </address>
       </section>
       
       <!-- Services -->
