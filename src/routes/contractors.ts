@@ -85,6 +85,11 @@ pageRouter.get('/', (req: Request, res: Response): void => {
 
 // Registration page
 pageRouter.get('/register', optionalAuth, (req: Request, res: Response): void => {
+  const user = (req as any).user;
+  if (!user) {
+    res.redirect('/auth/login?redirect=/contractors/register');
+    return;
+  }
   const locale = (res.locals.locale as string) || 'en';
   const categories = getActiveCategories(db);
 

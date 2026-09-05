@@ -39,9 +39,24 @@ function getMagicLinkBaseUrl(): string | null {
 
 export const pageRouter: express.Router = express.Router();
 
+/**
+ * Post-login redirect targets must be same-origin paths — never trust
+ * client input blindly (open-redirect protection).
+ */
+function safeRedirectPath(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  if (!value.startsWith('/') || value.startsWith('//')) return null;
+  if (/[:\\]/.test(value)) return null;
+  if (value.length > 200) return null;
+  return value;
+}
+
 // Login page
-pageRouter.get('/login', (_req: Request, res: Response): void => {
-  res.render('auth/login', { title: 'Sign In — Kontraktor' });
+pageRouter.get('/login', (req: Request, res: Response): void => {
+  res.render('auth/login', {
+    title: 'Sign In — Kontraktor',
+    redirect: safeRedirectPath(req.query.redirect) || '',
+  });
 });
 
 // Link sent page (after POST redirect — keeps URL clean)
@@ -97,8 +112,11 @@ pageRouter.get('/verify', (req: Request, res: Response): void => {
 
   // Redirect based on name presence — force profile if name not set
   const user = getUserByToken(sessionToken);
+  const redirect = safeRedirectPath(req.query.redirect);
   if (user?.role === 'admin') {
     res.redirect('/admin');
+  } else if (redirect) {
+    res.redirect(redirect);
   } else if (!user?.name) {
     res.redirect('/account/profile');
   } else {
@@ -113,14 +131,15 @@ export const apiRouter: express.Router = express.Router();
 // Send magic link (POST) — rate limited
 apiRouter.post('/login', loginLimiter, async (req: Request, res: Response): Promise<void> => {
   const email: string = req.body.email?.trim();
+  const redirect = safeRedirectPath(req.body.redirect) || '';
 
   if (!email || !email.includes('@')) {
     const isHtmx = req.headers['hx-request'] === 'true';
     if (isHtmx) {
-      res.render('partials/_login-form', { error: 'Введите корректный email' });
+      res.render('partials/_login-form', { error: 'Введите корректный email', redirect });
       return;
     }
-    res.render('auth/login', { title: 'Вход — Kontraktor', error: 'Введите корректный email' });
+    res.render('auth/login', { title: 'Вход — Kontraktor', error: 'Введите корректный email', redirect });
     return;
   }
 
@@ -146,7 +165,7 @@ apiRouter.post('/login', loginLimiter, async (req: Request, res: Response): Prom
 
   // BASE_URL is configuration, not a client-controlled request header.
   const token = createMagicLink(email);
-  const link = `${linkBaseUrl}/auth/verify?token=${token}`;
+  const link = `${linkBaseUrl}/auth/verify?token=${token}${redirect ? `&redirect=${encodeURIComponent(redirect)}` : ''}`;
 
   // Send via email
   let emailSent = false;
