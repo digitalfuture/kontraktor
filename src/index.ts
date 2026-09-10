@@ -62,14 +62,27 @@ app.set('views', path.join(__dirname, 'views'));
 if (process.env.NODE_ENV !== 'production') {
   app.set('view options', { cache: false });
 }
-// Dynamic robots.txt: block indexing of staging/dev environments,
-// serve the static file for production.
+// Dynamic robots.txt: staging/dev environments must ALLOW crawling so that
+// Google can actually see our noindex directives (X-Robots-Tag header + meta).
+// Blocking crawl AND relying on noindex is a deadlock: disallowed pages are
+// never re-fetched, so already-indexed URLs stay in the index forever.
+// Non-prod hosts: hard noindex on EVERY response type (HTML, JSON, assets)
+// via X-Robots-Tag — works even where meta tags can't reach.
+app.use((req: express.Request, res: express.Response, next: express.NextFunction): void => {
+  const host = (req.headers.host || '').split(':')[0];
+  const isNonProd = host.startsWith('dev.') || host === 'localhost' || host.startsWith('127.') || host.startsWith('192.168.');
+  if (isNonProd) {
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+  }
+  next();
+});
+
 app.get('/robots.txt', (req: express.Request, res: express.Response): void => {
   const host = (req.headers.host || '').split(':')[0];
   const isNonProd = host.startsWith('dev.') || host === 'localhost' || host.startsWith('127.') || host.startsWith('192.168.');
   if (isNonProd) {
     res.type('text/plain');
-    res.send('User-agent: *\nDisallow: /\n');
+    res.send('User-agent: *\nAllow: /\n');
     return;
   }
   res.sendFile(path.join(__dirname, '../public/robots.txt'));
