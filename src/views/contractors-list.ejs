@@ -6,12 +6,26 @@
   <%- include('partials/header') %>
 
   <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        <a href="/" class="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-300 hover:text-orange-600 transition mb-4">
-          ← <%= t('auth.backToHome') %>
-        </a>
+    <nav class="text-sm text-gray-500 dark:text-gray-300 mb-4" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-orange-600 transition"><%= t('nav.home') %></a>
+      <span class="mx-2">/</span>
+      <% if (typeof currentLocation !== 'undefined' && currentLocation) { %>
+        <a href="/contractors" class="hover:text-orange-600 transition"><%= t('nav.contractors') %></a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900 dark:text-gray-100"><%= locale === 'id' ? currentLocation.nameId : currentLocation.nameEn %></span>
+      <% } else { %>
+        <span class="text-gray-900 dark:text-gray-100"><%= t('nav.contractors') %></span>
+      <% } %>
+    </nav>
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold"><%= t('contractors.title') %></h1>
+        <h1 class="text-2xl sm:text-3xl font-bold">
+          <% if (typeof currentLocation !== 'undefined' && currentLocation) { %>
+            <%= t('contractors.titleCity', { city: locale === 'id' ? currentLocation.nameId : currentLocation.nameEn }) %>
+          <% } else { %>
+            <%= t('contractors.title') %>
+          <% } %>
+        </h1>
         <p class="text-gray-600 dark:text-gray-300 mt-1"><%= contractors.length %> <%= contractors.length === 1 ? t('contractors.one') : t('contractors.subtitle') %></p>
       </div>
       <% if (typeof user === 'undefined' || !user || !user.is_contractor) { %>
@@ -22,7 +36,7 @@
     </div>
 
     <!-- Search & Filters -->
-    <form method="GET" action="/contractors" class="flex flex-col sm:flex-row gap-3 mb-8">
+    <form method="GET" action="<%= typeof currentLocation !== 'undefined' && currentLocation ? '/contractors/' + currentLocation.slug : '/contractors' %>" class="flex flex-col sm:flex-row gap-3 mb-8">
       <div class="flex-1">
         <input type="text" name="search" value="<%= search %>" placeholder="<%= t('contractors.searchPlaceholder') %>"
           class="w-full h-11 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 outline-none">
@@ -38,7 +52,7 @@
       </div>
       <%- include('partials/_search-btn', { size: 'md' }) %>
       <% if (search || specialty) { %>
-        <a href="/contractors" class="text-sm text-gray-500 dark:text-gray-300 hover:text-orange-600 px-3 py-2.5"><%= t('contractors.clear') %></a>
+        <a href="<%= typeof currentLocation !== 'undefined' && currentLocation ? '/contractors/' + currentLocation.slug : '/contractors' %>" class="text-sm text-gray-500 dark:text-gray-300 hover:text-orange-600 px-3 py-2.5"><%= t('contractors.clear') %></a>
       <% } %>
       </form>
 
@@ -126,6 +140,24 @@
 
     <!-- Pagination -->
     <%- include('partials/pagination') %>
+
+    <!-- Cities & Regions Interlinking for Local SEO -->
+    <% if (typeof locations !== 'undefined' && locations && locations.length) { %>
+    <section class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800" aria-labelledby="cities-heading">
+      <h2 id="cities-heading" class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+        <span class="material-symbols-outlined text-orange-600 dark:text-orange-400" aria-hidden="true">location_on</span>
+        <%= typeof currentLocation !== 'undefined' && currentLocation ? t('contractors.contractorsByCity') : t('contractors.popularCities') %>
+      </h2>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <% locations.forEach(function(loc) { %>
+        <a href="/contractors/<%= loc.slug %>" class="flex items-center justify-between p-3.5 rounded-card bg-surface dark:bg-surface-dark border <%= (typeof currentLocation !== 'undefined' && currentLocation && currentLocation.slug === loc.slug) ? 'border-orange-500 font-semibold text-orange-700 dark:text-orange-400 ring-1 ring-orange-500' : 'border-gray-200 dark:border-gray-700 hover:border-orange-500 dark:hover:border-orange-500 hover:shadow-card-hover text-gray-700 dark:text-gray-200' %> transition">
+          <span class="text-sm"><%= locale === 'id' ? loc.nameId : loc.nameEn %></span>
+          <span class="material-symbols-outlined text-xs text-gray-400" aria-hidden="true">arrow_forward</span>
+        </a>
+        <% }); %>
+      </div>
+    </section>
+    <% } %>
   </main>
 
   <%- include('partials/footer') %>

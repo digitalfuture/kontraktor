@@ -14,8 +14,10 @@ export function getOrganizationSchema(locale: 'en' | 'id'): object {
       locale === 'id'
         ? 'Platform pencarian kontraktor terpercaya di Indonesia'
         : 'Find trusted construction professionals in Indonesia',
+    email: 'info@kontraktor.app',
     address: {
       '@type': 'PostalAddress',
+      addressLocality: 'Jakarta',
       addressCountry: 'ID',
     },
     sameAs: [],
@@ -54,7 +56,14 @@ export function getLocalBusinessSchema(): object {
     '@type': 'ProfessionalService',
     name: 'Kontraktor',
     url: SITE_URL,
+    logo: `${SITE_URL}/favicon.svg`,
+    email: 'info@kontraktor.app',
     inLanguage: ['id', 'en'],
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Jakarta',
+      addressCountry: 'ID',
+    },
     areaServed: [
       { '@type': 'Country', name: 'ID' },
     ],
@@ -95,6 +104,7 @@ export function getServiceSchema(
   name: string,
   description: string,
   category: string,
+  locationName?: string,
 ): object {
   return {
     '@context': 'https://schema.org',
@@ -107,7 +117,9 @@ export function getServiceSchema(
       '@type': 'Organization',
       name: 'Kontraktor',
     },
-    areaServed: { '@type': 'Country', name: 'ID' },
+    areaServed: locationName
+      ? { '@type': 'AdministrativeArea', name: locationName }
+      : { '@type': 'Country', name: 'ID' },
   };
 }
 
@@ -136,12 +148,14 @@ export function getContractorSchema(
   rating?: number,
   reviewCount?: number,
   priceRange?: string,
+  image?: string,
 ): object {
   return {
     '@context': 'https://schema.org',
     '@type': 'ProfessionalService',
     name,
     description,
+    ...(image ? { image } : {}),
     ...(rating ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: rating, bestRating: 5, worstRating: 1, reviewCount: reviewCount || 0 } } : {}),
     ...(priceRange ? { priceRange } : {}),
     areaServed: { '@type': 'Country', name: 'ID' },

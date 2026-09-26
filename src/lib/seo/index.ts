@@ -1,7 +1,7 @@
 // ── SEO — Barrel exports ──
 
-export type { SeoData, BreadcrumbItem, SeoIssue } from './types';
-export { SITE_URL } from './types';
+export type { SeoData, BreadcrumbItem, SeoIssue, SeoLocation } from './types';
+export { SITE_URL, TOP_SEO_LOCATIONS } from './types';
 
 export {
   getOrganizationSchema,
@@ -18,7 +18,9 @@ export {
   homePageSeo,
   servicesPageSeo,
   serviceCategorySeo,
+  serviceLocationCategorySeo,
   contractorsListSeo,
+  contractorLocationListSeo,
   contractorProfileSeo,
   projectDetailSeo,
   postProjectSeo,

@@ -64,7 +64,7 @@ export function i18nMiddleware(req: Request, res: Response, next: NextFunction):
   const canonicalUrl = `${baseUrl}${canonicalPath}`;
 
   res.locals.canonicalUrl = canonicalUrl;
-  res.locals.alternateLocales = supportedLocales.filter((l: Locale) => l !== locale).map((l: Locale) => ({
+  res.locals.alternateLocales = supportedLocales.map((l: Locale) => ({
     lang: l,
     href: `${canonicalUrl}?lang=${l}`,
   }));

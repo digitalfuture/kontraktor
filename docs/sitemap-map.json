@@ -224,13 +224,19 @@
           "leaf": true
         },
         {
+          "name": "/contractors/:city([a-z-]+)",
+          "value": 1,
+          "category": "public",
+          "leaf": true
+        },
+        {
           "name": "/contractors/:id",
           "value": 1,
           "category": "public",
           "leaf": true
         }
       ],
-      "value": 4
+      "value": 5
     },
     {
       "name": "Home",
@@ -346,9 +352,15 @@
           "value": 1,
           "category": "public",
           "leaf": true
+        },
+        {
+          "name": "/services/:slug/:city",
+          "value": 1,
+          "category": "public",
+          "leaf": true
         }
       ],
-      "value": 2
+      "value": 3
     },
     {
       "name": "Sitemap.xml",

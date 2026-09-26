@@ -218,6 +218,8 @@
     "step3Desc": "Pay after inspection through the service",
     "needProfessional": "Need a contractor?",
     "ctaSubtitle": "Post a project — get a fast response from contractors",
+    "popularCities": "Popular Cities & Regions",
+    "serviceByCity": "{service} in Other Cities",
     "cats": {
       "apartment-renovation": {
         "name": "Renovation",
@@ -761,7 +763,10 @@
     "sortBy": "Sort by",
     "sortProjects": "Projects",
     "sortName": "Name",
-    "one": "contractor available"
+    "one": "contractor available",
+    "titleCity": "Contractors in {city}",
+    "popularCities": "Contractors by City & Region",
+    "contractorsByCity": "Contractors in Other Cities"
   },
   "contractorProfile": {
     "projectsCompleted": "projects completed",

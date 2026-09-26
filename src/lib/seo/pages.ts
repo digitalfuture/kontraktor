@@ -87,6 +87,40 @@ export function serviceCategorySeo(
   };
 }
 
+export function serviceLocationCategorySeo(
+  slug: string,
+  name: string,
+  locationName: string,
+  description: string,
+  locale: 'en' | 'id',
+  locationSlug: string,
+): SeoData {
+  const pageTitle = locale === 'id'
+    ? `Jasa ${name} di ${locationName} — Kontraktor Terpercaya`
+    : `${name} Services in ${locationName} — Trusted Contractors`;
+  const pageDesc = locale === 'id'
+    ? `Cari jasa ${name.toLowerCase()} profesional dan bergaransi di ${locationName}. Bandingkan kontraktor terverifikasi, dapatkan estimasi biaya dan penawaran terbaik.`
+    : `Find professional and verified ${name.toLowerCase()} contractors in ${locationName}. Compare top rated specialists, get free estimates and quotes.`;
+
+  return {
+    title: `${pageTitle} — Kontraktor`,
+    description: pageDesc.substring(0, 160),
+    canonical: `${SITE_URL}/services/${slug}/${locationSlug}`,
+    ogType: 'website',
+    locale,
+    jsonLd: [
+      getOrganizationSchema(locale),
+      getServiceSchema(name, description, slug, locationName),
+      getBreadcrumbSchema([
+        { name: 'Home', item: '/' },
+        { name: locale === 'id' ? 'Layanan' : 'Services', item: '/services' },
+        { name, item: `/services/${slug}` },
+        { name: locationName, item: `/services/${slug}/${locationSlug}` },
+      ]),
+    ],
+  };
+}
+
 export function contractorsListSeo(locale: 'en' | 'id'): SeoData {
   const title =
     locale === 'id'
@@ -113,6 +147,37 @@ export function contractorsListSeo(locale: 'en' | 'id'): SeoData {
   };
 }
 
+export function contractorLocationListSeo(
+  locationName: string,
+  locationSlug: string,
+  locale: 'en' | 'id',
+): SeoData {
+  const title =
+    locale === 'id'
+      ? `Kontraktor & Tukang di ${locationName} — Kontraktor Terpercaya`
+      : `Contractors & Builders in ${locationName} — Verified Specialists`;
+  const description =
+    locale === 'id'
+      ? `Cari dan bandingkan kontraktor bangunan, renovasi, dan perbaikan rumah profesional terverifikasi di ${locationName}. Dapatkan penawaran terbaik.`
+      : `Find and compare verified building, renovation, and repair contractors in ${locationName}. Get the best quotes from local specialists.`;
+
+  return {
+    title: `${title} — Kontraktor`,
+    description: description.substring(0, 160),
+    canonical: `${SITE_URL}/contractors/${locationSlug}`,
+    ogType: 'website',
+    locale,
+    jsonLd: [
+      getOrganizationSchema(locale),
+      getBreadcrumbSchema([
+        { name: 'Home', item: '/' },
+        { name: locale === 'id' ? 'Kontraktor' : 'Contractors', item: '/contractors' },
+        { name: locationName, item: `/contractors/${locationSlug}` },
+      ]),
+    ],
+  };
+}
+
 export function contractorProfileSeo(
   name: string,
   bio: string,
@@ -120,6 +185,7 @@ export function contractorProfileSeo(
   reviewCount: number,
   locale: 'en' | 'id',
   contractorId: number,
+  ogImage?: string,
 ): SeoData {
   const desc = bio
     ? bio.substring(0, 160)
@@ -127,15 +193,17 @@ export function contractorProfileSeo(
       ? `Profil kontraktor ${name} — lihat portofolio, rating, dan proyek yang sudah diselesaikan.`
       : `Contractor profile of ${name} — view portfolio, rating, and completed projects.`;
 
+  const resolvedImage = ogImage ? (ogImage.startsWith('http') ? ogImage : `${SITE_URL}${ogImage}`) : undefined;
+
   return {
     title: `${name} — Kontraktor`,
     description: desc,
     canonical: `${SITE_URL}/contractors/${contractorId}`,
     ogType: 'profile',
-    ogImage: undefined,
+    ogImage: resolvedImage,
     locale,
     jsonLd: [
-      getContractorSchema(name, bio || desc, rating || undefined, reviewCount),
+      getContractorSchema(name, bio || desc, rating || undefined, reviewCount, undefined, resolvedImage),
       getBreadcrumbSchema([
         { name: 'Home', item: '/' },
         { name: locale === 'id' ? 'Kontraktor' : 'Contractors', item: '/contractors' },
@@ -152,12 +220,14 @@ export function projectDetailSeo(
   createdAt: string,
   locale: 'en' | 'id',
   projectId: number,
+  ogImage?: string,
 ): SeoData {
   return {
     title: `${title} — Kontraktor`,
     description: (description || 'Lihat detail proyek').substring(0, 160),
     canonical: `${SITE_URL}/post/${projectId}`,
     ogType: 'article',
+    ogImage: ogImage ? (ogImage.startsWith('http') ? ogImage : `${SITE_URL}${ogImage}`) : undefined,
     locale,
     publishedTime: createdAt,
     jsonLd: [

@@ -64,14 +64,19 @@ pageRouter.get('/', (req: Request, res: Response): void => {
   const totalPages = Math.ceil(countResult.total / limit);
 
   const locale = (res.locals.locale as string) || 'en';
+  const contractorsSeo = seoLib.contractorsListSeo(locale as 'en' | 'id');
+  contractorsSeo.pagination = seoLib.getPaginationMeta(page, totalPages, '/contractors');
+
   res.render('contractors-list', {
-    seo: seoLib.contractorsListSeo(locale as 'en' | 'id'),
+    seo: contractorsSeo,
     title: 'Find Contractors — Kontraktor',
     contractors,
     specialties,
     search,
     specialty,
     sort,
+    locations: seoLib.TOP_SEO_LOCATIONS,
+    currentLocation: null,
     pagination: {
       page,
       totalPages,
@@ -170,6 +175,88 @@ pageRouter.get('/dashboard', optionalAuth, (req: Request, res: Response): void =
   });
 });
 
+// City-specific contractor list page (Local SEO)
+pageRouter.get('/:city([a-z-]+)', (req: Request, res: Response, next: (err?: any) => void): void => {
+  const cityParam = req.params.city.toLowerCase();
+  const targetLocation = seoLib.TOP_SEO_LOCATIONS.find((loc) => loc.slug === cityParam);
+
+  if (!targetLocation) {
+    next();
+    return;
+  }
+
+  const search = (req.query.search as string || '').trim();
+  const specialty = (req.query.specialty as string || '').trim();
+  const sort = (req.query.sort as string || 'projects').trim();
+  const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+  const limit = Math.min(MAX_LIMIT, Math.max(1, parseInt(req.query.limit as string, 10) || DEFAULT_LIMIT));
+  const offset = (page - 1) * limit;
+
+  let sql = `
+    SELECT c.*, 
+      (SELECT name FROM categories WHERE slug = c.specialty) as specialty_name,
+      (SELECT COUNT(*) FROM reviews WHERE contractor_id = c.id AND is_approved = 1) as review_count,
+      (SELECT COALESCE(AVG(rating), 0) FROM reviews WHERE contractor_id = c.id AND is_approved = 1) as avg_rating,
+      (SELECT GROUP_CONCAT(cat.slug, ',') FROM contractor_services cs JOIN categories cat ON cs.category_id = cat.id WHERE cs.contractor_id = c.id AND cs.is_active = 1) as active_services
+    FROM users c
+    WHERE c.is_contractor = 1 AND c.deleted_at IS NULL
+  `;
+  const params: any[] = [];
+
+  if (search) {
+    sql += ` AND (c.name LIKE ? OR c.bio LIKE ? OR EXISTS (SELECT 1 FROM contractor_services cs JOIN categories cat ON cs.category_id = cat.id WHERE cs.contractor_id = c.id AND (cat.name LIKE ?)))`;
+    params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+  }
+  if (specialty) {
+    sql += ` AND EXISTS (SELECT 1 FROM contractor_services cs WHERE cs.contractor_id = c.id AND cs.category_id = (SELECT id FROM categories WHERE slug = ?) AND cs.is_active = 1)`;
+    params.push(specialty);
+  }
+
+  const countResult = db.prepare(`
+    SELECT COUNT(*) as total FROM users c WHERE c.is_contractor = 1 AND c.deleted_at IS NULL${search ? ` AND (c.name LIKE ? OR c.bio LIKE ? OR EXISTS (SELECT 1 FROM contractor_services cs JOIN categories cat ON cs.category_id = cat.id WHERE cs.contractor_id = c.id AND (cat.name LIKE ?)))` : ''}${specialty ? ` AND EXISTS (SELECT 1 FROM contractor_services cs WHERE cs.contractor_id = c.id AND cs.category_id = (SELECT id FROM categories WHERE slug = ?) AND cs.is_active = 1)` : ''}
+  `).get(...params) as { total: number };
+
+  if (sort === 'name') {
+    sql += ` ORDER BY c.name ASC`;
+  } else {
+    sql += ` ORDER BY c.completed_projects DESC, c.rating DESC, c.name ASC`;
+  }
+  sql += ` LIMIT ? OFFSET ?`;
+
+  const contractors = db.prepare(sql).all(...params, limit, offset) as any[];
+  const specialties = db.prepare(`SELECT DISTINCT c.slug, c.name FROM categories c WHERE c.is_active = 1 AND EXISTS (SELECT 1 FROM contractor_services cs JOIN users ct ON cs.contractor_id = ct.id WHERE cs.category_id = c.id AND ct.is_contractor = 1 AND ct.deleted_at IS NULL) ORDER BY c.name`).all() as any[];
+  const totalPages = Math.ceil(countResult.total / limit);
+
+  const locale = (res.locals.locale as string) || 'en';
+  const locationDisplayName = locale === 'id' ? targetLocation.nameId : targetLocation.nameEn;
+  const contractorsSeo = seoLib.contractorLocationListSeo(locationDisplayName, targetLocation.slug, locale as 'en' | 'id');
+  contractorsSeo.pagination = seoLib.getPaginationMeta(page, totalPages, `/contractors/${targetLocation.slug}`);
+
+  const pageTitle = locale === 'id'
+    ? `Kontraktor di ${locationDisplayName} — Kontraktor Terpercaya`
+    : `Contractors in ${locationDisplayName} — Kontraktor`;
+
+  res.render('contractors-list', {
+    seo: contractorsSeo,
+    title: pageTitle,
+    contractors,
+    specialties,
+    search,
+    specialty,
+    sort,
+    locations: seoLib.TOP_SEO_LOCATIONS,
+    currentLocation: targetLocation,
+    pagination: {
+      page,
+      totalPages,
+      limit,
+      totalItems: countResult.total,
+      baseUrl: `/contractors/${targetLocation.slug}`,
+      params: { search: search || undefined, specialty: specialty || undefined, sort: sort !== 'projects' ? sort : undefined },
+    },
+  });
+});
+
 // Contractor profile page
 pageRouter.get('/:id', (req: Request, res: Response): void => {
   const id = parseInt(req.params.id as string, 10);
@@ -201,14 +288,17 @@ pageRouter.get('/:id', (req: Request, res: Response): void => {
     WHERE contractor_id = ? AND is_approved = 1
   `).get(id) as any;
 
+  const photos = db.prepare('SELECT id, filename, original_name, caption FROM photos WHERE contractor_id = ? AND is_portfolio = 1 ORDER BY created_at DESC').all(id) as any[];
+  const ogPhoto = contractor.avatar_url || (photos.length > 0 ? `/uploads/${photos[0].filename}` : undefined);
+
   const locale = (res.locals.locale as string) || 'en';
   res.render('contractor-profile', {
-    seo: seoLib.contractorProfileSeo(contractor.name, contractor.bio || '', stats?.avg_rating || null, stats?.total_reviews || 0, locale as 'en' | 'id', id),
+    seo: seoLib.contractorProfileSeo(contractor.name, contractor.bio || '', stats?.avg_rating || null, stats?.total_reviews || 0, locale as 'en' | 'id', id, ogPhoto),
     title: `${contractor.name} — Kontraktor`,
     contractor,
     reviews,
     stats,
-    photos: db.prepare('SELECT id, filename, original_name, caption FROM photos WHERE contractor_id = ? AND is_portfolio = 1 ORDER BY created_at DESC').all(id) as any[],
+    photos,
     services: db.prepare(`
       SELECT cat.slug
       FROM contractor_services cs

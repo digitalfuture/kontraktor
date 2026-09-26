@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import db from '../db';
+import { TOP_SEO_LOCATIONS } from '../lib/seo';
 
 const router: express.Router = express.Router();
 
@@ -59,6 +60,19 @@ router.get('/', (_req: Request, res: Response): void => {
   </url>
 `;
 
+  TOP_SEO_LOCATIONS.forEach((loc) => {
+    xml += `  <url>
+    <loc>${url}/contractors/${loc.slug}</loc>
+    <xhtml:link rel="alternate" hreflang="id" href="${url}/contractors/${loc.slug}?lang=id"/>
+    <xhtml:link rel="alternate" hreflang="en" href="${url}/contractors/${loc.slug}?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="${url}/contractors/${loc.slug}"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+`;
+  });
+
+
   categories.forEach((cat: any) => {
     xml += `  <url>
     <loc>${url}/services/${cat.slug}</loc>
@@ -69,6 +83,18 @@ router.get('/', (_req: Request, res: Response): void => {
     <priority>0.7</priority>
   </url>
 `;
+
+    TOP_SEO_LOCATIONS.forEach((loc) => {
+      xml += `  <url>
+    <loc>${url}/services/${cat.slug}/${loc.slug}</loc>
+    <xhtml:link rel="alternate" hreflang="id" href="${url}/services/${cat.slug}/${loc.slug}?lang=id"/>
+    <xhtml:link rel="alternate" hreflang="en" href="${url}/services/${cat.slug}/${loc.slug}?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="${url}/services/${cat.slug}/${loc.slug}"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+`;
+    });
   });
 
   projects.forEach((p: any) => {

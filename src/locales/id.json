@@ -218,6 +218,8 @@
     "step3Desc": "Bayar setelah inspeksi melalui layanan",
     "needProfessional": "Butuh kontraktor?",
     "ctaSubtitle": "Pasang proyek — dapatkan respons cepat dari kontraktor",
+    "popularCities": "Kota & Wilayah Populer",
+    "serviceByCity": "Layanan {service} di Kota Lain",
     "cats": {
       "apartment-renovation": {
         "name": "Renovasi",
@@ -761,7 +763,10 @@
     "sortBy": "Urutkan",
     "sortProjects": "Proyek",
     "sortName": "Nama",
-    "one": "kontraktor tersedia"
+    "one": "kontraktor tersedia",
+    "titleCity": "Kontraktor di {city}",
+    "popularCities": "Kontraktor Berdasarkan Kota & Wilayah",
+    "contractorsByCity": "Kontraktor di Kota Lainnya"
   },
   "contractorProfile": {
     "projectsCompleted": "proyek selesai",

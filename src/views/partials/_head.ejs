@@ -27,6 +27,11 @@
   <% } else { %>
   <link rel="canonical" href="https://kontraktor.app<%= (typeof pagePath !== 'undefined' ? pagePath : '/') %>" />
   <% } %>
+  <!-- Pagination -->
+  <% if (typeof seo !== 'undefined' && seo.pagination) { %>
+    <% if (seo.pagination.prev) { %><link rel="prev" href="<%= seo.pagination.prev %>" /><% } %>
+    <% if (seo.pagination.next) { %><link rel="next" href="<%= seo.pagination.next %>" /><% } %>
+  <% } %>
   <!-- Hreflang -->
   <% if (typeof seo !== 'undefined' && typeof renderAlternateLinks !== 'undefined') { %>
   <%- renderAlternateLinks(Object.assign({}, seo, {

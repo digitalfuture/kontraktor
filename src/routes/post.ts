@@ -167,7 +167,10 @@ pageRouter.get('/:id', optionalAuth, (req: Request, res: Response): void => {
     }
   }
 
-  const seo = seoLib.projectDetailSeo(project.title, project.description || '', project.category_display || project.category || '', project.created_at || new Date().toISOString(), locale as 'en' | 'id', id);
+  const ogPhoto = project.attachments_list && project.attachments_list.length > 0
+    ? `/uploads/${project.attachments_list[0]}`
+    : undefined;
+  const seo = seoLib.projectDetailSeo(project.title, project.description || '', project.category_display || project.category || '', project.created_at || new Date().toISOString(), locale as 'en' | 'id', id, ogPhoto);
   res.render('project-detail', {
     seo,
     title: `${project.title} — Kontraktor`,

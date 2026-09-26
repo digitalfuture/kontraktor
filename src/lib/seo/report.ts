@@ -2,6 +2,7 @@
 
 import { SeoIssue } from './types';
 import { getFAQSchema } from './schemas';
+import { getServiceContent } from '../../seo/service-content';
 
 const CATEGORY_NAMES: Record<string, { en: string; id: string }> = {
   'apartment-renovation': { en: 'Apartment Renovation', id: 'Renovasi Apartemen' },
@@ -50,6 +51,17 @@ function getDefaultFAQ(locale: 'en' | 'id'): { q: string; a: string }[] {
 }
 
 export function generateFAQSchema(slug?: string, locale: 'en' | 'id' = 'en'): object {
+  if (slug) {
+    const content = getServiceContent(slug);
+    if (content && content.faqs && content.faqs.length > 0) {
+      return getFAQSchema(
+        content.faqs.map((f) => ({
+          q: locale === 'id' ? f.qId : f.qEn,
+          a: locale === 'id' ? f.aId : f.aEn,
+        })),
+      );
+    }
+  }
   const faqs = slug && SERVICE_FAQ[slug] ? SERVICE_FAQ[slug] : getDefaultFAQ(locale);
   return getFAQSchema(faqs);
 }

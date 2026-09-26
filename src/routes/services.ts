@@ -158,6 +158,98 @@ router.get('/:slug', (req: Request, res: Response, _next: NextFunction): void =>
     contractors: service.contractors,
     content: content || null,
     locale,
+    locations: seoLib.TOP_SEO_LOCATIONS,
+    currentLocation: null,
+  });
+});
+
+// City-specific service category route (Local SEO)
+router.get('/:slug/:city', (req: Request, res: Response, _next: NextFunction): void => {
+  const locale = (res.locals.locale as string) || 'en';
+  const t = res.locals.t as (key: string, params?: Record<string, string | number>) => string;
+  const { slug, city } = req.params;
+
+  const targetLocation = seoLib.TOP_SEO_LOCATIONS.find((loc) => loc.slug === city.toLowerCase());
+  const category = db.prepare('SELECT id, name, slug, description, icon FROM categories WHERE slug = ? AND is_active = 1').get(slug) as DbCategory | undefined;
+
+  if (!category || !targetLocation) {
+    res.status(404);
+    res.render('error', { message: t('services.notFound') });
+    return;
+  }
+
+  const subcategories = db.prepare('SELECT id, category_id, name, slug, price_from, contractors_count FROM subcategories WHERE category_id = ? ORDER BY name').all(category.id) as DbSubcategory[];
+
+  const contractors = db.prepare(`
+    SELECT c.id, c.name, c.avatar_url, c.specialty, (SELECT name FROM categories WHERE slug = c.specialty) as specialty_name, c.rating, c.reviews_count, c.completed_projects
+    FROM users c
+    WHERE c.is_approved = 1 AND c.is_contractor = 1 AND c.deleted_at IS NULL
+      AND EXISTS (SELECT 1 FROM contractor_services cs WHERE cs.contractor_id = c.id AND cs.category_id = ? AND cs.is_active = 1)
+    ORDER BY c.rating DESC, c.reviews_count DESC
+    LIMIT 10
+  `).all(category.id) as Array<{
+    id: number;
+    name: string;
+    avatar_url: string | null;
+    specialty: string | null;
+    rating: number | null;
+    reviews_count: number | null;
+    completed_projects: number | null;
+  }>;
+
+  const locationDisplayName = locale === 'id' ? targetLocation.nameId : targetLocation.nameEn;
+  const service = {
+    name: category.name,
+    slug: category.slug,
+    icon: serviceIcons[category.slug] || defaultServiceIcon,
+    description: category.description,
+    totalContractors: (db.prepare('SELECT COUNT(*) as count FROM contractor_services cs JOIN users ct ON ct.id = cs.contractor_id WHERE cs.category_id = ? AND ct.is_approved = 1 AND ct.is_contractor = 1 AND ct.deleted_at IS NULL AND cs.is_active = 1').get(category.id) as { count: number }).count,
+    hasVerifiedContractors: (db.prepare("SELECT COUNT(*) as count FROM contractor_services cs JOIN users ct ON ct.id = cs.contractor_id WHERE cs.category_id = ? AND ct.is_approved = 1 AND ct.is_contractor = 1 AND ct.deleted_at IS NULL AND cs.is_active = 1 AND ct.reviews_count > 0").get(category.id) as { count: number }).count > 0,
+    subcategories: subcategories.map((sub) => ({
+      name: sub.name,
+      slug: sub.slug,
+      count: sub.contractors_count,
+    })),
+    contractors: contractors.map((ctr) => ({
+      id: ctr.id,
+      name: ctr.name,
+      avatarUrl: ctr.avatar_url || '/avatars/contractor_1.svg',
+      specialty: ctr.specialty || '',
+      rating: ctr.rating ?? 0,
+      reviewsCount: ctr.reviews_count ?? 0,
+      completedProjects: ctr.completed_projects ?? 0,
+    })),
+  };
+
+  const content = getServiceContent(category.slug);
+  const faqJsonLd = content
+    ? seoLib.getFAQSchema(
+        content.faqs.map((f) => ({
+          q: locale === 'id' ? f.qId : f.qEn,
+          a: locale === 'id' ? f.aId : f.aEn,
+        })),
+      )
+    : undefined;
+
+  const localSeo = seoLib.serviceLocationCategorySeo(
+    slug as string,
+    localizedName(category, locale),
+    locationDisplayName,
+    localizedDescription(category, locale),
+    locale as 'en' | 'id',
+    targetLocation.slug,
+  );
+  if (faqJsonLd) localSeo.jsonLd = [...(localSeo.jsonLd || []), faqJsonLd];
+
+  res.render('service-detail', {
+    seo: localSeo,
+    title: `${service.name} di ${locationDisplayName} — Kontraktor`,
+    service,
+    contractors: service.contractors,
+    content: content || null,
+    locale,
+    locations: seoLib.TOP_SEO_LOCATIONS,
+    currentLocation: targetLocation,
   });
 });
 
