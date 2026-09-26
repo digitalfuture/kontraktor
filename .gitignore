@@ -31,3 +31,6 @@ scratch_*.py
 # IDE / agent indices
 .codegraph/
 _scripts/
+
+# Temp notes (fake seed tracking, not for repo)
+FAKE_PROJECTS_TO_DELETE.txt
