@@ -5,6 +5,8 @@ import db from '../../db';
 import districtsData from '../../data/districts.json';
 import provinceCentroids from '../../data/province-centroids.json';
 import { makeT } from './helpers';
+import { getTopCities, getTotalViews } from '../../lib/analytics-db';
+import { getCacheStatus, invalidateCache } from '../../lib/google-analytics';
 
 export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: express.Router): void {
 
@@ -45,6 +47,10 @@ export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: e
         GROUP BY role
       `).all() as any[];
 
+      const cacheStatus = getCacheStatus();
+      const topCities = getTopCities(days);
+      const totalDbViews = getTotalViews(days);
+
       res.render('admin/analytics', {
         title: _t('admin.analytics') + ' — Kontraktor',
         activePage: 'analytics',
@@ -58,9 +64,16 @@ export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: e
         monthly,
         startDate,
         endDate,
+        cacheStatus,
+        topCities,
+        totalDbViews,
       });
     } catch (err) {
       console.error('Analytics error:', err);
+      const cacheStatus = getCacheStatus();
+      const topCities = getTopCities(7);
+      const totalDbViews = getTotalViews(7);
+
       res.render('admin/analytics', {
         title: _t('admin.analytics') + ' — Kontraktor',
         activePage: 'analytics',
@@ -72,9 +85,18 @@ export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: e
         monthly: [],
         startDate,
         endDate,
+        cacheStatus,
+        topCities,
+        totalDbViews,
         error: 'Analytics data unavailable. Check Google OAuth configuration.',
       });
     }
+  });
+
+  // ── API: Clear Analytics Cache ──
+  apiRouter.post('/analytics/cache/clear', (req: Request, res: Response): void => {
+    invalidateCache();
+    res.json({ success: true, message: 'Analytics cache cleared' });
   });
 
   // ── API: Traffic trend for the monthly chart ──

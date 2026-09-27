@@ -617,7 +617,14 @@
     "days30": "30 days",
     "days90": "90 days",
     "compare": "Compare with previous period",
-    "previous": "previous"
+    "previous": "previous",
+    "cacheActive": "Cache Active",
+    "cacheExpired": "Cache Expired / Cold",
+    "cacheAge": "Age",
+    "cacheTtl": "TTL",
+    "localEvents": "Local DB Events",
+    "clearCache": "Clear Cache",
+    "regionalPerformance": "Regional Performance (Top Cities)"
   },
   "common": {
     "and": "and",

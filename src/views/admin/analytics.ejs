@@ -182,6 +182,47 @@
     <% } %>
   </div>
 
+  <!-- Cache Status & Database Metrics Dashboard -->
+  <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-4 mb-6">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= typeof cacheStatus !== 'undefined' && cacheStatus.isValid ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' %>">
+          <%= typeof cacheStatus !== 'undefined' && cacheStatus.isValid ? ('● ' + (typeof t === 'function' ? t('analytics.cacheActive') : 'Cache Active')) : ('○ ' + (typeof t === 'function' ? t('analytics.cacheExpired') : 'Cache Expired / Cold')) %>
+        </span>
+        <% if (typeof cacheStatus !== 'undefined' && cacheStatus.ageSeconds >= 0) { %>
+          <span class="text-xs text-gray-500 dark:text-gray-400">
+            <%= typeof t === 'function' ? t('analytics.cacheAge') : 'Age' %>: <%= cacheStatus.ageSeconds %>s / <%= typeof t === 'function' ? t('analytics.cacheTtl') : 'TTL' %>: <%= cacheStatus.ttlSeconds %>s
+          </span>
+        <% } %>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-gray-500 dark:text-gray-400">
+          <%= typeof t === 'function' ? t('analytics.localEvents') : 'Local DB Events' %>: <strong><%= typeof totalDbViews !== 'undefined' ? totalDbViews : 0 %></strong>
+        </span>
+        <button type="button" id="btn-clear-cache" class="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg transition">
+          <%= typeof t === 'function' ? t('analytics.clearCache') : 'Clear Cache' %>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Regional Performance (Local SEO & Cities) -->
+  <% if (typeof topCities !== 'undefined' && topCities && topCities.length > 0) { %>
+  <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-4 mb-6">
+    <h2 class="text-base font-semibold mb-4">
+      <%= typeof t === 'function' ? t('analytics.regionalPerformance') : 'Regional Performance' %>
+    </h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      <% topCities.forEach(function(c) { %>
+        <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-800">
+          <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide truncate"><%= c.city %></div>
+          <div class="text-lg font-bold text-orange-600 dark:text-orange-400"><%= c.views %></div>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+  <% } %>
+
   <% } %>
 </div>
 
@@ -270,8 +311,15 @@
         .then(render)
         .catch(function() {});
     }
-    if (sel) sel.addEventListener('change', loadTrend);
-    if (chk) chk.addEventListener('change', loadTrend);
+    var clearBtn = document.getElementById('btn-clear-cache');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', function() {
+        clearBtn.disabled = true;
+        fetch('/api/admin/analytics/cache/clear', { method: 'POST' })
+          .then(function() { window.location.reload(); })
+          .catch(function() { clearBtn.disabled = false; });
+      });
+    }
   })();
 </script>
 <%- include('_admin-layout-close') %>

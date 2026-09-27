@@ -617,7 +617,14 @@
     "days30": "30 hari",
     "days90": "90 hari",
     "compare": "Bandingkan dengan periode sebelumnya",
-    "previous": "sebelumnya"
+    "previous": "sebelumnya",
+    "cacheActive": "Cache Aktif",
+    "cacheExpired": "Cache Kedaluwarsa / Dingin",
+    "cacheAge": "Usia",
+    "cacheTtl": "TTL",
+    "localEvents": "Acara DB Lokal",
+    "clearCache": "Hapus Cache",
+    "regionalPerformance": "Kinerja Regional (Kota Teratas)"
   },
   "common": {
     "and": "dan",

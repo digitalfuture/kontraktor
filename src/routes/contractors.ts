@@ -177,7 +177,7 @@ pageRouter.get('/dashboard', optionalAuth, (req: Request, res: Response): void =
 
 // City-specific contractor list page (Local SEO)
 pageRouter.get('/:city([a-z-]+)', (req: Request, res: Response, next: (err?: any) => void): void => {
-  const cityParam = req.params.city.toLowerCase();
+  const cityParam = (typeof req.params.city === 'string' ? req.params.city : '').toLowerCase();
   const targetLocation = seoLib.TOP_SEO_LOCATIONS.find((loc) => loc.slug === cityParam);
 
   if (!targetLocation) {

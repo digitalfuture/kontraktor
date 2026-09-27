@@ -5,9 +5,9 @@ import { TOP_SEO_LOCATIONS } from '../lib/seo';
 const router: express.Router = express.Router();
 
 // Dynamic sitemap from DB
-router.get('/', (_req: Request, res: Response): void => {
+router.get('/', (req: Request, res: Response): void => {
   const baseUrl = process.env.BASE_URL || 'https://kontraktor.app';
-  const host = (_req as any).headers?.host;
+  const host = req.headers.host;
 
   // Do NOT expose a sitemap on non-production hosts (dev/staging would
   // advertise dev URLs to search engines and get them indexed).
@@ -20,17 +20,26 @@ router.get('/', (_req: Request, res: Response): void => {
   }
   const url = host ? `https://${host}` : baseUrl;
 
+  interface SitemapItem {
+    id: number;
+    created_at: string | null;
+  }
+
+  interface CategoryItem {
+    slug: string;
+  }
+
   const projects = db.prepare(`
     SELECT id, created_at FROM projects WHERE status IN ('pending', 'in_progress') ORDER BY created_at DESC LIMIT 1000
-  `).all() as any[];
+  `).all() as SitemapItem[];
 
   const contractors = db.prepare(`
     SELECT id, created_at FROM users WHERE is_contractor = 1 AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 1000
-  `).all() as any[];
+  `).all() as SitemapItem[];
 
   const categories = db.prepare(`
     SELECT slug FROM categories WHERE is_active = 1 AND deleted_at IS NULL
-  `).all() as any[];
+  `).all() as CategoryItem[];
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
@@ -73,7 +82,7 @@ router.get('/', (_req: Request, res: Response): void => {
   });
 
 
-  categories.forEach((cat: any) => {
+  categories.forEach((cat: CategoryItem) => {
     xml += `  <url>
     <loc>${url}/services/${cat.slug}</loc>
     <xhtml:link rel="alternate" hreflang="id" href="${url}/services/${cat.slug}?lang=id"/>
@@ -97,7 +106,7 @@ router.get('/', (_req: Request, res: Response): void => {
     });
   });
 
-  projects.forEach((p: any) => {
+  projects.forEach((p: SitemapItem) => {
     xml += `  <url>
     <loc>${url}/post/${p.id}</loc>
     <lastmod>${p.created_at ? p.created_at.split(' ')[0] : new Date().toISOString().split('T')[0]}</lastmod>
@@ -107,7 +116,7 @@ router.get('/', (_req: Request, res: Response): void => {
 `;
   });
 
-  contractors.forEach((c: any) => {
+  contractors.forEach((c: SitemapItem) => {
     xml += `  <url>
     <loc>${url}/contractors/${c.id}</loc>
     <lastmod>${c.created_at ? c.created_at.split(' ')[0] : new Date().toISOString().split('T')[0]}</lastmod>

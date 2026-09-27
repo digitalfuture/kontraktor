@@ -176,6 +176,25 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
 `);
 
+// Analytics Events Table (Local Traffic & Regional Performance)
+db.exec(`CREATE TABLE IF NOT EXISTS analytics_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  event_type TEXT NOT NULL DEFAULT 'pageview',
+  path TEXT NOT NULL,
+  city TEXT,
+  category TEXT,
+  locale TEXT DEFAULT 'en',
+  ip TEXT,
+  referrer TEXT,
+  user_agent TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_analytics_created ON analytics_events(created_at);
+CREATE INDEX IF NOT EXISTS idx_analytics_path ON analytics_events(path);
+CREATE INDEX IF NOT EXISTS idx_analytics_city ON analytics_events(city);
+CREATE INDEX IF NOT EXISTS idx_analytics_category ON analytics_events(category);
+`);
+
 // === MIGRATIONS ===
 // Each migration runs exactly once, tracked in schema_migrations table.
 db.exec(`CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -466,6 +485,28 @@ const migrations: Array<{ version: number; name: string; sql: string }> = [
     sql: `
       ALTER TABLE users ADD COLUMN plan TEXT NOT NULL DEFAULT 'free';
       UPDATE users SET plan = 'free' WHERE plan IS NULL OR plan = '';
+    `,
+  },
+  {
+    version: 17,
+    name: 'add_analytics_events',
+    sql: `
+      CREATE TABLE IF NOT EXISTS analytics_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        event_type TEXT NOT NULL DEFAULT 'pageview',
+        path TEXT NOT NULL,
+        city TEXT,
+        category TEXT,
+        locale TEXT DEFAULT 'en',
+        ip TEXT,
+        referrer TEXT,
+        user_agent TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_analytics_created ON analytics_events(created_at);
+      CREATE INDEX IF NOT EXISTS idx_analytics_path ON analytics_events(path);
+      CREATE INDEX IF NOT EXISTS idx_analytics_city ON analytics_events(city);
+      CREATE INDEX IF NOT EXISTS idx_analytics_category ON analytics_events(category);
     `,
   },
 ];

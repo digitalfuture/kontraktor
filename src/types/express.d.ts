@@ -3,12 +3,7 @@ import 'express';
 declare global {
   namespace Express {
     interface Request {
-      user?: {
-        id: number;
-        email: string;
-        name: string | null;
-        role: import('./user').UserRole;
-      };
+      user?: import('../lib/auth').AuthUser;
     }
 
     interface Locals {
@@ -19,7 +14,7 @@ declare global {
       /** Available locales list */
       locales?: string[];
       /** Current user (null if not authenticated) */
-      user?: import('./user').User | null;
+      user?: import('../lib/auth').AuthUser | import('./user').User | null;
       /** CSRF token */
       csrfToken?: string;
       /** CSS version for cache busting */

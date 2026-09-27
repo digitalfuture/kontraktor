@@ -422,3 +422,12 @@ export async function getTrafficTrendCompare(
 export function invalidateCache(): void {
   lastFetch = { time: 0, daily: null, realtime: null, topPages: null, sources: null };
 }
+
+export function getCacheStatus(): { isValid: boolean; ageSeconds: number; ttlSeconds: number } {
+  const age = Math.round((Date.now() - lastFetch.time) / 1000);
+  return {
+    isValid: isCacheValid(),
+    ageSeconds: lastFetch.time > 0 ? age : -1,
+    ttlSeconds: Math.round(CACHE_TTL / 1000),
+  };
+}

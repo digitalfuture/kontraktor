@@ -119,6 +119,13 @@
           "value": 6
         },
         {
+          "name": "analytics-db.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
           "name": "auth.ts",
           "type": "file",
           "value": 1,
@@ -155,6 +162,13 @@
         },
         {
           "name": "email.ts",
+          "type": "file",
+          "value": 1,
+          "leaf": true,
+          "ext": "ts"
+        },
+        {
+          "name": "geo.ts",
           "type": "file",
           "value": 1,
           "leaf": true,
@@ -210,7 +224,7 @@
           "ext": "ts"
         }
       ],
-      "value": 19
+      "value": 21
     },
     {
       "name": "locales",
@@ -1263,5 +1277,5 @@
       "ext": "css"
     }
   ],
-  "totalFiles": 164
+  "totalFiles": 166
 }

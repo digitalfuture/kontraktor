@@ -105,6 +105,7 @@ export function getServiceSchema(
   description: string,
   category: string,
   locationName?: string,
+  geo?: { lat: number; lng: number },
 ): object {
   return {
     '@context': 'https://schema.org',
@@ -118,7 +119,11 @@ export function getServiceSchema(
       name: 'Kontraktor',
     },
     areaServed: locationName
-      ? { '@type': 'AdministrativeArea', name: locationName }
+      ? {
+          '@type': 'AdministrativeArea',
+          name: locationName,
+          ...(geo ? { geo: { '@type': 'GeoCoordinates', latitude: geo.lat, longitude: geo.lng } } : {}),
+        }
       : { '@type': 'Country', name: 'ID' },
   };
 }

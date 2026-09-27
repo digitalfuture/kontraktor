@@ -168,8 +168,9 @@ router.get('/:slug/:city', (req: Request, res: Response, _next: NextFunction): v
   const locale = (res.locals.locale as string) || 'en';
   const t = res.locals.t as (key: string, params?: Record<string, string | number>) => string;
   const { slug, city } = req.params;
+  const cityParam = (typeof city === 'string' ? city : '').toLowerCase();
 
-  const targetLocation = seoLib.TOP_SEO_LOCATIONS.find((loc) => loc.slug === city.toLowerCase());
+  const targetLocation = seoLib.TOP_SEO_LOCATIONS.find((loc) => loc.slug === cityParam);
   const category = db.prepare('SELECT id, name, slug, description, icon FROM categories WHERE slug = ? AND is_active = 1').get(slug) as DbCategory | undefined;
 
   if (!category || !targetLocation) {
@@ -238,6 +239,7 @@ router.get('/:slug/:city', (req: Request, res: Response, _next: NextFunction): v
     localizedDescription(category, locale),
     locale as 'en' | 'id',
     targetLocation.slug,
+    targetLocation.lat && targetLocation.lng ? { lat: targetLocation.lat, lng: targetLocation.lng } : undefined,
   );
   if (faqJsonLd) localSeo.jsonLd = [...(localSeo.jsonLd || []), faqJsonLd];
 

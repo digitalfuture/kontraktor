@@ -94,6 +94,7 @@ export function serviceLocationCategorySeo(
   description: string,
   locale: 'en' | 'id',
   locationSlug: string,
+  geo?: { lat: number; lng: number },
 ): SeoData {
   const pageTitle = locale === 'id'
     ? `Jasa ${name} di ${locationName} — Kontraktor Terpercaya`
@@ -110,7 +111,7 @@ export function serviceLocationCategorySeo(
     locale,
     jsonLd: [
       getOrganizationSchema(locale),
-      getServiceSchema(name, description, slug, locationName),
+      getServiceSchema(name, description, slug, locationName, geo),
       getBreadcrumbSchema([
         { name: 'Home', item: '/' },
         { name: locale === 'id' ? 'Layanan' : 'Services', item: '/services' },

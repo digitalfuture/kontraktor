@@ -37,6 +37,8 @@ import { getUserByToken } from './lib/auth';
 import { i18nMiddleware } from './middleware/i18n';
 import { csrfMiddleware } from './middleware/csrf';
 import { startQueueProcessor, stopQueueProcessor } from './lib/email-queue';
+import { recordAnalyticsEvent } from './lib/analytics-db';
+import { detectLocationFromRequest } from './lib/geo';
 import pkg from '../package.json';
 
 const app = express();
@@ -165,7 +167,22 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
     (req.headers['user-agent'] || '').startsWith('Kontraktor-SEO/') ||
     (req.headers['user-agent'] || '').startsWith('Kontraktor-Sitemap/')
   );
-  res.locals.GA_DISABLED = isInternal || req.cookies?.ga_opt_out === '1' || res.locals.user?.role === 'admin';
+  // Location detection (GeoIP / Headers)
+  const detectedLocation = detectLocationFromRequest(req);
+  res.locals.detectedLocation = detectedLocation;
+
+  // Local analytics tracking (excluding internal IPs, admin, robots/crawlers, static assets)
+  if (!isInternal && !res.locals.GA_DISABLED && req.method === 'GET' && !req.path.startsWith('/api') && !req.path.startsWith('/static')) {
+    recordAnalyticsEvent({
+      eventType: 'pageview',
+      path: req.path,
+      city: detectedLocation.city || null,
+      locale: (res.locals.locale as string) || 'en',
+      ip: clientIp,
+      referrer: req.headers.referer || null,
+      userAgent: req.headers['user-agent'] || null,
+    });
+  }
 
   // SEO render helpers for templates
   res.locals.renderJsonLd = (seoData: any) => renderJsonLd(seoData);
@@ -328,7 +345,7 @@ process.on('uncaughtException', (err: Error) => {
   // Exit cleanly so PM2 can restart a fresh worker process
   process.exit(1);
 });
-process.on('warning', (warning: Warning) => {
+process.on('warning', (warning: Error) => {
   if (warning.name === 'MaxListenersExceededWarning') return; // suppress noise
   console.warn('[WARN]', warning.stack || warning.message);
 });
