@@ -1,6 +1,12 @@
 <section class="hero-pattern bg-gradient-to-b from-orange-50 via-orange-50/70 to-orange-100/50 dark:from-gray-900 dark:via-gray-900 dark:to-orange-950/30 py-12 sm:py-16 lg:py-24" aria-labelledby="hero-title">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
     <div class="text-center relative z-10">
+      <% if (typeof detectedLocation !== 'undefined' && detectedLocation && detectedLocation.location) { %>
+      <div class="mb-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-100/80 dark:bg-orange-950/60 border border-orange-200 dark:border-orange-800 text-xs sm:text-sm font-medium text-orange-800 dark:text-orange-300">
+        <span class="material-symbols-outlined text-base" aria-hidden="true">location_on</span>
+        <span><%= t('hero.localBadge') %> <a href="/contractors/<%= detectedLocation.location.slug %>" class="underline font-semibold hover:text-orange-950 dark:hover:text-orange-100"><%= (typeof locale !== 'undefined' && locale === 'id') ? detectedLocation.location.nameId : detectedLocation.location.nameEn %></a></span>
+      </div>
+      <% } %>
       <h1 id="hero-title" class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white leading-tight">
         <%= t('hero.title') %>
       </h1>

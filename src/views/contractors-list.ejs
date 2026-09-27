@@ -38,8 +38,17 @@
     <!-- Search & Filters -->
     <form method="GET" action="<%= typeof currentLocation !== 'undefined' && currentLocation ? '/contractors/' + currentLocation.slug : '/contractors' %>" class="flex flex-col sm:flex-row gap-3 mb-8">
       <div class="flex-1">
-        <input type="text" name="search" value="<%= search %>" placeholder="<%= t('contractors.searchPlaceholder') %>"
+        <input type="text" name="search" value="<%= search %>" placeholder="<%= t('contractors.searchPlaceholder') %>" list="contractor-search-suggestions" autocomplete="off"
           class="w-full h-11 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 outline-none">
+      
+        <datalist id="contractor-search-suggestions">
+          <% if (typeof locations !== 'undefined' && locations) { locations.forEach(function(loc) { %>
+          <option value="<%= locale === 'id' ? loc.nameId : loc.nameEn %>"></option>
+          <% }); } %>
+          <% if (typeof specialties !== 'undefined' && specialties) { specialties.forEach(function(sp) { %>
+          <option value="<%= sp.name %>"></option>
+          <% }); } %>
+        </datalist>
       </div>
       <div class="sm:w-48">
         <select name="specialty" onchange="this.form.submit()"

@@ -30,7 +30,9 @@
     "trust1": "Kontraktor Terverifikasi",
     "trust2": "Jaminan Kualitas",
     "trust3": "Harga Transparan",
-    "contractorOffer": "Anda seorang kontraktor? Jadilah salah satu yang pertama di platform gratis kami — tanpa biaya."
+    "contractorOffer": "Anda seorang kontraktor? Jadilah salah satu yang pertama di platform gratis kami — tanpa biaya.",
+    "localBadge": "Menampilkan kontraktor di sekitar",
+    "localCta": "Cari Kontraktor di {city}"
   },
   "howItWorks": {
     "title": "Cara Kerja",
