@@ -285,7 +285,9 @@
     "more": "lainnya",
     "contractors": "kontraktor",
     "notFound": "Layanan tidak ditemukan",
-    "pageTitle": "Layanan — Kontraktor"
+    "pageTitle": "Layanan — Kontraktor",
+    "faqTitle": "Pertanyaan Umum",
+    "priceGuideTitle": "Estimasi Biaya"
   },
   "post": {
     "title": "Pasang Proyek",

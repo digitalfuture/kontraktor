@@ -139,7 +139,7 @@
           <div>
             <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
               <span class="material-symbols-outlined text-orange-600 dark:text-orange-400" aria-hidden="true">help</span>
-              <%= locale === 'id' ? 'Pertanyaan Umum' : 'Frequently Asked Questions' %>
+              <%= t('services.faqTitle') %>
             </h2>
             <div class="space-y-3">
               <% content.faqs.forEach(function(faq) { %>
@@ -157,7 +157,7 @@
           <div>
             <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
               <span class="material-symbols-outlined text-orange-600 dark:text-orange-400" aria-hidden="true">payments</span>
-              <%= locale === 'id' ? 'Estimasi Biaya' : 'Price Guide' %>
+              <%= t('services.priceGuideTitle') %>
             </h2>
             <div class="bg-surface dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-card divide-y divide-gray-200 dark:divide-gray-700">
               <% content.priceGuide.forEach(function(item) { %>

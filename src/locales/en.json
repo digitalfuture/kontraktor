@@ -284,8 +284,10 @@
     "ctaPostProject": "Post a project — contractors will reach out",
     "more": "more",
     "contractors": "contractors",
-    "notFound": "Layanan tidak ditemukan",
-    "pageTitle": "Services — Kontraktor"
+    "notFound": "Service not found",
+    "pageTitle": "Services — Kontraktor",
+    "faqTitle": "Frequently Asked Questions",
+    "priceGuideTitle": "Price Guide"
   },
   "post": {
     "title": "Post a Project",
