@@ -149,6 +149,7 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
   const host = (req.headers.host || '').split(':')[0];
   res.locals.nonProd = host.startsWith('dev.') || host === 'localhost' || host.startsWith('127.') || host.startsWith('192.168.');
   res.locals.GA_TRACKING_ID = process.env.GA_TRACKING_ID || null;
+  res.locals.GA_DISABLED = process.env.GA_DISABLED === 'true';
   res.locals.formatBudget = (budget: string | number | null | undefined, locale: string): string => {
     if (budget === null || budget === undefined || budget === '') return '—';
     const cleaned = String(budget).replace(/[^0-9.-]+/g, '');
