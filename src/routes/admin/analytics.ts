@@ -2,8 +2,7 @@
 
 import express, { Request, Response } from 'express';
 import db from '../../db';
-import districtsData from '../../data/districts.json';
-import provinceCentroids from '../../data/province-centroids.json';
+import { getProjectsMapData } from '../../lib/project-geo';
 import { makeT } from './helpers';
 import { getTopCities, getTotalViews } from '../../lib/analytics-db';
 import { getCacheStatus, invalidateCache } from '../../lib/google-analytics';
@@ -240,55 +239,23 @@ export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: e
 
   // ── API: Map data ──
 
-  apiRouter.get('/map', (req: Request, res: Response): void => {
+  const handleMapData = (req: Request, res: Response): void => {
     try {
-      const projects = db.prepare(`
-        SELECT p.id, p.title, p.status, p.district,
-               COALESCE(p.contact_name, p.client_email, 'Unknown') as client_name
-        FROM projects p
-        WHERE p.district IS NOT NULL AND p.district != ''
-      `).all() as any[];
-
-      const districtToProvince = new Map<string, string>();
-      (districtsData as any[]).forEach((d: any) => {
-        districtToProvince.set(d.name, d.province);
-        const short = d.name.replace(/ (City|Regency|Municipality)$/i, '');
-        if (!districtToProvince.has(short)) districtToProvince.set(short, d.province);
+      const status = (req.query.status as string || '').trim();
+      const category = (req.query.category as string || '').trim();
+      const mapData = getProjectsMapData({
+        status: status || undefined,
+        category: category || undefined,
       });
-
-      const provinceMap = new Map<string, { projects: any[]; lat: number; lng: number }>();
-      projects.forEach((p: any) => {
-        const province = districtToProvince.get(p.district) || 'Unknown';
-        const centroid = (provinceCentroids as any)[province];
-        if (!centroid) return;
-        if (!provinceMap.has(province)) {
-          provinceMap.set(province, { projects: [], lat: centroid[0], lng: centroid[1] });
-        }
-        provinceMap.get(province)!.projects.push({
-          id: p.id,
-          title: p.title,
-          status: p.status,
-          client: p.client_name,
-          district: p.district,
-        });
-      });
-
-      const markers = Array.from(provinceMap.entries()).map(([province, data]) => ({
-        province,
-        lat: data.lat,
-        lng: data.lng,
-        total: data.projects.length,
-        pending: data.projects.filter(p => p.status === 'pending').length,
-        accepted: data.projects.filter(p => ['in_progress', 'completed'].includes(p.status)).length,
-        projects: data.projects,
-      }));
-
-      res.json({ markers });
+      res.json(mapData);
     } catch (err) {
       console.error('Error generating map data:', err);
       res.status(500).json({ error: 'Failed to generate map data' });
     }
-  });
+  };
+
+  apiRouter.get('/map', handleMapData);
+  apiRouter.get('/projects/map', handleMapData);
 
   // ── API: Network graph ──
 

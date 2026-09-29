@@ -34,6 +34,12 @@
           fetch(opts.geoUrl),
           fetch(opts.apiUrl)
         ]);
+        if (!dataResp.ok && (opts.apiUrl === '/api/admin/map' || opts.apiUrl.includes('/admin/'))) {
+          try {
+            var fallbackResp = await fetch('/api/projects/map');
+            if (fallbackResp.ok) dataResp = fallbackResp;
+          } catch (_) {}
+        }
         var geoData = await geoResp.json();
         var mapData = await dataResp.json();
 

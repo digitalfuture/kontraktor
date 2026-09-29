@@ -23,7 +23,7 @@ import db from './db';
 
 import servicesRouter from './routes/services';
 import { pageRouter as contractorsPages, apiRouter as contractorsApi } from './routes/contractors';
-import projectsRouter from './routes/projects';
+import { pageRouter as projectsPages, apiRouter as projectsApi } from './routes/projects';
 import sitemapRouter from './routes/sitemap';
 import { pageRouter as postPages, apiRouter as postApi } from './routes/post';
 import { pageRouter as adminPages, apiRouter as adminApi } from './routes/admin';
@@ -242,7 +242,7 @@ app.get('/pricing', (req: express.Request, res: express.Response): void => {
 
 app.use('/services', servicesRouter);
 app.use('/static/docs', express.static(path.join(__dirname, '../docs')));
-app.use('/projects', optionalAuth, projectsRouter);
+app.use('/projects', optionalAuth, projectsPages);
 app.use('/sitemap.xml', sitemapRouter);
 app.use('/contractors', contractorsPages);
 app.use('/post', postPages);
@@ -257,6 +257,7 @@ app.use('/api/contact', contactApi);
 app.use('/api/contractors', contractorsApi);
 app.use('/api/payments', paymentsApi);
 app.use('/api/post', postApi);
+app.use('/api/projects', optionalAuth, projectsApi);
 
 // Admin pages (with auth guard)
 app.use('/admin', requireAuth, requireAdmin, adminPages);
