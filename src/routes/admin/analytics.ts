@@ -121,6 +121,10 @@ export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: e
 
   pageRouter.get('/diagrams', (req: Request, res: Response): void => {
     const _t = makeT(res);
+    const validTabs = ['sitemap', 'codebase', 'scenarios', 'charts'];
+    const tabParam = typeof req.query.tab === 'string' ? req.query.tab.toLowerCase() : '';
+    const currentTab = validTabs.includes(tabParam) ? tabParam : 'sitemap';
+
     const categoryStats = db.prepare(`
       SELECT c.slug, c.name, COUNT(p.id) as count
       FROM categories c
@@ -140,6 +144,7 @@ export function registerAnalyticsRoutes(pageRouter: express.Router, apiRouter: e
       title: _t('admin.diagrams') + ' — Kontraktor',
       activePage: 'diagrams',
       activeSubPage: 'diagrams',
+      currentTab,
       categoryStats,
       roleStats,
     });
