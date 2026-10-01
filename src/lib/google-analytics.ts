@@ -316,7 +316,7 @@ export async function getTrafficSources(limit: number = 10): Promise<Source[]> {
 
 export async function getTrafficTrend(days: number = 7): Promise<TrafficTrend[]> {
   const data = await runReport({
-    dateRanges: [{ startDate: `${days}daysAgo`, endDate: 'today' }],
+    dateRanges: [{ startDate: `${days - 1}daysAgo`, endDate: 'today' }],
     dimensions: [{ name: 'date' }],
     metrics: [
       { name: 'activeUsers' },
@@ -324,7 +324,7 @@ export async function getTrafficTrend(days: number = 7): Promise<TrafficTrend[]>
       { name: 'screenPageViews' },
     ],
     orderBys: [{ dimension: { dimensionName: 'date' }, desc: false }],
-    limit: days,
+    limit: 500,
   });
 
   if (!data?.rows) return [];
@@ -344,9 +344,9 @@ export async function getTrafficTrend(days: number = 7): Promise<TrafficTrend[]>
 }
 
 /** YYYYMMDD strings for every day from `startBack` days ago down to `endBack` days ago (inclusive). */
-function dayStrings(startBack: number, endBack: number): string[] {
+function dayStrings(startBack: number, endBack: number, anchorDate?: Date): string[] {
   const out: string[] = [];
-  const today = new Date();
+  const today = anchorDate ? new Date(anchorDate) : new Date();
   today.setHours(0, 0, 0, 0);
   for (let i = startBack; i >= endBack; i--) {
     const d = new Date(today);
@@ -395,21 +395,38 @@ export async function getTrafficTrendCompare(
       dimensions: [{ name: 'date' }],
       metrics,
       orderBys: [{ dimension: { dimensionName: 'date' }, desc: false }],
-      limit: days,
+      limit: 500,
     }),
     runReport({
       dateRanges: [{ startDate: `${2 * days - 1}daysAgo`, endDate: `${days}daysAgo` }],
       dimensions: [{ name: 'date' }],
       metrics,
       orderBys: [{ dimension: { dimensionName: 'date' }, desc: false }],
-      limit: days,
+      limit: 500,
     }),
   ]);
 
   const curMap = rowsToMap(curData);
   const prevMap = rowsToMap(prevData);
-  const curDates = dayStrings(days - 1, 0);
-  const prevDates = dayStrings(2 * days - 1, days);
+
+  let anchor = new Date();
+  anchor.setHours(0, 0, 0, 0);
+  let maxDateStr = '';
+  for (const k of curMap.keys()) {
+    if (k > maxDateStr) maxDateStr = k;
+  }
+  if (maxDateStr?.length === 8) {
+    const y = parseInt(maxDateStr.slice(0, 4), 10);
+    const m = parseInt(maxDateStr.slice(4, 6), 10) - 1;
+    const d = parseInt(maxDateStr.slice(6, 8), 10);
+    const gaDate = new Date(y, m, d);
+    if (gaDate > anchor) {
+      anchor = gaDate;
+    }
+  }
+
+  const curDates = dayStrings(days - 1, 0, anchor);
+  const prevDates = dayStrings(2 * days - 1, days, anchor);
   const zero = (date: string, map: Map<string, TrafficTrend>): TrafficTrend =>
     map.get(date) || { date, users: 0, sessions: 0, pageViews: 0 };
 

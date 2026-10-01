@@ -242,6 +242,8 @@
     };
 
     var chart = null;
+    var currentRows = [];
+    var currentPrev = [];
 
     function mk(label, data, color, fill, dash) {
       return {
@@ -260,6 +262,8 @@
       var isCompare = data && !Array.isArray(data);
       var rows = isCompare ? (data.current || []) : (data || []);
       var prev = isCompare ? (data.previous || []) : [];
+      currentRows = rows;
+      currentPrev = prev;
       var pick = function(r, f) { return r.map(function(x) { return x[f] || 0; }); };
 
       var datasets = [
@@ -285,7 +289,23 @@
             responsive: true,
             maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
-            plugins: { legend: { position: 'top', labels: { boxWidth: 12 } } },
+            plugins: {
+              legend: { position: 'top', labels: { boxWidth: 12 } },
+              tooltip: {
+                callbacks: {
+                  title: function(items) {
+                    if (!items || !items.length) return '';
+                    var idx = items[0].dataIndex;
+                    var curD = currentRows[idx] ? currentRows[idx].date : '';
+                    var prevD = currentPrev[idx] ? currentPrev[idx].date : '';
+                    if (prevD) {
+                      return curD + ' (' + L.previous + ': ' + prevD + ')';
+                    }
+                    return curD || items[0].label || '';
+                  },
+                },
+              },
+            },
             scales: {
               y: { beginAtZero: true },
               x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 } },
@@ -303,14 +323,37 @@
 
     var sel = document.getElementById('trend-days');
     var chk = document.getElementById('trend-compare');
+
     function loadTrend() {
-      var days = sel.value;
+      var days = sel ? sel.value : 30;
       var cmp = chk && chk.checked ? '&compare=1' : '';
+      if (ctx) ctx.style.opacity = '0.5';
       fetch('/api/admin/analytics/trend?days=' + days + cmp)
-        .then(function(r) { return r.json(); })
-        .then(render)
-        .catch(function() {});
+        .then(function(r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function(data) {
+          render(data);
+        })
+        .catch(function(err) {
+          console.error('Failed to load trend data:', err);
+        })
+        .finally(function() {
+          if (ctx) ctx.style.opacity = '1';
+        });
     }
+
+    if (sel) {
+      sel.addEventListener('change', loadTrend);
+    }
+    if (chk) {
+      chk.addEventListener('change', loadTrend);
+      if (chk.checked) {
+        loadTrend();
+      }
+    }
+
     var clearBtn = document.getElementById('btn-clear-cache');
     if (clearBtn) {
       clearBtn.addEventListener('click', function() {
